@@ -2,17 +2,51 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+    body {
+        font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+}
 
 @layer components {
-  .glass-effect {
-    @apply bg-white/95 backdrop-blur-sm;
-  }
-  
-  .btn-primary {
-    @apply bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full transition-all duration-300 hover:-translate-y-0.5;
-  }
-  
-  .input-primary {
-    @apply px-4 py-2 border-2 border-blue-500 rounded-full outline-none text-sm min-w-64;
-  }
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+    }
+
+    .glass-effect {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    }
+
+    .btn-primary {
+        @apply bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white px-6 py-3 rounded-full font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg;
+    }
+
+    .btn-secondary {
+        @apply bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-full font-medium transition-all duration-300 backdrop-blur-sm border border-white/20;
+    }
+
+    .input-primary {
+        @apply px-4 py-3 border-2 border-blue-500/30 rounded-full outline-none text-sm min-w-64 bg-white/90 backdrop-blur-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300;
+    }
+
+    .card {
+        @apply bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/20;
+    }
+
+    .weather-icon {
+        @apply text-6xl mb-4 drop-shadow-lg;
+    }
+
+    .poi-item {
+        @apply bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-xl cursor-pointer transition-all duration-300 hover:from-blue-100 hover:to-indigo-100 hover:scale-105 hover:shadow-md border border-blue-100;
+    }
+
+    .section-header {
+        @apply text-xl font-bold text-gray-800 mb-4 pb-2 border-b-2 border-blue-500;
+    }
 }
