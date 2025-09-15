@@ -49,4 +49,21 @@
     .section-header {
         @apply text-xl font-bold text-gray-800 mb-4 pb-2 border-b-2 border-blue-500;
     }
+
+    .overlay {
+        z-index: 9999 !important;
+    }
+
+    .menu-content {
+        transform: translateY(-10px);
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+    }
+
+    details[open] .menu-content {
+        transform: translateY(0);
+        opacity: 1;
+        visibility: visible;
+    }
 }

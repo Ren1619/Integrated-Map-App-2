@@ -2,69 +2,50 @@
 
 @section('content')
     <!-- Header -->
-    <header class="glass-effect p-4 text-center shadow-lg">
-        <h1 class="text-gray-800 text-3xl font-bold mb-2">🌤️ Enhanced Weather Map Explorer</h1>
-        <p class="text-gray-600 text-sm">Click anywhere on the map or search locations to get weather and nearby places</p>
+    <header class="glass-effect p-4 shadow-lg">
+        <h1 class="text-gray-800 text-3xl font-bold mb-2">🌤️ SafeCast</h1>
+        <p class="text-gray-600 text-sm absolute top-4 right-4 flex object-right-top w-96 gap-2 items-center">Click anywhere
+            on the map or search locations to get weather and nearby places</p>
     </header>
-
-    <!-- Controls -->
-    <div class="glass-effect p-4 flex flex-wrap gap-4 justify-center items-center shadow-lg">
-        <!-- Search Container -->
-        <div class="flex gap-2 items-center">
-            <input type="text" class="input-primary" placeholder="Search for a place (e.g., New York, Paris, Tokyo)"
-                id="searchInput">
-            <button class="btn-primary" onclick="app.searchLocation()">
-                🔍 Search
-            </button>
-        </div>
-
-        <!-- Layer Controls -->
-        <div class="flex gap-2">
-            <button class="btn-primary active:bg-blue-700" id="standardBtn" onclick="app.changeMapLayer('standard')">
-                🗺️ Standard
-            </button>
-            <button class="btn-primary" id="cycleBtn" onclick="app.changeMapLayer('cycle')">
-                🚴 Cycle
-            </button>
-            <button class="btn-primary" id="transportBtn" onclick="app.changeMapLayer('transport')">
-                🚌 Transport
-            </button>
-        </div>
-    </div>
 
     <!-- Main Container -->
     <div class="flex flex-1 h-[calc(100vh-200px)] gap-4 p-4 flex-col lg:flex-row">
         <!-- Map -->
-        <div id="map" class="flex-2 lg:flex-[2] rounded-2xl shadow-2xl border-4 border-white/30 h-96 lg:h-auto"></div>
-
-        <!-- Info Panel -->
-        <div class="flex-1 flex flex-col lg:flex-col md:flex-row gap-4">
-            <!-- Weather Panel -->
-            <div class="glass-effect rounded-2xl p-6 shadow-2xl border-4 border-white/30 flex-1 overflow-y-auto">
-                <div class="text-xl font-bold text-gray-800 mb-4 pb-2 border-b-2 border-blue-500">
-                    🌤️ Weather Information
-                </div>
-                <div id="weather-info" class="text-center">
-                    <div class="bg-blue-50 p-4 rounded-xl text-blue-600 text-sm">
-                        <strong>🗺️ How to use:</strong><br>
-                        Click on any location on the map or search for a place to get detailed weather information!
-                    </div>
-                </div>
+        <div
+            class="flex-2 lg:flex-[2] relative rounded-2xl shadow-2xl border-4 border-white/30 h-96 lg:h-auto overflow-hidden">
+            <!-- Search Controls Overlay -->
+            <div class="overlay absolute right-4 top-4 flex gap-2 items-center">
+                <input type="text"
+                    class="flex-1 px-4 py-3 border-2 border-blue-500/30 rounded-full outline-none text-sm bg-white/95 backdrop-blur-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300 shadow-lg"
+                    placeholder="Search for a place (e.g., New York, Paris, Tokyo)" id="searchInput">
+                <button
+                    class="bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white px-6 py-3 rounded-3xl font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg backdrop-blur-sm shadow-lg"
+                    onclick="app.searchLocation()">
+                    🔍 Search
+                </button>
             </div>
-
-            <!-- POI Panel -->
-            <div class="glass-effect rounded-2xl p-6 shadow-2xl border-4 border-white/30 flex-1 overflow-y-auto">
-                <div class="text-xl font-bold text-gray-800 mb-4 pb-2 border-b-2 border-blue-500">
-                    📍 Nearby Places
-                </div>
-                <div id="poi-info">
-                    <div class="bg-blue-50 p-4 rounded-xl text-blue-600 text-sm">
-                        Select a location to discover nearby restaurants, shops, attractions, and more!
+            <details class="overlay absolute top-20 h-fit w-fit right-4">
+                <summary
+                    class="list-none cursor-pointer bg-white/95 backdrop-blur-sm rounded-lg p-3 shadow-lg hover:shadow-xl transition-all duration-300 border-2 border-blue-500/30 hover:border-blue-500">
+                    <!-- Your custom icon goes here -->
+                    <div class="w-6 h-6 flex items-center justify-center text-blue-500" title="Map Layers">
+                        <!-- Replace this with your icon -->
+                        ☰
                     </div>
+                </summary>
+
+                <!-- Menu Content -->
+                <div class="menu-content absolute top-full right-0 mt-1 -mr-3.5 w-fit min-w-max rounded-2xl p-4">
+                    <button class="bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white p-3 rounded-2xl font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg backdrop-blur-sm shadow-lg">
+                        🗺️
+                    </button>
                 </div>
-            </div>
+            </details>
+            <!-- Map -->
+            <div id="map" class="w-full h-full rounded-2xl"></div>
         </div>
     </div>
+
 
     <!-- JavaScript -->
     <script>
@@ -73,7 +54,7 @@
                 this.map = null;
                 this.currentMarker = null;
                 this.currentLat = null;
-                this.currentLng = null; 
+                this.currentLng = null;
                 this.mapLayers = {};
                 this.init();
             }
@@ -85,7 +66,7 @@
             }
 
             initMap() {
-                this.map = L.map('map').setView([40.7128, -74.0060], 10);
+                this.map = L.map('map').setView([7.859438526586211, 125.05149149476975], 10);
 
                 this.mapLayers = {
                     standard: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -211,21 +192,22 @@
                 const weatherInfo = document.getElementById('weather-info');
 
                 weatherInfo.innerHTML = `
-                    <div class="text-center text-gray-600 italic">
-                        <div class="text-3xl mb-4">⏳</div>
-                        Loading weather data...
-                    </div>
-                `;
+                                                <div class="text-center text-gray-600 italic">
+                                                    <div class="text-3xl mb-4">⏳</div>
+                                                    Loading weather data...
+                                                </div>
+                                            `;
 
                 try {
-                    const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=\${lat}&longitude=\${lng}&current_weather=true&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m&timezone=auto`;
+                    // Fix template literal escaping
+                    const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m&timezone=auto`;
 
                     const weatherResponse = await fetch(weatherUrl);
                     const weatherData = await weatherResponse.json();
 
-                    const geoUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=\${lat}&lon=\${lng}&zoom=10&addressdetails=1`;
+                    const geoUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10&addressdetails=1`;
 
-                    let locationName = `\${lat.toFixed(2)}, \${lng.toFixed(2)}`;
+                    let locationName = `${lat.toFixed(2)}, ${lng.toFixed(2)}`;
                     try {
                         const geoResponse = await fetch(geoUrl);
                         const geoData = await geoResponse.json();
@@ -241,11 +223,11 @@
                 } catch (error) {
                     console.error('Error fetching weather data:', error);
                     weatherInfo.innerHTML = `
-                        <div class="bg-red-50 text-red-600 p-4 rounded-xl mb-4">
-                            <strong>⚠️ Error</strong><br>
-                            Could not fetch weather data. Please try again.
-                        </div>
-                    `;
+                                                    <div class="bg-red-50 text-red-600 p-4 rounded-xl mb-4">
+                                                        <strong>⚠️ Error</strong><br>
+                                                        Could not fetch weather data. Please try again.
+                                                    </div>
+                                                `;
                 }
             }
 
@@ -253,23 +235,24 @@
                 const poiInfo = document.getElementById('poi-info');
 
                 poiInfo.innerHTML = `
-                    <div class="text-center text-gray-600 italic">
-                        <div class="text-2xl mb-4">📍</div>
-                        Finding nearby places...
-                    </div>
-                `;
+                                            <div class="text-center text-gray-600 italic">
+                                                <div class="text-2xl mb-4">📍</div>
+                                                Finding nearby places...
+                                            </div>
+                                        `;
 
                 try {
                     const radius = 1000;
+                    // Fix template literal in Overpass query
                     const overpassQuery = `
-                        [out:json][timeout:25];
-                        (
-                            node["amenity"~"^(restaurant|cafe|shop|bank|hospital|pharmacy|school|fuel|hotel|tourism)$"](around:\${radius},\${lat},\${lng});
-                            node["shop"](around:\${radius},\${lat},\${lng});
-                            node["tourism"](around:\${radius},\${lat},\${lng});
-                        );
-                        out center meta;
-                    `;
+                                                [out:json][timeout:25];
+                                                (
+                                                    node["amenity"~"^(restaurant|cafe|shop|bank|hospital|pharmacy|school|fuel|hotel|tourism)$"](around:${radius},${lat},${lng});
+                                                    node["shop"](around:${radius},${lat},${lng});
+                                                    node["tourism"](around:${radius},${lat},${lng});
+                                                );
+                                                out center meta;
+                                            `;
 
                     const overpassUrl = 'https://overpass-api.de/api/interpreter';
                     const response = await fetch(overpassUrl, {
@@ -283,11 +266,11 @@
                 } catch (error) {
                     console.error('Error fetching POI data:', error);
                     poiInfo.innerHTML = `
-                        <div class="bg-red-50 text-red-600 p-4 rounded-xl mb-4">
-                            <strong>⚠️ Error</strong><br>
-                            Could not load nearby places.
-                        </div>
-                    `;
+                                                <div class="bg-red-50 text-red-600 p-4 rounded-xl mb-4">
+                                                    <strong>⚠️ Error</strong><br>
+                                                    Could not load nearby places.
+                                                </div>
+                                            `;
                 }
             }
 
@@ -296,10 +279,10 @@
 
                 if (!pois || pois.length === 0) {
                     poiInfo.innerHTML = `
-                        <div class="bg-blue-50 p-4 rounded-xl text-blue-600 text-sm">
-                            No nearby places found in this area.
-                        </div>
-                    `;
+                                            <div class="bg-blue-50 p-4 rounded-xl text-blue-600 text-sm">
+                                                No nearby places found in this area.
+                                            </div>
+                                        `;
                     return;
                 }
 
@@ -318,15 +301,15 @@
                     const name = poi.tags.name || poi.tags.amenity || poi.tags.shop || poi.tags.tourism || 'Unnamed';
                     const type = this.getPOIType(poi.tags);
                     const emoji = this.getPOIEmoji(poi.tags);
-                    const distanceText = poi.distance < 1 ? `\${Math.round(poi.distance * 1000)}m\` : \`\${poi.distance.toFixed(1)}km\`;
+                    const distanceText = poi.distance < 1 ? `${Math.round(poi.distance * 1000)}m` : `${poi.distance.toFixed(1)}km`;
 
-                    html += \`
-                        <div class="bg-blue-50 p-3 rounded-lg cursor-pointer transition-all duration-300 hover:bg-blue-100 hover:-translate-y-0.5" onclick="app.focusPOI(\${poi.lat}, \${poi.lon})">
-                            <div class="font-bold text-gray-800 mb-1">\${emoji} \${name}</div>
-                            <div class="text-gray-600 text-sm mb-1">\${type}</div>
-                            <div class="text-gray-500 text-xs">📍 \${distanceText} away</div>
-                        </div>
-                    `;
+                    html += `
+                                            <div class="bg-blue-50 p-3 rounded-lg cursor-pointer transition-all duration-300 hover:bg-blue-100 hover:-translate-y-0.5" onclick="app.focusPOI(${poi.lat}, ${poi.lon})">
+                                                <div class="font-bold text-gray-800 mb-1">${emoji} ${name}</div>
+                                                <div class="text-gray-600 text-sm mb-1">${type}</div>
+                                                <div class="text-gray-500 text-xs">📍 ${distanceText} away</div>
+                                            </div>
+                                        `;
                 });
 
                 html += '</div>';
@@ -421,38 +404,38 @@
                 const weatherIcon = this.getWeatherIcon(current.weathercode, current.is_day);
 
                 weatherInfo.innerHTML = `
-                    <div class="text-lg font-semibold text-gray-800 mb-4">\${locationName}</div>
+                                    <div class="text-lg font-semibold text-gray-800 mb-4">${locationName}</div>
 
-                    <div class="text-5xl mb-4">\${weatherIcon}</div>
+                                    <div class="text-5xl mb-4">${weatherIcon}</div>
 
-                    <div class="text-4xl font-bold text-blue-500 mb-4">\${Math.round(current.temperature)}°C</div>
+                                    <div class="text-4xl font-bold text-blue-500 mb-4">${Math.round(current.temperature)}°C</div>
 
-                    <div class="grid grid-cols-2 gap-3 mb-4">
-                        <div class="bg-blue-50 p-3 rounded-lg text-center">
-                            <div class="text-xs text-gray-600 mb-1">💧 Humidity</div>
-                            <div class="text-lg font-bold text-gray-800">\${humidity}%</div>
-                        </div>
+                                    <div class="grid grid-cols-2 gap-3 mb-4">
+                                        <div class="bg-blue-50 p-3 rounded-lg text-center">
+                                            <div class="text-xs text-gray-600 mb-1">💧 Humidity</div>
+                                            <div class="text-lg font-bold text-gray-800">${humidity}%</div>
+                                        </div>
 
-                        <div class="bg-blue-50 p-3 rounded-lg text-center">
-                            <div class="text-xs text-gray-600 mb-1">💨 Wind</div>
-                            <div class="text-lg font-bold text-gray-800">\${Math.round(current.windspeed)} km/h</div>
-                        </div>
+                                        <div class="bg-blue-50 p-3 rounded-lg text-center">
+                                            <div class="text-xs text-gray-600 mb-1">💨 Wind</div>
+                                            <div class="text-lg font-bold text-gray-800">${Math.round(current.windspeed)} km/h</div>
+                                        </div>
 
-                        <div class="bg-blue-50 p-3 rounded-lg text-center">
-                            <div class="text-xs text-gray-600 mb-1">🧭 Direction</div>
-                            <div class="text-lg font-bold text-gray-800">\${current.winddirection}°</div>
-                        </div>
+                                        <div class="bg-blue-50 p-3 rounded-lg text-center">
+                                            <div class="text-xs text-gray-600 mb-1">🧭 Direction</div>
+                                            <div class="text-lg font-bold text-gray-800">${current.winddirection}°</div>
+                                        </div>
 
-                        <div class="bg-blue-50 p-3 rounded-lg text-center">
-                            <div class="text-xs text-gray-600 mb-1">🌡️ Temp</div>
-                            <div class="text-lg font-bold text-gray-800">\${Math.round(current.temperature)}°C</div>
-                        </div>
-                    </div>
+                                        <div class="bg-blue-50 p-3 rounded-lg text-center">
+                                            <div class="text-xs text-gray-600 mb-1">🌡️ Temp</div>
+                                            <div class="text-lg font-bold text-gray-800">${Math.round(current.temperature)}°C</div>
+                                        </div>
+                                    </div>
 
-                    <div class="text-xs text-gray-500 text-center mt-4">
-                        📅 \${new Date().toLocaleString()}
-                    </div>
-                `;
+                                    <div class="text-xs text-gray-500 text-center mt-4">
+                                        📅 ${new Date().toLocaleString()}
+                                    </div>
+                                `;
             }
         }
 
