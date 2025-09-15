@@ -10,7 +10,7 @@ class WeatherController extends Controller
 {
     public function index()
     {
-        return view('weather.index');
+        return view('weather.map');
     }
 
     public function search(Request $request): JsonResponse
