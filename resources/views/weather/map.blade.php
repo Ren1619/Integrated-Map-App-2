@@ -4,18 +4,18 @@
     <!-- Header -->
     <header class="glass-effect p-4 shadow-lg">
         <h1 class="text-gray-800 text-3xl font-bold mb-2">🌤️ SafeCast</h1>
-        <p class="text-gray-600 text-sm absolute top-4 right-4 flex object-right-top w-96 gap-2 items-center">Click anywhere
-            on the map or search locations to get weather and nearby places</p>
+        <p class="text-gray-600 text-sm absolute top-4 right-4 flex object-right-top w-96 gap-2 items-center">
+            Click anywhere on the map or search locations to get weather and nearby places
+        </p>
     </header>
 
     <!-- Main Container -->
     <div class="flex flex-1 h-[calc(100vh-200px)] gap-4 p-4 flex-col lg:flex-row">
         <!-- Map -->
-        <div
-            class="flex-2 lg:flex-[2] relative rounded-2xl shadow-2xl border-4 border-white/30 h-96 lg:h-auto overflow-hidden">
+        <div class="flex-2 lg:flex-[2] relative rounded-2xl shadow-2xl border-4 border-white/30 h-96 lg:h-auto overflow-hidden">
 
-            <!-- Search Controls Overlay with Autocomplete -->
-            <div class="overlay absolute right-4 top-4 flex gap-2 items-center">
+            <!-- Search Controls Overlay -->
+            <div class="overlay absolute right-4 top-4 flex gap-2 items-center z-50">
                 <div class="search-container relative">
                     <input type="text"
                         class="flex-1 px-4 py-3 border-2 border-blue-500/30 rounded-full outline-none text-sm bg-white/95 backdrop-blur-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300 shadow-lg min-w-80"
@@ -28,48 +28,162 @@
 
                     <!-- Clear button -->
                     <button id="clearButton"
-                        class="absolute right-14 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xl hidden"
-                        title="Clear search">
-                        ×
-                    </button>
+                        class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xl hidden"
+                        title="Clear search">×</button>
 
                     <!-- Autocomplete Dropdown -->
                     <div id="autocompleteDropdown"
                         class="absolute top-full left-0 right-0 mt-2 bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-blue-100 hidden max-h-80 overflow-y-auto z-50">
-                        <!-- Suggestions will be populated here -->
                     </div>
                 </div>
 
                 <button
                     class="bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white px-6 py-3 rounded-3xl font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg backdrop-blur-sm shadow-lg"
-                    onclick="app.searchLocation()">
-                    🔍 Search
-                </button>
+                    onclick="app.searchLocation()">🔍 Search</button>
             </div>
 
-            <details class="overlay absolute top-20 h-fit w-fit right-4">
-                <summary
-                    class="list-none cursor-pointer bg-white/95 backdrop-blur-sm rounded-lg p-3 shadow-lg hover:shadow-xl transition-all duration-300 border-2 border-blue-500/30 hover:border-blue-500">
-                    <div class="w-6 h-6 flex items-center justify-center text-blue-500" title="Map Layers">
-                        ☰
+            <!-- Weather Layers Control -->
+            <div class="overlay absolute top-20 right-4 z-40">
+                <details class="h-fit w-fit">
+                    <summary class="list-none cursor-pointer bg-white/95 backdrop-blur-sm rounded-lg p-3 shadow-lg hover:shadow-xl transition-all duration-300 border-2 border-blue-500/30 hover:border-blue-500">
+                        <div class="w-6 h-6 flex items-center justify-center text-blue-500" title="Weather Layers">🌦️</div>
+                    </summary>
+
+                    <div class="menu-content absolute top-full right-0 mt-1 -mr-3.5 w-64 bg-white/95 backdrop-blur-sm rounded-2xl p-4 shadow-xl border border-blue-100">
+                        <h3 class="text-sm font-semibold text-gray-700 mb-3">Weather Layers</h3>
+                        
+                        <!-- Temperature Layer -->
+                        <div class="mb-3">
+                            <label class="flex items-center cursor-pointer">
+                                <input type="checkbox" id="temperatureLayer" class="weather-layer-toggle sr-only">
+                                <div class="relative">
+                                    <div class="block bg-gray-300 w-10 h-6 rounded-full"></div>
+                                    <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition"></div>
+                                </div>
+                                <span class="ml-3 text-sm text-gray-700 flex items-center">
+                                    <span class="mr-2">🌡️</span>Temperature
+                                </span>
+                            </label>
+                        </div>
+
+                        <!-- Wind Layer -->
+                        <div class="mb-3">
+                            <label class="flex items-center cursor-pointer">
+                                <input type="checkbox" id="windLayer" class="weather-layer-toggle sr-only">
+                                <div class="relative">
+                                    <div class="block bg-gray-300 w-10 h-6 rounded-full"></div>
+                                    <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition"></div>
+                                </div>
+                                <span class="ml-3 text-sm text-gray-700 flex items-center">
+                                    <span class="mr-2">💨</span>Wind
+                                </span>
+                            </label>
+                        </div>
+
+                        <!-- Radar Layer -->
+                        <div class="mb-3">
+                            <label class="flex items-center cursor-pointer">
+                                <input type="checkbox" id="radarLayer" class="weather-layer-toggle sr-only">
+                                <div class="relative">
+                                    <div class="block bg-gray-300 w-10 h-6 rounded-full"></div>
+                                    <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition"></div>
+                                </div>
+                                <span class="ml-3 text-sm text-gray-700 flex items-center">
+                                    <span class="mr-2">🌧️</span>Precipitation
+                                </span>
+                            </label>
+                        </div>
+
+                        <!-- Layer Opacity Control -->
+                        <div class="mt-4 pt-3 border-t border-gray-200">
+                            <label class="text-xs text-gray-600 block mb-2">Layer Opacity</label>
+                            <input type="range" id="layerOpacity" min="0.1" max="1" step="0.1" value="0.7" 
+                                class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                        </div>
                     </div>
-                </summary>
+                </details>
+            </div>
 
-                <!-- Menu Content -->
-                <div class="menu-content absolute top-full right-0 mt-1 -mr-3.5 w-fit min-w-max rounded-2xl p-4">
-                    <button
-                        class="bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white p-3 rounded-2xl font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg backdrop-blur-sm shadow-lg">
-                        🗺️
-                    </button>
+            <!-- Map Layer Control -->
+            <div class="overlay absolute top-40 right-4 z-40">
+                <details class="h-fit w-fit">
+                    <summary class="list-none cursor-pointer bg-white/95 backdrop-blur-sm rounded-lg p-3 shadow-lg hover:shadow-xl transition-all duration-300 border-2 border-blue-500/30 hover:border-blue-500">
+                        <div class="w-6 h-6 flex items-center justify-center text-blue-500" title="Map Layers">☰</div>
+                    </summary>
+
+                    <div class="menu-content absolute top-full right-0 mt-1 -mr-3.5 w-fit min-w-max rounded-2xl p-4">
+                        <button id="standardBtn" onclick="app.changeMapLayer('standard')"
+                            class="bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white p-3 rounded-2xl font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg backdrop-blur-sm shadow-lg mr-2">
+                            🗺️
+                        </button>
+                        <button id="cycleBtn" onclick="app.changeMapLayer('cycle')"
+                            class="bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white p-3 rounded-2xl font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg backdrop-blur-sm shadow-lg mr-2">
+                            🚴
+                        </button>
+                        <button id="transportBtn" onclick="app.changeMapLayer('transport')"
+                            class="bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white p-3 rounded-2xl font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg backdrop-blur-sm shadow-lg">
+                            🚌
+                        </button>
+                    </div>
+                </details>
+            </div>
+
+            <!-- Weather Info Panel -->
+            <div id="weatherInfo" class="overlay absolute bottom-4 left-4 bg-white/95 backdrop-blur-sm rounded-2xl p-4 shadow-xl border border-blue-100 max-w-sm hidden">
+                <div id="weatherContent">
+                    <!-- Weather data will be populated here -->
                 </div>
-            </details>
+            </div>
 
-            <!-- Map -->
+            <!-- Map Container -->
             <div id="map" class="w-full h-full rounded-2xl"></div>
         </div>
     </div>
 
-    <!-- JavaScript -->
+    <!-- Enhanced CSS for Weather Toggles -->
+    <style>
+        .weather-layer-toggle:checked + div {
+            background-color: #3b82f6;
+        }
+        .weather-layer-toggle:checked + div .dot {
+            transform: translateX(100%);
+        }
+        
+        /* Wind arrow styles */
+        .wind-arrow {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        
+        .wind-arrow::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-left: 3px solid transparent;
+            border-right: 3px solid transparent;
+            border-bottom: 12px solid #2563eb;
+            transform: translate(-50%, -50%);
+        }
+        
+        /* Temperature gradient colors */
+        .temp-cold { background: radial-gradient(circle, rgba(59, 130, 246, 0.8) 0%, rgba(59, 130, 246, 0.3) 100%); }
+        .temp-cool { background: radial-gradient(circle, rgba(34, 197, 94, 0.8) 0%, rgba(34, 197, 94, 0.3) 100%); }
+        .temp-warm { background: radial-gradient(circle, rgba(251, 191, 36, 0.8) 0%, rgba(251, 191, 36, 0.3) 100%); }
+        .temp-hot { background: radial-gradient(circle, rgba(239, 68, 68, 0.8) 0%, rgba(239, 68, 68, 0.3) 100%); }
+        
+        /* Precipitation intensity colors */
+        .precip-light { background: radial-gradient(circle, rgba(34, 197, 94, 0.6) 0%, rgba(34, 197, 94, 0.2) 100%); }
+        .precip-moderate { background: radial-gradient(circle, rgba(251, 191, 36, 0.7) 0%, rgba(251, 191, 36, 0.3) 100%); }
+        .precip-heavy { background: radial-gradient(circle, rgba(239, 68, 68, 0.8) 0%, rgba(239, 68, 68, 0.4) 100%); }
+    </style>
+
+    <!-- Enhanced JavaScript -->
     <script>
         class EnhancedWeatherMapApp {
             constructor() {
@@ -78,6 +192,15 @@
                 this.currentLat = null;
                 this.currentLng = null;
                 this.mapLayers = {};
+                
+                // Weather overlay layers
+                this.weatherLayers = {
+                    temperature: null,
+                    wind: null,
+                    radar: null
+                };
+                
+                this.activeWeatherLayers = new Set();
 
                 // Autocomplete properties
                 this.suggestions = [];
@@ -92,6 +215,7 @@
                 this.initMap();
                 this.bindEvents();
                 this.initAutocomplete();
+                this.initWeatherControls();
                 this.setActiveLayerButton('standard');
             }
 
@@ -118,13 +242,217 @@
                 this.map.on('click', (e) => {
                     this.handleMapClick(e.latlng);
                 });
+
+                // Initialize weather layer groups
+                this.weatherLayers.temperature = L.layerGroup();
+                this.weatherLayers.wind = L.layerGroup();
+                this.weatherLayers.radar = L.layerGroup();
+            }
+
+            initWeatherControls() {
+                // Weather layer toggles
+                document.getElementById('temperatureLayer').addEventListener('change', (e) => {
+                    this.toggleWeatherLayer('temperature', e.target.checked);
+                });
+                
+                document.getElementById('windLayer').addEventListener('change', (e) => {
+                    this.toggleWeatherLayer('wind', e.target.checked);
+                });
+                
+                document.getElementById('radarLayer').addEventListener('change', (e) => {
+                    this.toggleWeatherLayer('radar', e.target.checked);
+                });
+
+                // Opacity control
+                document.getElementById('layerOpacity').addEventListener('input', (e) => {
+                    this.updateLayerOpacity(parseFloat(e.target.value));
+                });
+            }
+
+            toggleWeatherLayer(layerType, enabled) {
+                if (enabled) {
+                    this.activeWeatherLayers.add(layerType);
+                    if (this.currentLat && this.currentLng) {
+                        this.loadWeatherLayer(layerType, this.currentLat, this.currentLng);
+                    }
+                } else {
+                    this.activeWeatherLayers.delete(layerType);
+                    this.weatherLayers[layerType].clearLayers();
+                    if (this.map.hasLayer(this.weatherLayers[layerType])) {
+                        this.map.removeLayer(this.weatherLayers[layerType]);
+                    }
+                }
+            }
+
+            updateLayerOpacity(opacity) {
+                Object.values(this.weatherLayers).forEach(layer => {
+                    if (layer) {
+                        layer.eachLayer(marker => {
+                            if (marker.getElement) {
+                                marker.getElement().style.opacity = opacity;
+                            }
+                        });
+                    }
+                });
+            }
+
+            async loadWeatherLayer(layerType, lat, lng) {
+                try {
+                    let endpoint = '';
+                    switch(layerType) {
+                        case 'temperature':
+                            endpoint = '/weather/temperature';
+                            break;
+                        case 'wind':
+                            endpoint = '/weather/wind';
+                            break;
+                        case 'radar':
+                            endpoint = '/weather/radar';
+                            break;
+                    }
+
+                    const response = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify({ lat, lng })
+                    });
+
+                    const result = await response.json();
+                    if (result.success) {
+                        this.renderWeatherLayer(layerType, result.data);
+                    }
+                } catch (error) {
+                    console.error(`Error loading ${layerType} layer:`, error);
+                }
+            }
+
+            renderWeatherLayer(layerType, data) {
+                const layer = this.weatherLayers[layerType];
+                layer.clearLayers();
+
+                switch(layerType) {
+                    case 'temperature':
+                        this.renderTemperatureLayer(layer, data);
+                        break;
+                    case 'wind':
+                        this.renderWindLayer(layer, data);
+                        break;
+                    case 'radar':
+                        this.renderRadarLayer(layer, data);
+                        break;
+                }
+
+                if (!this.map.hasLayer(layer)) {
+                    this.map.addLayer(layer);
+                }
+            }
+
+            renderTemperatureLayer(layer, data) {
+                data.forEach(point => {
+                    if (point.current_temp !== null) {
+                        const temp = Math.round(point.current_temp);
+                        const tempClass = this.getTemperatureClass(temp);
+                        
+                        const marker = L.circleMarker([point.lat, point.lng], {
+                            radius: 25,
+                            fillColor: this.getTemperatureColor(temp),
+                            color: 'white',
+                            weight: 1,
+                            fillOpacity: 0.6,
+                            className: tempClass
+                        }).bindTooltip(`${temp}°C`, {
+                            permanent: true,
+                            direction: 'center',
+                            className: 'temp-tooltip'
+                        });
+                        
+                        layer.addLayer(marker);
+                    }
+                });
+            }
+
+            renderWindLayer(layer, data) {
+                data.forEach(point => {
+                    if (point.current && point.current.wind_speed_10m !== null) {
+                        const speed = Math.round(point.current.wind_speed_10m);
+                        const direction = point.current.wind_direction_10m;
+                        
+                        const arrow = L.marker([point.lat, point.lng], {
+                            icon: L.divIcon({
+                                className: 'wind-arrow',
+                                html: `<div style="transform: rotate(${direction}deg); font-size: ${Math.min(speed + 8, 20)}px;">↑</div>`,
+                                iconSize: [20, 20],
+                                iconAnchor: [10, 10]
+                            })
+                        }).bindTooltip(`${speed} km/h`, {
+                            direction: 'top',
+                            offset: [0, -10]
+                        });
+                        
+                        layer.addLayer(arrow);
+                    }
+                });
+            }
+
+            renderRadarLayer(layer, data) {
+                if (data.precipitation && data.precipitation.length > 0) {
+                    // Use current location as center for radar visualization
+                    const currentPrecip = data.precipitation[0] || 0;
+                    
+                    if (currentPrecip > 0) {
+                        const precipClass = this.getPrecipitationClass(currentPrecip);
+                        
+                        const radar = L.circleMarker([this.currentLat, this.currentLng], {
+                            radius: 30,
+                            fillColor: this.getPrecipitationColor(currentPrecip),
+                            color: 'rgba(255, 255, 255, 0.8)',
+                            weight: 1,
+                            fillOpacity: 0.7,
+                            className: precipClass
+                        }).bindTooltip(`${currentPrecip.toFixed(1)} mm/h`, {
+                            permanent: true,
+                            direction: 'center',
+                            className: 'precip-tooltip'
+                        });
+                        
+                        layer.addLayer(radar);
+                    }
+                }
+            }
+
+            getTemperatureClass(temp) {
+                if (temp < 0) return 'temp-cold';
+                if (temp < 15) return 'temp-cool';
+                if (temp < 25) return 'temp-warm';
+                return 'temp-hot';
+            }
+
+            getTemperatureColor(temp) {
+                if (temp < 0) return '#3b82f6';      // Blue
+                if (temp < 15) return '#22c55e';     // Green
+                if (temp < 25) return '#fbbf24';     // Yellow
+                return '#ef4444';                    // Red
+            }
+
+            getPrecipitationClass(precip) {
+                if (precip < 1) return 'precip-light';
+                if (precip < 5) return 'precip-moderate';
+                return 'precip-heavy';
+            }
+
+            getPrecipitationColor(precip) {
+                if (precip < 1) return '#22c55e';    // Light green
+                if (precip < 5) return '#fbbf24';    // Yellow
+                return '#ef4444';                    // Red
             }
 
             bindEvents() {
                 // Original search button event (fallback)
                 document.getElementById('searchInput').addEventListener('keypress', (e) => {
                     if (e.key === 'Enter' && !document.getElementById('autocompleteDropdown').classList.contains('hidden')) {
-                        // If dropdown is open, let autocomplete handle it
                         return;
                     } else if (e.key === 'Enter') {
                         this.searchLocation();
@@ -146,22 +474,21 @@
                 }
             }
 
+            // ... (keeping all existing autocomplete methods) ...
+
             initAutocomplete() {
                 const input = document.getElementById('searchInput');
                 const dropdown = document.getElementById('autocompleteDropdown');
                 const loadingIndicator = document.getElementById('loadingIndicator');
                 const clearButton = document.getElementById('clearButton');
 
-                // Input events for autocomplete
                 input.addEventListener('input', (e) => this.handleAutocompleteInput(e));
                 input.addEventListener('keydown', (e) => this.handleAutocompleteKeydown(e));
                 input.addEventListener('focus', () => this.handleAutocompleteFocus());
                 input.addEventListener('blur', (e) => this.handleAutocompleteBlur(e));
 
-                // Clear button
                 clearButton.addEventListener('click', () => this.clearSearch());
 
-                // Click outside to close
                 document.addEventListener('click', (e) => {
                     if (!input.contains(e.target) && !dropdown.contains(e.target)) {
                         this.hideAutocompleteDropdown();
@@ -172,7 +499,6 @@
             handleAutocompleteInput(e) {
                 const query = e.target.value.trim();
 
-                // Show/hide clear button
                 const clearButton = document.getElementById('clearButton');
                 if (query) {
                     clearButton.classList.remove('hidden');
@@ -180,7 +506,6 @@
                     clearButton.classList.add('hidden');
                 }
 
-                // Debounce search
                 clearTimeout(this.debounceTimer);
 
                 if (query.length < 2) {
@@ -226,7 +551,6 @@
             }
 
             handleAutocompleteBlur(e) {
-                // Delay hiding to allow click on suggestions
                 setTimeout(() => {
                     const dropdown = document.getElementById('autocompleteDropdown');
                     if (!dropdown.contains(document.activeElement)) {
@@ -236,7 +560,6 @@
             }
 
             async searchAutocompleteLocations(query) {
-                // Check cache first
                 if (this.cache.has(query)) {
                     this.displayAutocompleteSuggestions(this.cache.get(query));
                     return;
@@ -253,7 +576,6 @@
 
                     const data = await response.json();
 
-                    // Process and format suggestions
                     const suggestions = data.map(item => ({
                         id: item.place_id,
                         display_name: item.display_name,
@@ -265,9 +587,7 @@
                         icon: this.getLocationIcon(item)
                     }));
 
-                    // Cache results
                     this.cache.set(query, suggestions);
-
                     this.displayAutocompleteSuggestions(suggestions);
 
                 } catch (error) {
@@ -290,22 +610,21 @@
                 }
 
                 let html = '';
-
                 suggestions.forEach((suggestion, index) => {
                     html += `
-                            <div class="autocomplete-item p-3 cursor-pointer transition-all duration-200 hover:bg-blue-50 border-b border-gray-100 last:border-b-0 ${index === this.selectedIndex ? 'selected' : ''}" 
-                                 data-index="${index}"
-                                 onclick="app.selectAutocompleteSuggestion(${index})">
-                                <div class="flex items-center space-x-3">
-                                    <div class="text-xl">${suggestion.icon}</div>
-                                    <div class="flex-1 min-w-0">
-                                        <div class="font-semibold text-gray-800 truncate">${suggestion.name}</div>
-                                        <div class="text-sm text-gray-600 truncate">${suggestion.address}</div>
-                                        <div class="text-xs text-blue-500 mt-1">${suggestion.type}</div>
-                                    </div>
+                        <div class="autocomplete-item p-3 cursor-pointer transition-all duration-200 hover:bg-blue-50 border-b border-gray-100 last:border-b-0 ${index === this.selectedIndex ? 'selected' : ''}" 
+                             data-index="${index}"
+                             onclick="app.selectAutocompleteSuggestion(${index})">
+                            <div class="flex items-center space-x-3">
+                                <div class="text-xl">${suggestion.icon}</div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="font-semibold text-gray-800 truncate">${suggestion.name}</div>
+                                    <div class="text-sm text-gray-600 truncate">${suggestion.address}</div>
+                                    <div class="text-xs text-blue-500 mt-1">${suggestion.type}</div>
                                 </div>
                             </div>
-                        `;
+                        </div>
+                    `;
                 });
 
                 dropdown.innerHTML = html;
@@ -315,23 +634,23 @@
             displayAutocompleteNoResults() {
                 const dropdown = document.getElementById('autocompleteDropdown');
                 dropdown.innerHTML = `
-                        <div class="p-4 text-center text-gray-500">
-                            <div class="text-2xl mb-2">🔍</div>
-                            <div>No results found</div>
-                            <div class="text-sm">Try a different search term</div>
-                        </div>
-                    `;
+                    <div class="p-4 text-center text-gray-500">
+                        <div class="text-2xl mb-2">🔍</div>
+                        <div>No results found</div>
+                        <div class="text-sm">Try a different search term</div>
+                    </div>
+                `;
                 this.showAutocompleteDropdown();
             }
 
             displayAutocompleteError(message) {
                 const dropdown = document.getElementById('autocompleteDropdown');
                 dropdown.innerHTML = `
-                        <div class="p-4 text-center text-red-500">
-                            <div class="text-2xl mb-2">⚠️</div>
-                            <div>${message}</div>
-                        </div>
-                    `;
+                    <div class="p-4 text-center text-red-500">
+                        <div class="text-2xl mb-2">⚠️</div>
+                        <div>${message}</div>
+                    </div>
+                `;
                 this.showAutocompleteDropdown();
             }
 
@@ -368,17 +687,12 @@
                 const suggestion = this.suggestions[index];
                 const input = document.getElementById('searchInput');
 
-                // Update input value
                 input.value = suggestion.name;
-
-                // Hide dropdown
                 this.hideAutocompleteDropdown();
 
-                // Center map on selected location
                 this.map.setView([suggestion.lat, suggestion.lon], 12);
                 this.handleLocationSelected(suggestion.lat, suggestion.lon);
 
-                // Clear the search input after a delay to show the selected location
                 setTimeout(() => {
                     input.value = '';
                     document.getElementById('clearButton').classList.add('hidden');
@@ -422,7 +736,6 @@
                 }
             }
 
-            // Helper methods for autocomplete
             extractLocationName(displayName) {
                 return displayName.split(',')[0].trim();
             }
@@ -445,11 +758,9 @@
                 if (item.type) {
                     return this.formatType(item.type);
                 }
-
                 if (item.class) {
                     return this.formatType(item.class);
                 }
-
                 return 'Location';
             }
 
@@ -485,14 +796,9 @@
                     return iconMap[category][type];
                 }
 
-                // Default icons by category
                 const defaultIcons = {
-                    amenity: '🏢',
-                    shop: '🛍️',
-                    tourism: '🎯',
-                    place: '📍',
-                    highway: '🛣️',
-                    natural: '🌿'
+                    amenity: '🏢', shop: '🛒', tourism: '🎯',
+                    place: '📍', highway: '🛣️', natural: '🌿'
                 };
 
                 return defaultIcons[category] || '📍';
@@ -500,7 +806,7 @@
 
             changeMapLayer(layerType) {
                 this.map.eachLayer((layer) => {
-                    if (layer !== this.currentMarker) {
+                    if (layer !== this.currentMarker && !Object.values(this.weatherLayers).includes(layer)) {
                         this.map.removeLayer(layer);
                     }
                 });
@@ -556,7 +862,7 @@
                 this.handleLocationSelected(lat, lng);
             }
 
-            handleLocationSelected(lat, lng) {
+            async handleLocationSelected(lat, lng) {
                 this.currentLat = lat;
                 this.currentLng = lng;
 
@@ -572,257 +878,105 @@
                     fillOpacity: 0.8
                 }).addTo(this.map);
 
-                this.getWeatherData(lat, lng);
-                this.getNearbyPOIs(lat, lng);
+                // Load weather data and layers
+                await this.getWeatherData(lat, lng);
+                
+                // Load active weather layers
+                this.activeWeatherLayers.forEach(layerType => {
+                    this.loadWeatherLayer(layerType, lat, lng);
+                });
             }
 
             async getWeatherData(lat, lng) {
-                const weatherInfo = document.getElementById('weather-info');
-
-                weatherInfo.innerHTML = `
-                        <div class="text-center text-gray-600 italic">
-                            <div class="text-3xl mb-4">⏳</div>
-                            Loading weather data...
-                        </div>
-                    `;
-
                 try {
-                    const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m,wind_direction_10m&timezone=auto`;
-
-                    const weatherResponse = await fetch(weatherUrl);
-                    const weatherData = await weatherResponse.json();
-
-                    const geoUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10&addressdetails=1`;
-
-                    let locationName = `${lat.toFixed(2)}, ${lng.toFixed(2)}`;
-                    try {
-                        const geoResponse = await fetch(geoUrl);
-                        const geoData = await geoResponse.json();
-                        if (geoData.address) {
-                            locationName = this.formatLocationName(geoData.address);
-                        }
-                    } catch (error) {
-                        console.log('Geocoding error:', error);
-                    }
-
-                    this.displayWeatherData(weatherData, locationName);
-
-                } catch (error) {
-                    console.error('Error fetching weather data:', error);
-                    weatherInfo.innerHTML = `
-                            <div class="bg-red-50 text-red-600 p-4 rounded-xl mb-4">
-                                <strong>⚠️ Error</strong><br>
-                                Could not fetch weather data. Please try again.
-                            </div>
-                        `;
-                }
-            }
-
-            async getNearbyPOIs(lat, lng) {
-                const poiInfo = document.getElementById('poi-info');
-
-                poiInfo.innerHTML = `
-                        <div class="text-center text-gray-600 italic">
-                            <div class="text-2xl mb-4">📍</div>
-                            Finding nearby places...
-                        </div>
-                    `;
-
-                try {
-                    const radius = 1000;
-                    const overpassQuery = `
-                            [out:json][timeout:25];
-                            (
-                                node["amenity"~"^(restaurant|cafe|shop|bank|hospital|pharmacy|school|fuel|hotel|tourism)$"](around:${radius},${lat},${lng});
-                                node["shop"](around:${radius},${lat},${lng});
-                                node["tourism"](around:${radius},${lat},${lng});
-                            );
-                            out center meta;
-                        `;
-
-                    const overpassUrl = 'https://overpass-api.de/api/interpreter';
-                    const response = await fetch(overpassUrl, {
+                    const response = await fetch('/weather/data', {
                         method: 'POST',
-                        body: overpassQuery
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify({ lat, lng })
                     });
 
-                    const data = await response.json();
-                    this.displayPOIs(data.elements, lat, lng);
-
+                    const result = await response.json();
+                    if (result.success) {
+                        this.displayWeatherInfo(result.data);
+                    }
                 } catch (error) {
-                    console.error('Error fetching POI data:', error);
-                    poiInfo.innerHTML = `
-                            <div class="bg-red-50 text-red-600 p-4 rounded-xl mb-4">
-                                <strong>⚠️ Error</strong><br>
-                                Could not load nearby places.
-                            </div>
-                        `;
+                    console.error('Weather data error:', error);
                 }
             }
 
-            displayPOIs(pois, centerLat, centerLng) {
-                const poiInfo = document.getElementById('poi-info');
-
-                if (!pois || pois.length === 0) {
-                    poiInfo.innerHTML = `
-                            <h3 class="section-header">📍 Nearby Places</h3>
-                            <div class="bg-blue-50 p-4 rounded-xl text-blue-600 text-sm">
-                                No nearby places found in this area.
-                            </div>
-                        `;
+            displayWeatherInfo(data) {
+                const weatherInfo = document.getElementById('weatherInfo');
+                const weatherContent = document.getElementById('weatherContent');
+                
+                if (!data.weather || !data.weather.current) {
+                    weatherInfo.classList.add('hidden');
                     return;
                 }
 
-                const poisWithDistance = pois
-                    .filter(poi => poi.tags && (poi.tags.name || poi.tags.amenity || poi.tags.shop || poi.tags.tourism))
-                    .map(poi => {
-                        const distance = this.calculateDistance(centerLat, centerLng, poi.lat, poi.lon);
-                        return { ...poi, distance };
-                    })
-                    .sort((a, b) => a.distance - b.distance)
-                    .slice(0, 15);
-
-                let html = '<h3 class="section-header">📍 Nearby Places</h3><div class="max-h-80 overflow-y-auto space-y-2">';
-
-                poisWithDistance.forEach(poi => {
-                    const name = poi.tags.name || poi.tags.amenity || poi.tags.shop || poi.tags.tourism || 'Unnamed';
-                    const type = this.getPOIType(poi.tags);
-                    const emoji = this.getPOIEmoji(poi.tags);
-                    const distanceText = poi.distance < 1 ? `${Math.round(poi.distance * 1000)}m` : `${poi.distance.toFixed(1)}km`;
-
-                    html += `
-                            <div class="bg-blue-50 p-3 rounded-lg cursor-pointer transition-all duration-300 hover:bg-blue-100 hover:-translate-y-0.5" onclick="app.focusPOI(${poi.lat}, ${poi.lon})">
-                                <div class="font-bold text-gray-800 mb-1">${emoji} ${name}</div>
-                                <div class="text-gray-600 text-sm mb-1">${type}</div>
-                                <div class="text-gray-500 text-xs">📍 ${distanceText} away</div>
-                            </div>
-                        `;
-                });
-
-                html += '</div>';
-                poiInfo.innerHTML = html;
+                const current = data.weather.current;
+                const location = data.location || 'Unknown Location';
+                
+                const weatherCode = this.getWeatherEmoji(current.weather_code);
+                const temp = Math.round(current.temperature_2m);
+                const feelsLike = Math.round(current.apparent_temperature);
+                const humidity = current.relative_humidity_2m;
+                const pressure = current.surface_pressure;
+                const windSpeed = Math.round(current.wind_speed_10m);
+                const windDir = current.wind_direction_10m;
+                
+                weatherContent.innerHTML = `
+                    <div class="text-center mb-3">
+                        <div class="text-4xl mb-2">${weatherCode}</div>
+                        <div class="text-2xl font-bold text-gray-800">${temp}°C</div>
+                        <div class="text-sm text-gray-600">Feels like ${feelsLike}°C</div>
+                        <div class="text-xs text-gray-500 mt-1">${location}</div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-sm">
+                        <div class="bg-blue-50 p-2 rounded">
+                            <div class="text-blue-600 font-medium">💨 Wind</div>
+                            <div class="text-gray-700">${windSpeed} km/h</div>
+                        </div>
+                        <div class="bg-blue-50 p-2 rounded">
+                            <div class="text-blue-600 font-medium">💧 Humidity</div>
+                            <div class="text-gray-700">${humidity}%</div>
+                        </div>
+                        <div class="bg-blue-50 p-2 rounded">
+                            <div class="text-blue-600 font-medium">📊 Pressure</div>
+                            <div class="text-gray-700">${pressure} hPa</div>
+                        </div>
+                        <div class="bg-blue-50 p-2 rounded">
+                            <div class="text-blue-600 font-medium">🧭 Wind Dir</div>
+                            <div class="text-gray-700">${windDir}°</div>
+                        </div>
+                    </div>
+                `;
+                
+                weatherInfo.classList.remove('hidden');
             }
 
-            focusPOI(lat, lng) {
-                this.map.setView([lat, lng], 16);
-
-                const poiMarker = L.circleMarker([lat, lng], {
-                    radius: 8,
-                    fillColor: '#e74c3c',
-                    color: 'white',
-                    weight: 2,
-                    fillOpacity: 0.8
-                }).addTo(this.map);
-
-                setTimeout(() => {
-                    this.map.removeLayer(poiMarker);
-                }, 3000);
-            }
-
-            calculateDistance(lat1, lng1, lat2, lng2) {
-                const R = 6371;
-                const dLat = (lat2 - lat1) * Math.PI / 180;
-                const dLng = (lng2 - lng1) * Math.PI / 180;
-                const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                    Math.sin(dLng / 2) * Math.sin(dLng / 2);
-                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-                return R * c;
-            }
-
-            getPOIType(tags) {
-                if (tags.amenity) return this.formatType(tags.amenity);
-                if (tags.shop) return this.formatType(tags.shop);
-                if (tags.tourism) return this.formatType(tags.tourism);
-                return 'Place';
-            }
-
-            formatType(type) {
-                return type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-            }
-
-            getPOIEmoji(tags) {
-                const emojiMap = {
-                    restaurant: '🍽️', cafe: '☕', shop: '🛍️', bank: '🏦',
-                    hospital: '🏥', pharmacy: '💊', school: '🏫', fuel: '⛽',
-                    hotel: '🏨', tourism: '🎯', supermarket: '🏪', bar: '🍺',
-                    fast_food: '🍔', bakery: '🥖', clothing: '👕'
+            getWeatherEmoji(weatherCode) {
+                const weatherEmojis = {
+                    0: '☀️',    // Clear sky
+                    1: '🌤️',   // Mainly clear
+                    2: '⛅',    // Partly cloudy
+                    3: '☁️',    // Overcast
+                    45: '🌫️',  // Fog
+                    48: '🌫️',  // Depositing rime fog
+                    51: '🌦️',  // Light drizzle
+                    53: '🌦️',  // Moderate drizzle
+                    55: '🌧️',  // Dense drizzle
+                    61: '🌦️',  // Slight rain
+                    63: '🌧️',  // Moderate rain
+                    65: '🌧️',  // Heavy rain
+                    80: '🌦️',  // Slight rain showers
+                    81: '🌧️',  // Moderate rain showers
+                    82: '⛈️',   // Violent rain showers
+                    95: '⛈️',   // Thunderstorm
                 };
-
-                for (const [key, emoji] of Object.entries(emojiMap)) {
-                    if (tags.amenity === key || tags.shop === key || tags.tourism === key) {
-                        return emoji;
-                    }
-                }
-                return '📍';
-            }
-
-            formatLocationName(address) {
-                const parts = [];
-                if (address.city) parts.push(address.city);
-                else if (address.town) parts.push(address.town);
-                else if (address.village) parts.push(address.village);
-
-                if (address.state) parts.push(address.state);
-                if (address.country) parts.push(address.country);
-
-                return parts.join(', ') || 'Unknown Location';
-            }
-
-            getWeatherIcon(weatherCode, isDay) {
-                const weatherIcons = {
-                    0: isDay ? '☀️' : '🌙', 1: isDay ? '🌤️' : '🌙', 2: '⛅', 3: '☁️',
-                    45: '🌫️', 48: '🌫️', 51: '🌦️', 53: '🌦️', 55: '🌦️',
-                    61: '🌧️', 63: '🌧️', 65: '🌧️', 71: '🌨️', 73: '🌨️', 75: '🌨️',
-                    95: '⛈️', 96: '⛈️', 99: '⛈️'
-                };
-
-                return weatherIcons[weatherCode] || '🌤️';
-            }
-
-            displayWeatherData(data, locationName) {
-                const weatherInfo = document.getElementById('weather-info');
-                const current = data.current_weather;
-                const hourly = data.hourly;
-
-                const currentHour = new Date().getHours();
-                const humidity = hourly.relative_humidity_2m[currentHour] || 'N/A';
-
-                const weatherIcon = this.getWeatherIcon(current.weathercode, current.is_day);
-
-                weatherInfo.innerHTML = `
-                                                                                <div class="text-lg font-semibold text-gray-800 mb-4">${locationName}</div>
-
-                                                                                <div class="text-5xl mb-4">${weatherIcon}</div>
-
-                                                                                <div class="text-4xl font-bold text-blue-500 mb-4">${Math.round(current.temperature)}°C</div>
-
-                                                                                <div class="grid grid-cols-2 gap-3 mb-4">
-                                                                                    <div class="bg-blue-50 p-3 rounded-lg text-center">
-                                                                                        <div class="text-xs text-gray-600 mb-1">💧 Humidity</div>
-                                                                                        <div class="text-lg font-bold text-gray-800">${humidity}%</div>
-                                                                                    </div>
-
-                                                                                    <div class="bg-blue-50 p-3 rounded-lg text-center">
-                                                                                        <div class="text-xs text-gray-600 mb-1">💨 Wind</div>
-                                                                                        <div class="text-lg font-bold text-gray-800">${Math.round(current.windspeed)} km/h</div>
-                                                                                    </div>
-
-                                                                                    <div class="bg-blue-50 p-3 rounded-lg text-center">
-                                                                                        <div class="text-xs text-gray-600 mb-1">🧭 Direction</div>
-                                                                                        <div class="text-lg font-bold text-gray-800">${current.winddirection}°</div>
-                                                                                    </div>
-
-                                                                                    <div class="bg-blue-50 p-3 rounded-lg text-center">
-                                                                                        <div class="text-xs text-gray-600 mb-1">🌡️ Temp</div>
-                                                                                        <div class="text-lg font-bold text-gray-800">${Math.round(current.temperature)}°C</div>
-                                                                                    </div>
-                                                                                </div>
-
-                                                                                <div class="text-xs text-gray-500 text-center mt-4">
-                                                                                    📅 ${new Date().toLocaleString()}
-                                                                                </div>
-                                                                            `;
+                return weatherEmojis[weatherCode] || '🌤️';
             }
         }
 
