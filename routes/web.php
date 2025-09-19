@@ -28,4 +28,7 @@ Route::prefix('weather')->group(function () {
     Route::post('/radar', [WeatherController::class, 'getRadarData'])->name('weather.radar');
 });
 
+
+
 require __DIR__.'/auth.php';
+

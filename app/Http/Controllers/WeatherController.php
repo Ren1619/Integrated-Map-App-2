@@ -6,9 +6,43 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class WeatherController extends Controller
 {
+    // Major cities/towns in the Philippines with their coordinates
+    private $majorCities = [
+        // Mindanao - Bukidnon area
+        ['name' => 'Valencia City', 'lat' => 7.8954, 'lng' => 125.0951],
+        ['name' => 'Malaybalay City', 'lat' => 8.1531, 'lng' => 125.1296],
+        ['name' => 'Maramag', 'lat' => 7.7622, 'lng' => 125.0065],
+        ['name' => 'Quezon', 'lat' => 7.7342, 'lng' => 125.1047],
+        ['name' => 'Cagayan de Oro', 'lat' => 8.4542, 'lng' => 124.6319],
+        ['name' => 'Butuan', 'lat' => 8.9474, 'lng' => 125.5405],
+        ['name' => 'Davao City', 'lat' => 7.1907, 'lng' => 125.4553],
+        ['name' => 'Iligan City', 'lat' => 8.2280, 'lng' => 124.2452],
+
+        // Luzon
+        ['name' => 'Manila', 'lat' => 14.5995, 'lng' => 120.9842],
+        ['name' => 'Quezon City', 'lat' => 14.6760, 'lng' => 121.0437],
+        ['name' => 'Makati', 'lat' => 14.5547, 'lng' => 121.0244],
+        ['name' => 'Pasig', 'lat' => 14.5764, 'lng' => 121.0851],
+        ['name' => 'Antipolo', 'lat' => 14.5932, 'lng' => 121.1815],
+        ['name' => 'Baguio', 'lat' => 16.4023, 'lng' => 120.5960],
+        ['name' => 'Angeles', 'lat' => 15.1455, 'lng' => 120.5876],
+        ['name' => 'San Jose del Monte', 'lat' => 14.8136, 'lng' => 121.0453],
+        ['name' => 'Calamba', 'lat' => 14.2118, 'lng' => 121.1653],
+        ['name' => 'Bacoor', 'lat' => 14.4598, 'lng' => 120.9429],
+
+        // Visayas
+        ['name' => 'Cebu City', 'lat' => 10.3157, 'lng' => 123.8854],
+        ['name' => 'Lapu-Lapu', 'lat' => 10.3103, 'lng' => 123.9494],
+        ['name' => 'Mandaue', 'lat' => 10.3237, 'lng' => 123.9227],
+        ['name' => 'Iloilo City', 'lat' => 10.7202, 'lng' => 122.5621],
+        ['name' => 'Bacolod', 'lat' => 10.6319, 'lng' => 122.9951],
+        ['name' => 'Tacloban', 'lat' => 11.2421, 'lng' => 125.0066],
+    ];
+
     public function index()
     {
         return view('weather.map');
@@ -21,8 +55,7 @@ class WeatherController extends Controller
         ]);
 
         try {
-            // Search for location using Nominatim
-            $response = Http::get('https://nominatim.openstreetmap.org/search', [
+            $response = Http::timeout(30)->get('https://nominatim.openstreetmap.org/search', [
                 'format' => 'json',
                 'q' => $request->query,
                 'limit' => 1,
@@ -60,34 +93,37 @@ class WeatherController extends Controller
     public function getWeatherData(Request $request): JsonResponse
     {
         $request->validate([
-            'lat' => 'required|numeric|between:-90, 90',
-            'lng' => 'required|numeric|between: -180, 180'
+            'lat' => 'required|numeric|between:-90,90',
+            'lng' => 'required|numeric|between:-180,180'
         ]);
 
         $lat = $request->lat;
         $lng = $request->lng;
-        $cacheKey = "weather_{$lat}_{$lng}";
 
-        try{
-            $weatherData = Cache::remember($cacheKey, 600, function() use ($lat, $lng) {
-                $response = Http::get('https://api.open-meteo.com/v1/forecast', [
-                    'latitude' => $lat,
-                    'longitude' => $lng,
-                    'current' => 'temperature_2m,relative_humidity_2m, apparent_temperature,weather_code,surface_pressure,wind_speed_10m,wind_direction_10m,wind_gusts_10m',
-                    'hourly' => 'temperature_2m,relative_humidity_2m, apparent_temperature,weather_code,surface_pressure,wind_speed_10m,wind_direction_10m,wind_gusts_10m',
-                    'daily' => 'temperature_2m,relative_humidity_2m, apparent_temperature,weather_code,surface_pressure,wind_speed_10m,wind_direction_10m,wind_gusts_10m',
+        // Find nearest city for specific weather data
+        $nearestCity = $this->findNearestCity($lat, $lng);
+        $cacheKey = "weather_single_{$nearestCity['name']}";
+
+        try {
+            $weatherData = Cache::remember($cacheKey, 600, function () use ($nearestCity) {
+                $response = Http::timeout(30)->get('https://api.open-meteo.com/v1/forecast', [
+                    'latitude' => $nearestCity['lat'],
+                    'longitude' => $nearestCity['lng'],
+                    'current' => 'temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,surface_pressure,wind_speed_10m,wind_direction_10m,wind_gusts_10m',
+                    'hourly' => 'temperature_2m,relative_humidity_2m,weather_code,surface_pressure,wind_speed_10m,wind_direction_10m,precipitation,precipitation_probability',
+                    'daily' => 'weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,wind_speed_10m_max,wind_gusts_10m_max',
                     'timezone' => 'auto',
-                    'forecast_days' => 7,
+                    'forecast_days' => 7
                 ]);
 
-                if(!$response->successful()){
+                if (!$response->successful()) {
                     throw new \Exception('Weather API request failed');
                 }
 
                 return $response->json();
             });
 
-            $locationData = $this->getLocationName($lat, $lng);
+            $locationData = $nearestCity['name'];
 
             return response()->json([
                 'success' => true,
@@ -96,7 +132,8 @@ class WeatherController extends Controller
                     'location' => $locationData
                 ]
             ]);
-        }catch(\Exception $e){
+
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Error fetching weather data'
@@ -104,186 +141,204 @@ class WeatherController extends Controller
         }
     }
 
-    public function getRadarData(Request $request): JsonResponse
+    public function getAllCitiesWeatherData(): JsonResponse
     {
-        $request->validate([
-            'lat' => 'required|numeric|between:-90, 90',
-            'lng' => 'required|numeric|between:-180,180',
-            'zoom' => 'integer|between:1,18'
-        ]);
+        $cacheKey = 'all_cities_weather_data';
 
-        $lat = $request->lat;
-        $lng = $request->lng;
-        $zoom = $request->zoom ?? 10;
+        try {
+            $allWeatherData = Cache::remember($cacheKey, 3600, function () {
+                $weatherData = [];
+                $batches = array_chunk($this->majorCities, 10);
 
-        try{
-            $response = Http::get('https://api.open-meteo.com/v1/forecast', [
-                'latitude' => $lat,
-                'longitude' => $lng,
-                'current' => 'precipitation,weather_code',
-                'timezone' => 'auto',
-                'forecast_days' => 1
-            ]);
+                foreach ($batches as $batchIndex => $batch) {
+                    foreach ($batch as $city) {
+                        try {
+                            $response = Http::timeout(15)->get('https://api.open-meteo.com/v1/forecast', [
+                                'latitude' => $city['lat'],
+                                'longitude' => $city['lng'],
+                                'current' => 'temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,surface_pressure,wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation',
+                                'timezone' => 'auto',
+                                'forecast_days' => 1
+                            ]);
 
-            if(!$response->successful()){
-                throw new \Exception('Radar API request failed');
-            }
+                            if ($response->successful()) {
+                                $data = $response->json();
+                                $weatherData[] = [
+                                    'city' => $city['name'],
+                                    'lat' => $city['lat'],
+                                    'lng' => $city['lng'],
+                                    'weather' => $data['current']
+                                ];
+                            }
 
-            $data = $response->json();
+                            usleep(200000); // 0.2 seconds delay
 
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    'precipitation' => $data['hourly']['precipitation'] ?? [],
-                    'timestamps' => $data['hourly']['time'] ?? [],
-                    'weather_codes' => $data['hourly']['weather_code'] ?? []
-                ]
-            ]);
-        } catch(\Exception $e){
-            return response()->json([
-                'success' => false,
-                'message' => 'Error fetching radar data'
-            ], 500);
-        }
-    }
+                        } catch (\Exception $e) {
+                            Log::warning("Failed to fetch weather for {$city['name']}: " . $e->getMessage());
+                            continue;
+                        }
+                    }
 
-    public function getWindData(Request $request): JsonResponse
-    {
-        $request->validate([
-            'lat' => 'required|numeric|between:-90,90',
-            'lng' => 'required|numeric|between:-180,180',
-        ]);
-
-        $lat = $request->lat;
-        $lng = $request->lng;
-
-        try{
-            $windData = [];
-            $gridSize = 0.1;
-            $gridPoints = 5;
-
-            for ($i = -2; $i <= 2; $i++){
-                for($j = -2; $j <= 2; $j++){
-                    $gridLat = $lat + ($i * $gridSize);
-                    $gridLng = $lng + ($j * $gridSize);
-
-                    $response = Http::get('https://api.open-meteo.com/v1/forecast', [
-                        'latitude' => $gridLat,
-                        'longitude' => $gridLng,
-                        'current' => 'wind_speed_10m,wind_direction_10m,wind_gusts-10m',
-                        'hourly' => 'wind_speed_10m,wind_direction_10m',
-                        'timezone' => 'auto',
-                        'forecast_days' => 1
-                    ]);
-
-                    if($response->successful()){
-                        $data = $response->json();
-                        $windData[] = [
-                            'lat' => $gridLat,
-                            'lng' => $gridLng,
-                            'current' => $data['current'] ?? null,
-                            'hourly' => array_slice($data['hourly']['wind_speed_10m'] ?? [], 0, 24),
-                            'directions' => array_slice($data['hourly']['wind_direction_10m'] ?? [], 0, 24),
-                            'timestamps' => array_slice($data['hourly']['time'] ?? [], 0, 24)
-                        ];
+                    if ($batchIndex < count($batches) - 1) {
+                        sleep(2);
                     }
                 }
-            }
+
+                // Optional: Store to database for historical data
+                // $this->storeWeatherDataToDatabase($weatherData);
+
+                return $weatherData;
+            });
 
             return response()->json([
                 'success' => true,
-                'data' => $windData
+                'data' => $allWeatherData,
+                'count' => count($allWeatherData),
+                'cached_at' => Cache::get($cacheKey . '_timestamp', now()),
+                'expires_at' => now()->addHour()
             ]);
-        } catch(\Exception $e){
+
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error fetching wind data'
+                'message' => 'Error fetching weather data for cities'
             ], 500);
         }
     }
 
     public function getTemperatureData(Request $request): JsonResponse
     {
-        $request->validate([
-            'lat' => 'required|numeric|between:-90,90',
-            'lng' => 'required|numeric|between:-180,180',
+        $allData = $this->getAllCitiesWeatherData();
+
+        if (!$allData->getData()->success) {
+            return $allData;
+        }
+
+        $temperatureData = collect($allData->getData()->data)->map(function ($city) {
+            return [
+                'city' => $city->city,
+                'lat' => $city->lat,
+                'lng' => $city->lng,
+                'temperature' => $city->weather->temperature_2m ?? null,
+                'apparent_temperature' => $city->weather->apparent_temperature ?? null
+            ];
+        })->filter(function ($city) {
+            return $city['temperature'] !== null;
+        });
+
+        return response()->json([
+            'success' => true,
+            'data' => $temperatureData->values()->all()
         ]);
+    }
 
-        $lat = $request->lat;
-        $lng = $request->lng;
+    public function getWindData(Request $request): JsonResponse
+    {
+        $allData = $this->getAllCitiesWeatherData();
 
-        try{
-            $tempData = [];
-            $gridSize = 0.1;
-            
-            for($i = -2; $i <= 2; $i++){
-                for($j = -2; $j <= 2; $j++){
-                    $gridLat = $lat + ($i * $gridSize);
-                    $gridLng = $lng + ($j * $gridSize);
+        if (!$allData->getData()->success) {
+            return $allData;
+        }
 
-                    $response = Http::get('https://api.open-meteo.com/v1/forecast', [
-                        'latitude' => $gridLat,
-                        'longitude' => $gridLng,
-                        'current' => 'temperature_2m,apparent_temperature',
-                        'hourly' => 'temperature_2m,apparent_temperature',
-                        'timezone' => 'auto',
-                        'forecast_days' => 1
-                    ]);
+        $windData = collect($allData->getData()->data)->map(function ($city) {
+            return [
+                'city' => $city->city,
+                'lat' => $city->lat,
+                'lng' => $city->lng,
+                'wind_speed' => $city->weather->wind_speed_10m ?? null,
+                'wind_direction' => $city->weather->wind_direction_10m ?? null,
+                'wind_gusts' => $city->weather->wind_gusts_10m ?? null
+            ];
+        })->filter(function ($city) {
+            return $city['wind_speed'] !== null;
+        });
 
-                    if($response->successful()){
-                        $data = $response->json();
-                        $tempData[] = [
-                            'lat' => $gridLat,
-                            'lng' => $gridLng,
-                            'current_temp' => $data['current']['temperature_2m'] ?? null,
-                            'apparent_temp' => $data['current']['apparent_temperature'] ?? null,
-                            'hourly_temps' => array_slice($data['hourly']['temperature_2m'] ?? [], 0, 24),
-                            'timestamps' => array_slice($data['hourly']['time'] ?? [], 0, 24)
-                        ];
-                    }
-                }
-            }
+        return response()->json([
+            'success' => true,
+            'data' => $windData->values()->all()
+        ]);
+    }
+
+    public function getRadarData(Request $request): JsonResponse
+    {
+        $allData = $this->getAllCitiesWeatherData();
+
+        if (!$allData->getData()->success) {
+            return $allData;
+        }
+
+        $precipitationData = collect($allData->getData()->data)->map(function ($city) {
+            return [
+                'city' => $city->city,
+                'lat' => $city->lat,
+                'lng' => $city->lng,
+                'precipitation' => $city->weather->precipitation ?? 0
+            ];
+        })->filter(function ($city) {
+            return $city['precipitation'] > 0; // Only show cities with precipitation
+        });
+
+        return response()->json([
+            'success' => true,
+            'data' => $precipitationData->values()->all()
+        ]);
+    }
+
+    // Scheduled job method - call this hourly via Laravel scheduler
+    public function updateWeatherDataCache()
+    {
+        try {
+            // Clear existing cache
+            Cache::forget('all_cities_weather_data');
+
+            // Fetch fresh data
+            $this->getAllCitiesWeatherData();
+
+            Log::info('Weather data cache updated successfully');
 
             return response()->json([
                 'success' => true,
-                'data' => $tempData
+                'message' => 'Weather data cache updated'
             ]);
-        } catch(\Exception $e){
+
+        } catch (\Exception $e) {
+            Log::error('Failed to update weather cache: ' . $e->getMessage());
+
             return response()->json([
                 'success' => false,
-                'message' => 'Error fetching temperature data'
+                'message' => 'Failed to update weather cache'
             ], 500);
         }
     }
 
-    private function getLocationName($lat, $lng)
+    private function findNearestCity($lat, $lng)
     {
-        try{
-            $response = Http::get('https://nominatim.openstreetmap.org/reverse', [
-                'format' => 'json',
-                'lat' => $lat,
-                'lon' => $lng,
-                'addressdetails' => 1
-            ]);
+        $nearestCity = null;
+        $minDistance = PHP_FLOAT_MAX;
 
-            if($response->successful()){
-                $data = $response->json();
-                return $data['address'] ?? [];
-
-                $parts = [];
-                if(isset($address['city'])) $parts[] = $address['city'];
-                elseif(isset($address['town'])) $parts[] = $address['town'];
-                elseif(isset($address['village'])) $parts[] = $address['village'];
-
-                if(isset($address['state'])) $parts[] = $address['state'];
-                if(isset($address['country'])) $parts[] = $address['country'];
-
-                return implode(', ', $parts) ?: 'Unknown location';
+        foreach ($this->majorCities as $city) {
+            $distance = $this->calculateDistance($lat, $lng, $city['lat'], $city['lng']);
+            if ($distance < $minDistance) {
+                $minDistance = $distance;
+                $nearestCity = $city;
             }
-        } catch(\Exception $e){
-            // Log error if needed
         }
 
-        return 'Unknown location';
+        return $nearestCity;
+    }
+
+    private function calculateDistance($lat1, $lng1, $lat2, $lng2)
+    {
+        $R = 6371; // Earth's radius in kilometers
+        $dLat = deg2rad($lat2 - $lat1);
+        $dLng = deg2rad($lng2 - $lng1);
+
+        $a = sin($dLat / 2) * sin($dLat / 2) +
+            cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
+            sin($dLng / 2) * sin($dLng / 2);
+
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+
+        return $R * $c;
     }
 }
