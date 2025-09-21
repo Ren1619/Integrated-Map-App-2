@@ -207,9 +207,6 @@ class WeatherController extends Controller
     }
 
     /**
-     * Search for locations in our database first
-     */
-    /**
      * Search for locations in our database first (MySQL compatible)
      */
     private function searchInDatabase(string $query): ?array
@@ -218,7 +215,7 @@ class WeatherController extends Controller
 
         // Search cities first
         $city = City::with(['state', 'country'])
-            ->where('name', 'LIKE', "%{$query}%")  // Changed from ILIKE to LIKE
+            ->where('name', 'LIKE', "%{$query}%")
             ->active()
             ->first();
 
@@ -239,7 +236,7 @@ class WeatherController extends Controller
 
         // Search states if no city found
         $state = State::with(['country'])
-            ->where('name', 'LIKE', "%{$query}%")  // Changed from ILIKE to LIKE
+            ->where('name', 'LIKE', "%{$query}%")
             ->active()
             ->first();
 
@@ -258,9 +255,9 @@ class WeatherController extends Controller
         }
 
         // Search countries if no state found
-        $country = Country::where('name', 'LIKE', "%{$query}%")  // Changed from ILIKE to LIKE
-            ->orWhere('iso2', 'LIKE', $query)                     // Changed from ILIKE to LIKE
-            ->orWhere('iso3', 'LIKE', $query)                     // Changed from ILIKE to LIKE
+        $country = Country::where('name', 'LIKE', "%{$query}%")
+            ->orWhere('iso2', 'LIKE', $query)
+            ->orWhere('iso3', 'LIKE', $query)
             ->active()
             ->first();
 
@@ -279,8 +276,12 @@ class WeatherController extends Controller
 
         return null;
     }
+
     /**
-     * Find nearest city to given coordinates
+     * Find nearest city to given coordinates - FIXED COLUMN AMBIGUITY
+     */
+    /**
+     * Find nearest city to given coordinates - FIXED ALL COLUMN AMBIGUITY
      */
     private function findNearestCity(float $lat, float $lng): ?array
     {
@@ -289,16 +290,16 @@ class WeatherController extends Controller
             'states.name as state_name',
             'countries.name as country_name',
             DB::raw("
-                    (6371 * acos(cos(radians({$lat})) 
-                    * cos(radians(latitude)) 
-                    * cos(radians(longitude) - radians({$lng})) 
-                    + sin(radians({$lat})) 
-                    * sin(radians(latitude)))) AS distance
-                ")
+                (6371 * acos(cos(radians({$lat})) 
+                * cos(radians(cities.latitude)) 
+                * cos(radians(cities.longitude) - radians({$lng})) 
+                + sin(radians({$lat})) 
+                * sin(radians(cities.latitude)))) AS distance
+            ")
         ])
             ->leftJoin('states', 'cities.state_id', '=', 'states.id')
             ->leftJoin('countries', 'cities.country_id', '=', 'countries.id')
-            ->active()
+            ->where('cities.flag', 1) // FIXED: Specify cities.flag instead of using active() scope
             ->having('distance', '<', self::MAX_SEARCH_RADIUS)
             ->orderBy('distance')
             ->first();
@@ -319,6 +320,7 @@ class WeatherController extends Controller
         ];
     }
 
+
     /**
      * Find nearest cities in all 8 directions
      */
@@ -335,7 +337,10 @@ class WeatherController extends Controller
     }
 
     /**
-     * Find nearest city in a specific direction
+     * Find nearest city in a specific direction - FIXED COLUMN AMBIGUITY
+     */
+    /**
+     * Find nearest city in a specific direction - FIXED ALL COLUMN AMBIGUITY
      */
     private function findNearestCityInDirection(float $lat, float $lng, string $direction, array $config): ?array
     {
@@ -349,35 +354,35 @@ class WeatherController extends Controller
                 'states.name as state_name',
                 'countries.name as country_name',
                 DB::raw("
-                        (6371 * acos(cos(radians({$lat})) 
-                        * cos(radians(latitude)) 
-                        * cos(radians(longitude) - radians({$lng})) 
-                        + sin(radians({$lat})) 
-                        * sin(radians(latitude)))) AS distance
-                    "),
+                    (6371 * acos(cos(radians({$lat})) 
+                    * cos(radians(cities.latitude)) 
+                    * cos(radians(cities.longitude) - radians({$lng})) 
+                    + sin(radians({$lat})) 
+                    * sin(radians(cities.latitude)))) AS distance
+                "),
                 DB::raw("
-                        CASE 
-                            WHEN degrees(atan2(
-                                sin(radians(longitude - ({$lng}))) * cos(radians(latitude)),
-                                cos(radians({$lat})) * sin(radians(latitude)) - 
-                                sin(radians({$lat})) * cos(radians(latitude)) * cos(radians(longitude - ({$lng})))
-                            )) < 0 
-                            THEN degrees(atan2(
-                                sin(radians(longitude - ({$lng}))) * cos(radians(latitude)),
-                                cos(radians({$lat})) * sin(radians(latitude)) - 
-                                sin(radians({$lat})) * cos(radians(latitude)) * cos(radians(longitude - ({$lng})))
-                            )) + 360
-                            ELSE degrees(atan2(
-                                sin(radians(longitude - ({$lng}))) * cos(radians(latitude)),
-                                cos(radians({$lat})) * sin(radians(latitude)) - 
-                                sin(radians({$lat})) * cos(radians(latitude)) * cos(radians(longitude - ({$lng})))
-                            ))
-                        END AS bearing
-                    ")
+                    CASE 
+                        WHEN degrees(atan2(
+                            sin(radians(cities.longitude - ({$lng}))) * cos(radians(cities.latitude)),
+                            cos(radians({$lat})) * sin(radians(cities.latitude)) - 
+                            sin(radians({$lat})) * cos(radians(cities.latitude)) * cos(radians(cities.longitude - ({$lng})))
+                        )) < 0 
+                        THEN degrees(atan2(
+                            sin(radians(cities.longitude - ({$lng}))) * cos(radians(cities.latitude)),
+                            cos(radians({$lat})) * sin(radians(cities.latitude)) - 
+                            sin(radians({$lat})) * cos(radians(cities.latitude)) * cos(radians(cities.longitude - ({$lng})))
+                        )) + 360
+                        ELSE degrees(atan2(
+                            sin(radians(cities.longitude - ({$lng}))) * cos(radians(cities.latitude)),
+                            cos(radians({$lat})) * sin(radians(cities.latitude)) - 
+                            sin(radians({$lat})) * cos(radians(cities.latitude)) * cos(radians(cities.longitude - ({$lng})))
+                        ))
+                    END AS bearing
+                ")
             ])
                 ->leftJoin('states', 'cities.state_id', '=', 'states.id')
                 ->leftJoin('countries', 'cities.country_id', '=', 'countries.id')
-                ->active()
+                ->where('cities.flag', 1) // FIXED: Specify cities.flag instead of using active() scope
                 ->having('distance', '>', 0.1) // Exclude the same location
                 ->having('distance', '<', self::MAX_SEARCH_RADIUS)
                 ->havingRaw("
@@ -391,35 +396,35 @@ class WeatherController extends Controller
                 'states.name as state_name',
                 'countries.name as country_name',
                 DB::raw("
-                        (6371 * acos(cos(radians({$lat})) 
-                        * cos(radians(latitude)) 
-                        * cos(radians(longitude) - radians({$lng})) 
-                        + sin(radians({$lat})) 
-                        * sin(radians(latitude)))) AS distance
-                    "),
+                    (6371 * acos(cos(radians({$lat})) 
+                    * cos(radians(cities.latitude)) 
+                    * cos(radians(cities.longitude) - radians({$lng})) 
+                    + sin(radians({$lat})) 
+                    * sin(radians(cities.latitude)))) AS distance
+                "),
                 DB::raw("
-                        CASE 
-                            WHEN degrees(atan2(
-                                sin(radians(longitude - ({$lng}))) * cos(radians(latitude)),
-                                cos(radians({$lat})) * sin(radians(latitude)) - 
-                                sin(radians({$lat})) * cos(radians(latitude)) * cos(radians(longitude - ({$lng})))
-                            )) < 0 
-                            THEN degrees(atan2(
-                                sin(radians(longitude - ({$lng}))) * cos(radians(latitude)),
-                                cos(radians({$lat})) * sin(radians(latitude)) - 
-                                sin(radians({$lat})) * cos(radians(latitude)) * cos(radians(longitude - ({$lng})))
-                            )) + 360
-                            ELSE degrees(atan2(
-                                sin(radians(longitude - ({$lng}))) * cos(radians(latitude)),
-                                cos(radians({$lat})) * sin(radians(latitude)) - 
-                                sin(radians({$lat})) * cos(radians(latitude)) * cos(radians(longitude - ({$lng})))
-                            ))
-                        END AS bearing
-                    ")
+                    CASE 
+                        WHEN degrees(atan2(
+                            sin(radians(cities.longitude - ({$lng}))) * cos(radians(cities.latitude)),
+                            cos(radians({$lat})) * sin(radians(cities.latitude)) - 
+                            sin(radians({$lat})) * cos(radians(cities.latitude)) * cos(radians(cities.longitude - ({$lng})))
+                        )) < 0 
+                        THEN degrees(atan2(
+                            sin(radians(cities.longitude - ({$lng}))) * cos(radians(cities.latitude)),
+                            cos(radians({$lat})) * sin(radians(cities.latitude)) - 
+                            sin(radians({$lat})) * cos(radians(cities.latitude)) * cos(radians(cities.longitude - ({$lng})))
+                        )) + 360
+                        ELSE degrees(atan2(
+                            sin(radians(cities.longitude - ({$lng}))) * cos(radians(cities.latitude)),
+                            cos(radians({$lat})) * sin(radians(cities.latitude)) - 
+                            sin(radians({$lat})) * cos(radians(cities.latitude)) * cos(radians(cities.longitude - ({$lng})))
+                        ))
+                    END AS bearing
+                ")
             ])
                 ->leftJoin('states', 'cities.state_id', '=', 'states.id')
                 ->leftJoin('countries', 'cities.country_id', '=', 'countries.id')
-                ->active()
+                ->where('cities.flag', 1) // FIXED: Specify cities.flag instead of using active() scope
                 ->having('distance', '>', 0.1) // Exclude the same location
                 ->having('distance', '<', self::MAX_SEARCH_RADIUS)
                 ->havingRaw("bearing >= {$minBearing} AND bearing < {$maxBearing}")
@@ -443,7 +448,6 @@ class WeatherController extends Controller
             'type' => 'city'
         ];
     }
-
     /**
      * Fetch weather data for specific coordinates
      */
@@ -476,8 +480,6 @@ class WeatherController extends Controller
     // Legacy methods for backward compatibility
     public function getAllCitiesWeatherData(): JsonResponse
     {
-        // This method can remain as is or be updated to use database cities
-        // For now, keeping the existing implementation
         return $this->originalGetAllCitiesWeatherData();
     }
 
@@ -662,33 +664,16 @@ class WeatherController extends Controller
         }
     }
 
-    // Utility method for distance calculation (keeping for compatibility)
-    private function calculateDistance($lat1, $lng1, $lat2, $lng2)
-    {
-        $R = 6371; // Earth's radius in kilometers
-        $dLat = deg2rad($lat2 - $lat1);
-        $dLng = deg2rad($lng2 - $lng1);
-
-        $a = sin($dLat / 2) * sin($dLat / 2) +
-            cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
-            sin($dLng / 2) * sin($dLng / 2);
-
-        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
-
-        return $R * $c;
-    }
-
+    // Debug methods
     public function debugDatabase(Request $request)
     {
         try {
-            // Check if cities table has data
             $cityCount = City::active()->count();
             $citiesWithCoords = City::active()
                 ->whereNotNull('latitude')
                 ->whereNotNull('longitude')
                 ->count();
 
-            // Check a sample city
             $sampleCity = City::active()
                 ->whereNotNull('latitude')
                 ->whereNotNull('longitude')
@@ -719,7 +704,6 @@ class WeatherController extends Controller
     public function debugWeatherApi(Request $request)
     {
         try {
-            // Test weather API with fixed coordinates (Manila)
             $lat = 14.5995;
             $lng = 120.9842;
 
@@ -758,17 +742,16 @@ class WeatherController extends Controller
             $lat = $request->lat;
             $lng = $request->lng;
 
-            // Debug the nearest city query
             $nearestCity = City::select([
                 'cities.*',
                 'states.name as state_name',
                 'countries.name as country_name',
                 DB::raw("
                     (6371 * acos(cos(radians({$lat})) 
-                    * cos(radians(latitude)) 
-                    * cos(radians(longitude) - radians({$lng})) 
+                    * cos(radians(cities.latitude)) 
+                    * cos(radians(cities.longitude) - radians({$lng})) 
                     + sin(radians({$lat})) 
-                    * sin(radians(latitude)))) AS distance
+                    * sin(radians(cities.latitude)))) AS distance
                 ")
             ])
                 ->leftJoin('states', 'cities.state_id', '=', 'states.id')
@@ -776,7 +759,7 @@ class WeatherController extends Controller
                 ->active()
                 ->having('distance', '<', 200)
                 ->orderBy('distance')
-                ->limit(5) // Get top 5 for debugging
+                ->limit(5)
                 ->get();
 
             return response()->json([
@@ -800,5 +783,21 @@ class WeatherController extends Controller
                 'sql_error' => $e->getPrevious()?->getMessage()
             ], 500);
         }
+    }
+
+    // Utility method for distance calculation (keeping for compatibility)
+    private function calculateDistance($lat1, $lng1, $lat2, $lng2)
+    {
+        $R = 6371; // Earth's radius in kilometers
+        $dLat = deg2rad($lat2 - $lat1);
+        $dLng = deg2rad($lng2 - $lng1);
+
+        $a = sin($dLat / 2) * sin($dLat / 2) +
+            cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
+            sin($dLng / 2) * sin($dLng / 2);
+
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+
+        return $R * $c;
     }
 }
