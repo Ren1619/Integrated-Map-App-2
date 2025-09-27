@@ -5,126 +5,190 @@
     <header class="glass-effect p-4 shadow-lg">
         <div class="flex justify-between items-center">
             <div>
-                <h1 class="text-gray-800 text-3xl font-bold mb-2">🌤️ SafeCast</h1>
+                <h1 class="text-white text-3xl font-bold mb-2">🌤️ SafeCast</h1>
             </div>
-            <p class="text-gray-600 text-sm flex items-center gap-2">
-                Click anywhere on the map or search locations to get weather data
+            <p class="text-white text-sm flex items-center gap-2">
+                Click anywhere on the map or search locations to get comprehensive weather data
             </p>
         </div>
     </header>
 
-    <!-- Main Container -->
-    <div class="flex h-[calc(100vh-120px)] gap-4 p-4">
-        <!-- Map Container -->
-        <div class="flex-1 relative rounded-2xl shadow-2xl border-4 border-white/30 overflow-hidden">
-            <!-- Search Controls Overlay -->
-            <div class="overlay absolute justify-end top-4 left-4 right-4 flex gap-2 items-center z-50">
-                <div class="search-container relative flex-1 max-w-md">
-                    <input type="text"
-                        class="w-full px-4 py-3 border-2 border-blue-500/30 rounded-full outline-none text-sm bg-white/95 backdrop-blur-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:bg-blue-400 transition-all duration-300 shadow-lg"
-                        placeholder="Search for a place (e.g., New York, Paris, Tokyo)" id="searchInput" autocomplete="off">
+    <!-- Main Container with Flexbox Layout -->
+    <div class="p-4 flex flex-col gap-4 min-h-screen">
 
-                    <!-- Loading indicator -->
-                    <div id="loadingIndicator" class="absolute right-14 top-1/2 transform -translate-y-1/2 hidden">
-                        <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500"></div>
+        <!-- Top Section (Map + Forecast) -->
+        <div class="flex gap-4 min-h-[600px]" style="min-height: 0;">
+
+            <!-- Map Container (2/3 width) -->
+            <div class="flex-[2] relative rounded-2xl shadow-2xl border-4 border-white/30 overflow-hidden min-h-[600px]">
+                <!-- Search Controls Overlay -->
+                <div class="overlay absolute justify-end top-4 left-4 right-4 flex gap-2 items-center z-50">
+                    <div class="search-container relative flex-1 max-w-md">
+                        <input type="text"
+                            class="w-full px-4 py-3 border-2 border-blue-500/30 rounded-full outline-none text-sm bg-white/95 backdrop-blur-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:bg-blue-400 transition-all duration-300 shadow-lg"
+                            placeholder="Search for any place worldwide..." id="searchInput" autocomplete="off">
+
+                        <!-- Loading indicator -->
+                        <div id="loadingIndicator" class="absolute right-14 top-1/2 transform -translate-y-1/2 hidden">
+                            <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500"></div>
+                        </div>
+
+                        <!-- Clear button -->
+                        <button id="clearButton"
+                            class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xl hidden"
+                            title="Clear search">×</button>
+
+                        <!-- Autocomplete Dropdown -->
+                        <div id="autocompleteDropdown"
+                            class="absolute top-full left-0 right-0 mt-2 bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-blue-100 hidden max-h-80 overflow-y-auto z-50">
+                        </div>
                     </div>
 
-                    <!-- Clear button -->
-                    <button id="clearButton"
-                        class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xl hidden"
-                        title="Clear search">×</button>
+                    <button
+                        class="bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white px-6 py-3 rounded-3xl font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg backdrop-blur-sm shadow-lg"
+                        onclick="app.searchLocation()">🔍 Search</button>
+                </div>
 
-                    <!-- Autocomplete Dropdown -->
-                    <div id="autocompleteDropdown"
-                        class="absolute top-full left-0 right-0 mt-2 bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-blue-100 hidden max-h-80 overflow-y-auto z-50">
+                <!-- Map Layer Control -->
+                <div class="overlay absolute top-20 left-4 z-40">
+                    <details class="h-fit w-fit">
+                        <summary
+                            class="list-none cursor-pointer bg-white/95 backdrop-blur-sm rounded-lg p-3 shadow-lg hover:shadow-xl transition-all duration-300 border-2 border-blue-500/30 hover:border-blue-500">
+                            <div class="w-6 h-6 flex items-center justify-center text-blue-500" title="Map Layers">☰</div>
+                        </summary>
+
+                        <div
+                            class="menu-content absolute top-full left-0 mt-1 w-fit min-w-max rounded-2xl p-4 bg-white/95 backdrop-blur-sm shadow-xl border border-blue-100">
+                            <button id="standardBtn" onclick="app.changeMapLayer('standard')"
+                                class="bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white p-3 rounded-2xl font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg backdrop-blur-sm shadow-lg mr-2">
+                                🗺️
+                            </button>
+                            <button id="cycleBtn" onclick="app.changeMapLayer('cycle')"
+                                class="bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white p-3 rounded-2xl font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg backdrop-blur-sm shadow-lg mr-2">
+                                🚴
+                            </button>
+                            <button id="transportBtn" onclick="app.changeMapLayer('transport')"
+                                class="bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white p-3 rounded-2xl font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg backdrop-blur-sm shadow-lg">
+                                🚌
+                            </button>
+                        </div>
+                    </details>
+                </div>
+
+                <!-- Map Container -->
+                <div id="map" class="w-full h-full rounded-2xl"></div>
+            </div>
+
+            <!-- 7-Day Forecast Panel (1/3 width) -->
+            <div class="flex-1 panel-glass flex flex-col rounded-2xl min-h-[600px]">
+                <!-- Panel Header -->
+                <div class="p-6 border-b border-blue-100 flex-shrink-0">
+                    <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                        📅 7-Day Forecast
+                    </h2>
+                    <p class="text-sm text-gray-600 mt-1" id="forecastLocation">Select a location to view forecast</p>
+                </div>
+
+                <!-- Panel Content - No internal scrolling -->
+                <div class="p-4 forecast-content">
+                    <div id="extendedForecast" class="space-y-3">
+                        <div class="text-center py-8 text-gray-500">
+                            <div class="text-4xl mb-3">🎯</div>
+                            <p class="text-sm">Select any location worldwide to view 7-day weather forecast</p>
+                        </div>
                     </div>
                 </div>
 
-                <button
-                    class="bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white px-6 py-3 rounded-3xl font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg backdrop-blur-sm shadow-lg"
-                    onclick="app.searchLocation()">🔍 Search</button>
-            </div>
-
-            <!-- Map Layer Control -->
-            <div class="overlay absolute top-20 left-4 z-40">
-                <details class="h-fit w-fit">
-                    <summary
-                        class="list-none cursor-pointer bg-white/95 backdrop-blur-sm rounded-lg p-3 shadow-lg hover:shadow-xl transition-all duration-300 border-2 border-blue-500/30 hover:border-blue-500">
-                        <div class="w-6 h-6 flex items-center justify-center text-blue-500" title="Map Layers">☰</div>
-                    </summary>
-
-                    <div
-                        class="menu-content absolute top-full left-0 mt-1 w-fit min-w-max rounded-2xl p-4 bg-white/95 backdrop-blur-sm shadow-xl border border-blue-100">
-                        <button id="standardBtn" onclick="app.changeMapLayer('standard')"
-                            class="bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white p-3 rounded-2xl font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg backdrop-blur-sm shadow-lg mr-2">
-                            🗺️
-                        </button>
-                        <button id="cycleBtn" onclick="app.changeMapLayer('cycle')"
-                            class="bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white p-3 rounded-2xl font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg backdrop-blur-sm shadow-lg mr-2">
-                            🚴
-                        </button>
-                        <button id="transportBtn" onclick="app.changeMapLayer('transport')"
-                            class="bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white p-3 rounded-2xl font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg backdrop-blur-sm shadow-lg">
-                            🚌
-                        </button>
+                <!-- Panel Footer -->
+                <div class="p-4 border-t border-blue-100 bg-gray-50/50 rounded-b-2xl flex-shrink-0 mt-auto">
+                    <div class="flex items-center justify-between text-xs text-gray-500">
+                        <span>Extended Forecast</span>
+                        <span id="forecastUpdated">Updated: --:--</span>
                     </div>
-                </details>
+                </div>
             </div>
-
-            <!-- Map Container -->
-            <div id="map" class="w-full h-full rounded-2xl"></div>
         </div>
 
-        <!-- Weather Panel -->
-        <div class="w-96 panel-glass flex flex-col rounded-2xl">
+        <!-- Bottom Section - Comprehensive Weather Data -->
+        <div class="panel-glass flex flex-col rounded-2xl min-h-[400px]">
             <!-- Panel Header -->
-            <div class="p-6 border-b border-blue-100">
-                <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-                    🌦️ Weather Information
-                </h2>
-                <p class="text-sm text-gray-600 mt-1">Real-time weather data</p>
-            </div>
-
-            <!-- Panel Content -->
-            <div class="flex-1 overflow-y-auto custom-scrollbar">
-                <!-- Current Location Section -->
-                <div class="p-6 border-b border-blue-100">
-                    <h3 class="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
-                        📍 Selected Location
-                    </h3>
-
-                    <div id="currentLocationWeather" class="hidden">
-                        <!-- Current weather will be populated here -->
+            <div class="p-4 border-b border-blue-100 flex-shrink-0">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2" id="weatherPanelTitle">
+                            🌦️ Comprehensive Weather Data
+                        </h2>
+                        <p class="text-sm text-gray-600 mt-1" id="locationDetails">Click on map or search for detailed
+                            weather information</p>
                     </div>
-
-                    <div id="currentLocationPlaceholder" class="text-center py-8 text-gray-500">
-                        <div class="text-4xl mb-3">🎯</div>
-                        <p class="text-sm">Click on the map or search for a location to view weather data</p>
-                    </div>
-                </div>
-
-                <!-- Nearby Places Section -->
-                <div class="p-6">
-                    <h3 class="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
-                        🏘️ Nearby Places
-                    </h3>
-
-                    <div id="nearbyPlacesWeather" class="space-y-3">
-                        <!-- Nearby places weather will be populated here -->
-                    </div>
-
-                    <div id="nearbyPlacesPlaceholder" class="text-center py-6 text-gray-500">
-                        <div class="text-3xl mb-3">🌐</div>
-                        <p class="text-sm">Select a location to view nearby weather conditions</p>
+                    <div class="text-xs text-gray-500">
+                        <span id="lastUpdated">Updated: --:--</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Panel Footer -->
-            <div class="p-4 border-t border-blue-100 bg-gray-50/50 rounded-b-2xl">
-                <div class="flex items-center justify-between text-xs text-gray-500">
-                    <span>Data from Open-Meteo</span>
-                    <span id="lastUpdated">Updated: --:--</span>
+            <!-- Panel Content - No internal scrolling, expands naturally -->
+            <div class="weather-content-container">
+                <div class="flex gap-4 p-4 min-w-max flex-wrap lg:flex-nowrap">
+                    <!-- Current Weather Section -->
+                    <div class="flex-shrink-0 w-72">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                            📍 Current Conditions
+                        </h3>
+
+                        <div id="currentWeatherData" class="hidden">
+                            <!-- Current weather will be populated here -->
+                        </div>
+
+                        <div id="weatherPlaceholder" class="text-center py-6 text-gray-500">
+                            <div class="text-3xl mb-2">🎯</div>
+                            <p class="text-xs">Select location for weather data</p>
+                        </div>
+                    </div>
+
+                    <!-- Multi-Level Temperature Section -->
+                    <div class="flex-shrink-0 w-64">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                            🌡️ Temperature by Altitude
+                        </h3>
+                        <div id="temperatureByAltitude" class="space-y-2">
+                            <!-- Temperature data will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Multi-Level Wind Section -->
+                    <div class="flex-shrink-0 w-64">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                            💨 Wind by Altitude
+                        </h3>
+                        <div id="windByAltitude" class="space-y-2">
+                            <!-- Wind data will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Soil Conditions Section -->
+                    <div class="flex-shrink-0 w-64">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                            🌱 Soil Conditions
+                        </h3>
+                        <div id="soilConditions" class="space-y-2">
+                            <!-- Soil data will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Additional Weather Metrics Section (optional) -->
+                    <div class="flex-shrink-0 w-64">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                            📊 Additional Metrics
+                        </h3>
+                        <div id="additionalMetrics" class="space-y-2">
+                            <!-- Additional metrics can be populated here -->
+                            <div class="text-center py-6 text-gray-500">
+                                <div class="text-2xl mb-2">📈</div>
+                                <p class="text-xs">More data coming soon</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -137,7 +201,7 @@
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: -5px 0 25px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         }
 
         .weather-card {
@@ -151,8 +215,18 @@
             box-shadow: 0 8px 25px rgba(59, 130, 246, 0.15);
         }
 
-        .current-location-card {
+        .current-weather-card {
             background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+        }
+
+        .altitude-card {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+
+        .soil-card {
+            background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
             color: white;
         }
 
@@ -170,6 +244,26 @@
             100% {
                 background-position: -200% 0;
             }
+        }
+
+        /* Enhanced scrollbar styling */
+        .custom-scrollbar-thin::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+
+        .custom-scrollbar-thin::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 2px;
+        }
+
+        .custom-scrollbar-thin::-webkit-scrollbar-thumb {
+            background: rgba(59, 130, 246, 0.3);
+            border-radius: 2px;
+        }
+
+        .custom-scrollbar-thin::-webkit-scrollbar-thumb:hover {
+            background: rgba(59, 130, 246, 0.5);
         }
 
         .custom-scrollbar::-webkit-scrollbar {
@@ -198,11 +292,117 @@
             opacity: 1;
             visibility: visible;
         }
+
+        /* Compact data visualization styles for bottom panel */
+        .data-grid-compact {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.5rem;
+        }
+
+        .metric-card-compact {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .metric-card-compact:hover {
+            background: rgba(59, 130, 246, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .metric-value-compact {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #1e40af;
+        }
+
+        .metric-label-compact {
+            font-size: 0.7rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+        }
+
+        .forecast-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            background: rgba(249, 250, 251, 0.8);
+            border: 1px solid rgba(229, 231, 235, 0.5);
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .forecast-item:hover {
+            background: rgba(243, 244, 246, 0.9);
+            transform: translateX(2px);
+        }
+
+        /* Ensure content doesn't overflow and supports full page scroll */
+        .weather-content-container {
+            min-height: 0;
+        }
+
+        .forecast-content {
+            min-height: 0;
+        }
+
+        /* Remove fixed heights and enable natural flow */
+        body {
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        /* Responsive adjustments for full-page scroll */
+        @media (max-width: 1024px) {
+            .flex-\[2\] {
+                flex: 1;
+            }
+
+            .min-h-\[600px\] {
+                min-height: 400px;
+            }
+
+            .min-h-\[400px\] {
+                min-height: 300px;
+            }
+
+            .flex-wrap {
+                flex-wrap: wrap;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .min-h-\[600px\] {
+                flex-direction: column;
+                min-height: 300px;
+            }
+
+            .flex-\[2\] {
+                flex: none;
+                min-height: 300px;
+            }
+
+            .w-72,
+            .w-64 {
+                width: 100%;
+                max-width: none;
+            }
+
+            .flex-nowrap {
+                flex-wrap: wrap;
+            }
+        }
     </style>
 
-    <!-- Modified JavaScript -->
+    <!-- Enhanced JavaScript -->
     <script>
-        class CityWeatherMapApp {
+        class EnhancedWeatherMapApp {
             constructor() {
                 this.map = null;
                 this.currentMarker = null;
@@ -215,9 +415,6 @@
                 this.selectedIndex = -1;
                 this.debounceTimer = null;
                 this.cache = new Map();
-
-                // Directional markers for nearby cities
-                this.directionalMarkers = [];
 
                 this.init();
             }
@@ -318,64 +515,44 @@
                 this.showAutocompleteLoading(true);
 
                 try {
-                    // Try our enhanced search endpoint first
-                    const response = await fetch('/search', {
+                    const response = await fetch('/weather/autocomplete', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Accept': 'application/json'
                         },
                         body: JSON.stringify({ query })
                     });
 
-                    if (response.ok) {
-                        const result = await response.json();
-                        if (result.success) {
-                            // If we found a result from our database, create a suggestion
-                            const suggestions = [{
-                                id: result.data.city_data?.id || 'external_' + Date.now(),
-                                name: result.data.display_name.split(',')[0],
-                                address: result.data.display_name,
-                                lat: result.data.lat,
-                                lon: result.data.lng,
-                                type: result.data.city_data?.type || 'location',
-                                icon: this.getLocationIcon({ type: result.data.city_data?.type || 'city' }),
-                                from_database: result.data.from_database || false,
-                                city_data: result.data.city_data
-                            }];
+                    const result = await response.json();
 
-                            this.cache.set(query, suggestions);
-                            this.displayAutocompleteSuggestions(suggestions);
-                            this.showAutocompleteLoading(false);
-                            return;
-                        }
+                    if (response.ok && result.success) {
+                        this.cache.set(query, result.data);
+                        this.displayAutocompleteSuggestions(result.data);
+                    } else {
+                        console.error('Autocomplete API error:', result);
+                        this.displayAutocompleteError(result.message || 'Search failed');
                     }
-
-                    // Fallback to external API for autocomplete
-                    const externalResponse = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&addressdetails=1`);
-                    const data = await externalResponse.json();
-
-                    const suggestions = data.map(item => ({
-                        id: item.place_id,
-                        name: item.name || item.display_name.split(',')[0],
-                        address: this.formatAddress(item.address),
-                        lat: parseFloat(item.lat),
-                        lon: parseFloat(item.lon),
-                        type: item.type || 'location',
-                        icon: this.getLocationIcon(item),
-                        from_database: false,
-                        city_data: null
-                    }));
-
-                    this.cache.set(query, suggestions);
-                    this.displayAutocompleteSuggestions(suggestions);
-
                 } catch (error) {
-                    console.error('Autocomplete error:', error);
+                    console.error('Autocomplete network error:', error);
+                    this.displayAutocompleteError('Network error occurred');
                 } finally {
                     this.showAutocompleteLoading(false);
                 }
             }
+
+            displayAutocompleteError(message) {
+                const dropdown = document.getElementById('autocompleteDropdown');
+                dropdown.innerHTML = `
+                    <div class="p-4 text-center text-red-500">
+                        <div class="text-2xl mb-2">⚠️</div>
+                        <p class="text-sm">${message}</p>
+                    </div>
+                `;
+                this.showAutocompleteDropdown();
+            }
+
 
             displayAutocompleteSuggestions(suggestions) {
                 this.suggestions = suggestions;
@@ -389,28 +566,35 @@
 
                 let html = '';
                 suggestions.forEach((suggestion, index) => {
-                    const badge = suggestion.from_database ?
-                        '<span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">DB</span>' : '';
+                    const population = suggestion.population ?
+                        `<span class="text-xs text-gray-500">${this.formatPopulation(suggestion.population)}</span>` : '';
 
                     html += `
-                    <div class="autocomplete-item p-3 cursor-pointer hover:bg-blue-50" 
-                         onclick="app.selectAutocompleteSuggestion(${index})">
-                        <div class="flex items-center space-x-3">
-                            <div class="text-xl">${suggestion.icon}</div>
-                            <div class="flex-1">
-                                <div class="flex items-center gap-2">
-                                    <span class="font-semibold text-gray-800">${suggestion.name}</span>
-                                    ${badge}
-                                </div>
-                                <div class="text-sm text-gray-600">${suggestion.address}</div>
-                            </div>
-                        </div>
-                    </div>
-                `;
+                                        <div class="autocomplete-item p-3 cursor-pointer hover:bg-blue-50" 
+                                             onclick="app.selectAutocompleteSuggestion(${index})">
+                                            <div class="flex items-center justify-between">
+                                                <div>
+                                                    <div class="font-semibold text-gray-800">${suggestion.name}</div>
+                                                    <div class="text-sm text-gray-600">${suggestion.display_name}</div>
+                                                    ${population}
+                                                </div>
+                                                <div class="text-xl">🌍</div>
+                                            </div>
+                                        </div>
+                                    `;
                 });
 
                 dropdown.innerHTML = html;
                 this.showAutocompleteDropdown();
+            }
+
+            formatPopulation(population) {
+                if (population > 1000000) {
+                    return `${(population / 1000000).toFixed(1)}M people`;
+                } else if (population > 1000) {
+                    return `${(population / 1000).toFixed(0)}K people`;
+                }
+                return `${population} people`;
             }
 
             selectAutocompleteSuggestion(index) {
@@ -420,31 +604,13 @@
                 input.value = suggestion.name;
                 this.hideAutocompleteDropdown();
 
-                this.map.setView([suggestion.lat, suggestion.lon], 12);
-                this.handleLocationSelected(suggestion.lat, suggestion.lon, suggestion.from_database, suggestion.city_data);
+                this.map.setView([suggestion.lat, suggestion.lng], 12);
+                this.handleLocationSelected(suggestion.lat, suggestion.lng, suggestion);
 
                 setTimeout(() => {
                     input.value = '';
                     document.getElementById('clearButton').classList.add('hidden');
                 }, 2000);
-            }
-
-            formatAddress(address) {
-                if (!address) return 'Unknown location';
-                const parts = [];
-                if (address.city) parts.push(address.city);
-                else if (address.town) parts.push(address.town);
-                if (address.state) parts.push(address.state);
-                if (address.country) parts.push(address.country);
-                return parts.join(', ') || 'Unknown location';
-            }
-
-            getLocationIcon(item) {
-                const icons = {
-                    city: '🏙️', town: '🏘️', village: '🏡', state: '🗺️', country: '🌍',
-                    restaurant: '🍽️', hotel: '🏨', hospital: '🏥'
-                };
-                return icons[item.type] || '📍';
             }
 
             navigateAutocompleteDown() {
@@ -518,7 +684,7 @@
                             const lat = position.coords.latitude;
                             const lng = position.coords.longitude;
                             this.map.setView([lat, lng], 12);
-                            this.handleLocationSelected(lat, lng, false, null);
+                            this.handleLocationSelected(lat, lng, null);
                         },
                         (error) => console.log('Geolocation error:', error)
                     );
@@ -528,7 +694,6 @@
             changeMapLayer(layerType) {
                 this.map.eachLayer((layer) => {
                     if (layer !== this.currentMarker &&
-                        !this.directionalMarkers.includes(layer) &&
                         layer.options && layer.options.attribution) {
                         this.map.removeLayer(layer);
                     }
@@ -559,34 +724,36 @@
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Accept': 'application/json'
                         },
                         body: JSON.stringify({ query })
                     });
 
                     const result = await response.json();
 
-                    if (result.success) {
-                        const { lat, lng, from_database, city_data } = result.data;
+                    if (response.ok && result.success) {
+                        const { lat, lng, location_details } = result.data;
                         this.map.setView([lat, lng], 12);
-                        this.handleLocationSelected(lat, lng, from_database, city_data);
+                        this.handleLocationSelected(lat, lng, location_details);
                         document.getElementById('searchInput').value = '';
+                        this.hideAutocompleteDropdown();
                     } else {
+                        console.error('Search error:', result);
                         alert(result.message || 'Location not found');
                     }
                 } catch (error) {
-                    console.error('Search error:', error);
-                    alert('Error searching for location');
+                    console.error('Search network error:', error);
+                    alert('Network error occurred while searching');
                 }
             }
 
             handleMapClick(latlng) {
                 const { lat, lng } = latlng;
-                // Map clicks are always treated as coordinate-based searches
-                this.handleLocationSelected(lat, lng, false, null);
+                this.handleLocationSelected(lat, lng, null);
             }
 
-            async handleLocationSelected(lat, lng, fromDatabase = false, cityData = null) {
+            async handleLocationSelected(lat, lng, locationDetails = null) {
                 this.currentLat = lat;
                 this.currentLng = lng;
 
@@ -594,7 +761,6 @@
                 if (this.currentMarker) {
                     this.map.removeLayer(this.currentMarker);
                 }
-                this.clearDirectionalMarkers();
 
                 // Add main location marker
                 this.currentMarker = L.circleMarker([lat, lng], {
@@ -605,84 +771,126 @@
                     fillOpacity: 0.9
                 }).addTo(this.map);
 
+                // Update location details and get location name if needed
+                await this.updateLocationDetailsAndTitle(locationDetails, lat, lng);
+
                 // Show loading states
                 this.showLoadingStates();
 
-                // Get weather data for current location
-                await this.getCurrentLocationWeather(lat, lng, fromDatabase, cityData);
-
-                // Get directional nearby places
-                await this.getNearbyDirectionalCities(lat, lng);
+                // Get comprehensive weather data
+                await this.getEnhancedWeatherData(lat, lng);
 
                 this.updateLastUpdated();
             }
 
-            showLoadingStates() {
-                // Current location loading
-                document.getElementById('currentLocationPlaceholder').classList.add('hidden');
-                document.getElementById('currentLocationWeather').innerHTML = this.getLoadingCard('current');
-                document.getElementById('currentLocationWeather').classList.remove('hidden');
+            async updateLocationDetailsAndTitle(locationDetails, lat, lng) {
+                const titleElement = document.getElementById('weatherPanelTitle');
+                const detailsElement = document.getElementById('locationDetails');
+                const forecastLocationElement = document.getElementById('forecastLocation');
 
-                // Nearby places loading
-                document.getElementById('nearbyPlacesPlaceholder').classList.add('hidden');
-                document.getElementById('nearbyPlacesWeather').innerHTML = Array(8).fill(0).map(() => this.getLoadingCard('nearby')).join('');
-            }
+                if (locationDetails) {
+                    // Use provided location details
+                    const parts = [];
+                    if (locationDetails.name) parts.push(locationDetails.name);
+                    if (locationDetails.admin1) parts.push(locationDetails.admin1);
+                    if (locationDetails.country) parts.push(locationDetails.country);
 
-            getLoadingCard(type) {
-                const isCurrentLocation = type === 'current';
-                const cardClass = isCurrentLocation ? 'current-location-card' : 'weather-card';
+                    const locationName = parts.join(', ');
+                    titleElement.innerHTML = `🌦️ ${locationName}`;
+                    detailsElement.textContent = locationName;
+                    forecastLocationElement.textContent = locationName;
+                } else {
+                    // Get location name using reverse geocoding for map clicks
+                    try {
+                        const response = await fetch('/weather/location-name', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            },
+                            body: JSON.stringify({ lat, lng })
+                        });
 
-                return `
-                <div class="${cardClass} rounded-xl p-4 mb-4 loading-shimmer">
-                    <div class="animate-pulse">
-                        <div class="flex items-center justify-between mb-3">
-                            <div class="h-6 bg-gray-300 rounded w-32"></div>
-                            <div class="h-8 bg-gray-300 rounded-full w-8"></div>
-                        </div>
-                        <div class="h-8 bg-gray-300 rounded w-16 mb-2"></div>
-                        <div class="grid grid-cols-2 gap-2">
-                            <div class="h-4 bg-gray-300 rounded"></div>
-                            <div class="h-4 bg-gray-300 rounded"></div>
-                            <div class="h-4 bg-gray-300 rounded"></div>
-                            <div class="h-4 bg-gray-300 rounded"></div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            }
-
-            async getCurrentLocationWeather(lat, lng, fromDatabase = false, cityData = null) {
-                try {
-                    const requestBody = { lat, lng };
-                    if (fromDatabase && cityData) {
-                        requestBody.from_database = true;
-                        requestBody.city_data = cityData;
+                        if (response.ok) {
+                            const result = await response.json();
+                            if (result.success) {
+                                titleElement.innerHTML = `🌦️ ${result.data.location_name}`;
+                                detailsElement.textContent = result.data.full_address;
+                                forecastLocationElement.textContent = result.data.location_name;
+                                return;
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error getting location name:', error);
                     }
 
-                    const response = await fetch('/weather/data', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                        },
-                        body: JSON.stringify(requestBody)
-                    });
-
-                    const result = await response.json();
-                    if (result.success) {
-                        this.displayCurrentLocationWeather(result.data);
-                    } else {
-                        this.showCurrentLocationError();
-                    }
-                } catch (error) {
-                    console.error('Error fetching current location weather:', error);
-                    this.showCurrentLocationError();
+                    // Fallback to coordinates
+                    const coordsText = `${lat.toFixed(4)}°, ${lng.toFixed(4)}°`;
+                    titleElement.innerHTML = `🌦️ Location: ${coordsText}`;
+                    detailsElement.textContent = `Coordinates: ${coordsText}`;
+                    forecastLocationElement.textContent = `Location: ${coordsText}`;
                 }
             }
 
-            async getNearbyDirectionalCities(lat, lng) {
+            showLoadingStates() {
+                document.getElementById('weatherPlaceholder').classList.add('hidden');
+                document.getElementById('currentWeatherData').innerHTML = this.getLoadingCard();
+                document.getElementById('currentWeatherData').classList.remove('hidden');
+
+                document.getElementById('temperatureByAltitude').innerHTML = this.getLoadingGrid();
+                document.getElementById('windByAltitude').innerHTML = this.getLoadingGrid();
+                document.getElementById('soilConditions').innerHTML = this.getLoadingGrid();
+                document.getElementById('extendedForecast').innerHTML = this.getForecastLoading();
+            }
+
+            getLoadingCard() {
+                return `
+                        <div class="current-weather-card rounded-xl p-4 loading-shimmer">
+                            <div class="animate-pulse">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="h-4 bg-white/30 rounded w-24"></div>
+                                    <div class="h-8 bg-white/30 rounded-full w-8"></div>
+                                </div>
+                                <div class="h-8 bg-white/30 rounded w-20 mb-3"></div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div class="h-12 bg-white/30 rounded"></div>
+                                    <div class="h-12 bg-white/30 rounded"></div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+            }
+
+            getLoadingGrid() {
+                return `
+                        <div class="data-grid-compact">
+                            <div class="metric-card-compact animate-pulse">
+                                <div class="h-6 bg-gray-300 rounded mb-2"></div>
+                                <div class="h-3 bg-gray-300 rounded"></div>
+                            </div>
+                            <div class="metric-card-compact animate-pulse">
+                                <div class="h-6 bg-gray-300 rounded mb-2"></div>
+                                <div class="h-3 bg-gray-300 rounded"></div>
+                            </div>
+                        </div>
+                    `;
+            }
+
+            getForecastLoading() {
+                return Array(7).fill(0).map(() => `
+                        <div class="forecast-item animate-pulse">
+                            <div class="flex items-center gap-3">
+                                <div class="h-6 w-6 bg-gray-300 rounded"></div>
+                                <div class="h-3 bg-gray-300 rounded w-16"></div>
+                            </div>
+                            <div class="h-4 bg-gray-300 rounded w-12"></div>
+                        </div>
+                    `).join('');
+            }
+
+            async getEnhancedWeatherData(lat, lng) {
                 try {
-                    const response = await fetch('/weather/nearby-directional', {
+                    const response = await fetch('/weather/data', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -692,225 +900,188 @@
                     });
 
                     const result = await response.json();
-                    if (result.success && result.data) {
-                        this.displayNearbyDirectionalCities(result.data);
-                        this.addDirectionalMarkersToMap(result.data);
+                    if (result.success) {
+                        this.displayEnhancedWeatherData(result.data.weather);
                     } else {
-                        this.showNearbyPlacesError();
+                        this.showWeatherError();
                     }
                 } catch (error) {
-                    console.error('Error fetching nearby directional cities:', error);
-                    this.showNearbyPlacesError();
+                    console.error('Error fetching weather data:', error);
+                    this.showWeatherError();
                 }
             }
 
-            displayCurrentLocationWeather(data) {
-                const container = document.getElementById('currentLocationWeather');
-
-                if (!data.weather || !data.weather.current) {
-                    this.showCurrentLocationError();
+            displayEnhancedWeatherData(weatherData) {
+                if (!weatherData || !weatherData.current) {
+                    this.showWeatherError();
                     return;
                 }
 
-                const current = data.weather.current;
-                const location = data.location || 'Unknown Location';
+                this.displayCurrentWeather(weatherData.current);
+                this.displayTemperatureByAltitude(weatherData.current);
+                this.displayWindByAltitude(weatherData.current);
+                this.displaySoilConditions(weatherData.hourly);
+                this.displayExtendedForecast(weatherData.daily);
+            }
 
+            displayCurrentWeather(current) {
+                const container = document.getElementById('currentWeatherData');
                 const weatherEmoji = this.getWeatherEmoji(current.weather_code);
                 const temp = Math.round(current.temperature_2m);
                 const feelsLike = Math.round(current.apparent_temperature);
 
                 container.innerHTML = `
-                <div class="current-location-card rounded-xl p-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <div>
-                            <h4 class="text-lg font-semibold text-white">${location}</h4>
-                            <p class="text-blue-100 text-sm">Current Location</p>
-                        </div>
-                        <div class="text-4xl">${weatherEmoji}</div>
-                    </div>
+                        <div class="current-weather-card rounded-xl p-4">
+                            <div class="flex items-center justify-between mb-3">
+                                <div>
+                                    <h4 class="text-sm font-semibold text-white">Current</h4>
+                                    <p class="text-blue-100 text-xs">${new Date().toLocaleTimeString()}</p>
+                                </div>
+                                <div class="text-3xl">${weatherEmoji}</div>
+                            </div>
 
-                    <div class="mb-4">
-                        <div class="text-3xl font-bold text-white mb-1">${temp}°C</div>
-                        <div class="text-blue-100 text-sm">Feels like ${feelsLike}°C</div>
-                    </div>
+                            <div class="mb-3">
+                                <div class="text-3xl font-bold text-white mb-1">${temp}°C</div>
+                                <div class="text-blue-100 text-xs">Feels like ${feelsLike}°C</div>
+                            </div>
 
-                    <div class="grid grid-cols-2 gap-3 text-sm">
-                        <div class="bg-white/20 rounded-lg p-2">
-                            <div class="text-blue-100 font-medium">Humidity</div>
-                            <div class="text-white">${current.relative_humidity_2m}%</div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div class="bg-white/20 rounded-lg p-2 text-center">
+                                    <div class="text-white font-bold text-sm">${current.relative_humidity_2m}%</div>
+                                    <div class="text-blue-100 text-xs">Humidity</div>
+                                </div>
+                                <div class="bg-white/20 rounded-lg p-2 text-center">
+                                    <div class="text-white font-bold text-sm">${Math.round(current.surface_pressure)}</div>
+                                    <div class="text-blue-100 text-xs">Pressure</div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="bg-white/20 rounded-lg p-2">
-                            <div class="text-blue-100 font-medium">Wind</div>
-                            <div class="text-white">${Math.round(current.wind_speed_10m)} km/h</div>
-                        </div>
-                        <div class="bg-white/20 rounded-lg p-2">
-                            <div class="text-blue-100 font-medium">Pressure</div>
-                            <div class="text-white">${Math.round(current.surface_pressure)} hPa</div>
-                        </div>
-                        <div class="bg-white/20 rounded-lg p-2">
-                            <div class="text-blue-100 font-medium">Wind Dir</div>
-                            <div class="text-white">${current.wind_direction_10m}°</div>
-                        </div>
-                    </div>
-                </div>
-            `;
+                    `;
             }
 
-            displayNearbyDirectionalCities(cities) {
-                const container = document.getElementById('nearbyPlacesWeather');
+            displayTemperatureByAltitude(current) {
+                const container = document.getElementById('temperatureByAltitude');
+                const temperatures = [
+                    { level: '2m', temp: current.temperature_2m, color: '#ef4444' },
+                    { level: '80m', temp: current.temperature_80m, color: '#f97316' },
+                    { level: '120m', temp: current.temperature_120m, color: '#eab308' },
+                    { level: '180m', temp: current.temperature_180m, color: '#22c55e' }
+                ].filter(item => item.temp !== undefined);
 
-                if (cities.length === 0) {
-                    container.innerHTML = `
-                    <div class="text-center py-6 text-gray-500">
-                        <div class="text-3xl mb-3">🌍</div>
-                        <p class="text-sm">No nearby cities found</p>
-                    </div>
-                `;
+                container.innerHTML = `
+                        <div class="data-grid-compact">
+                            ${temperatures.map(item => `
+                                <div class="metric-card-compact" style="border-left: 3px solid ${item.color}">
+                                    <div class="metric-value-compact">${Math.round(item.temp)}°C</div>
+                                    <div class="metric-label-compact">${item.level}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+            }
+
+            displayWindByAltitude(current) {
+                const container = document.getElementById('windByAltitude');
+                const windData = [
+                    { level: '10m', speed: current.wind_speed_10m, direction: current.wind_direction_10m, gusts: current.wind_gusts_10m },
+                    { level: '80m', speed: current.wind_speed_80m, direction: current.wind_direction_80m },
+                    { level: '120m', speed: current.wind_speed_120m, direction: current.wind_direction_120m },
+                    { level: '180m', speed: current.wind_speed_180m, direction: current.wind_direction_180m }
+                ].filter(item => item.speed !== undefined);
+
+                container.innerHTML = `
+                        <div class="data-grid-compact">
+                            ${windData.map(item => `
+                                <div class="metric-card-compact">
+                                    <div class="metric-value-compact">${Math.round(item.speed)} km/h</div>
+                                    <div class="metric-label-compact">${item.level} - ${item.direction}°</div>
+                                    ${item.gusts ? `<div class="text-xs text-gray-500 mt-1">Gusts: ${Math.round(item.gusts)} km/h</div>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+            }
+
+            displaySoilConditions(hourly) {
+                const container = document.getElementById('soilConditions');
+                if (!hourly) {
+                    container.innerHTML = '<div class="text-gray-500 text-center text-xs py-4">Soil data not available</div>';
                     return;
                 }
 
-                const weatherCards = cities.map(city => {
-                    const temp = city.temperature !== null ? city.temperature : '--';
-                    const directionIcon = this.getDirectionIcon(city.direction);
-                    const distance = Math.round(city.distance);
+                const soilData = [
+                    { depth: '0cm', temp: hourly.soil_temperature_0cm?.[0], moisture: hourly.soil_moisture_0_1cm?.[0] },
+                    { depth: '6cm', temp: hourly.soil_temperature_6cm?.[0], moisture: hourly.soil_moisture_1_3cm?.[0] },
+                    { depth: '18cm', temp: hourly.soil_temperature_18cm?.[0], moisture: hourly.soil_moisture_3_9cm?.[0] },
+                    { depth: '54cm', temp: hourly.soil_temperature_54cm?.[0], moisture: hourly.soil_moisture_9_27cm?.[0] }
+                ].filter(item => item.temp !== undefined || item.moisture !== undefined);
 
-                    return `
-                    <div class="weather-card rounded-lg p-4 cursor-pointer hover:scale-105 transition-transform" 
-                         onclick="app.focusOnPlace(${city.lat}, ${city.lng})">
-                        <div class="flex items-center justify-between mb-2">
-                            <div class="flex items-center gap-2">
-                                <div class="text-lg" title="${city.direction}">${directionIcon}</div>
+                if (soilData.length === 0) {
+                    container.innerHTML = '<div class="text-gray-500 text-center text-xs py-4">Soil data not available</div>';
+                    return;
+                }
+
+                container.innerHTML = `
+                        <div class="data-grid-compact">
+                            ${soilData.map(item => `
+                                <div class="soil-card rounded-lg p-2 text-white text-center">
+                                    <div class="font-bold text-xs mb-1">${item.depth}</div>
+                                    ${item.temp ? `<div class="text-sm font-bold">${Math.round(item.temp)}°C</div>` : ''}
+                                    ${item.moisture ? `<div class="text-xs opacity-90">${item.moisture.toFixed(2)} m³/m³</div>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+            }
+
+            displayExtendedForecast(daily) {
+                const container = document.getElementById('extendedForecast');
+                if (!daily || !daily.time) {
+                    container.innerHTML = '<div class="text-gray-500 text-center py-4">Forecast data not available</div>';
+                    return;
+                }
+
+                const days = daily.time.slice(0, 7).map((date, index) => ({
+                    date: new Date(date),
+                    weatherCode: daily.weather_code[index],
+                    maxTemp: daily.temperature_2m_max[index],
+                    minTemp: daily.temperature_2m_min[index],
+                    precipitation: daily.precipitation_sum[index],
+                    windSpeed: daily.wind_speed_10m_max[index]
+                }));
+
+                container.innerHTML = days.map(day => `
+                        <div class="forecast-item">
+                            <div class="flex items-center gap-3">
+                                <div class="text-xl">${this.getWeatherEmoji(day.weatherCode)}</div>
                                 <div>
-                                    <h4 class="font-semibold text-gray-800 text-sm truncate">${city.city}</h4>
-                                    <p class="text-xs text-gray-500">${city.direction} • ${distance}km</p>
+                                    <div class="font-semibold text-gray-800 text-sm">${day.date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</div>
+                                    <div class="text-xs text-gray-600">Rain: ${Math.round(day.precipitation || 0)}mm</div>
                                 </div>
                             </div>
                             <div class="text-right">
-                                <div class="text-2xl font-bold text-gray-900">${temp}°C</div>
+                                <div class="font-bold text-gray-800 text-sm">${Math.round(day.maxTemp)}° / ${Math.round(day.minTemp)}°</div>
+                                <div class="text-xs text-gray-600">${Math.round(day.windSpeed)} km/h</div>
                             </div>
                         </div>
-                        <div class="text-xs text-gray-600 truncate">
-                            ${city.state ? city.state + ', ' : ''}${city.country}
+                    `).join('');
+            }
+
+            showWeatherError() {
+                document.getElementById('currentWeatherData').innerHTML = `
+                        <div class="bg-red-100 border border-red-300 rounded-xl p-3 text-center">
+                            <div class="text-red-500 text-xl mb-1">⚠️</div>
+                            <p class="text-red-700 text-xs">Unable to fetch weather data</p>
                         </div>
-                    </div>
-                `;
-                }).join('');
-
-                container.innerHTML = weatherCards;
-            }
-
-            addDirectionalMarkersToMap(cities) {
-                this.clearDirectionalMarkers();
-
-                cities.forEach(city => {
-                    if (city.temperature !== null) {
-                        const marker = L.circleMarker([city.lat, city.lng], {
-                            radius: 8,
-                            fillColor: this.getTemperatureColor(city.temperature),
-                            color: 'white',
-                            weight: 2,
-                            fillOpacity: 0.8
-                        }).addTo(this.map);
-
-                        marker.bindPopup(`
-                        <div class="text-center p-2">
-                            <div class="font-semibold">${city.city}</div>
-                            <div class="text-sm text-gray-600">${city.direction}</div>
-                            <div class="text-lg font-bold">${city.temperature}°C</div>
-                            <div class="text-xs">${Math.round(city.distance)}km away</div>
-                        </div>
-                    `);
-
-                        this.directionalMarkers.push(marker);
-                    }
-                });
-            }
-
-            clearDirectionalMarkers() {
-                this.directionalMarkers.forEach(marker => {
-                    this.map.removeLayer(marker);
-                });
-                this.directionalMarkers = [];
-            }
-
-            getDirectionIcon(direction) {
-                const icons = {
-                    'North': '⬆️',
-                    'Northeast': '↗️',
-                    'East': '➡️',
-                    'Southeast': '↘️',
-                    'South': '⬇️',
-                    'Southwest': '↙️',
-                    'West': '⬅️',
-                    'Northwest': '↖️'
-                };
-                return icons[direction] || '📍';
-            }
-
-            getTemperatureColor(temperature) {
-                if (temperature < 15) return '#3b82f6'; // Blue for cold
-                if (temperature < 25) return '#10b981'; // Green for mild
-                if (temperature < 30) return '#f59e0b'; // Orange for warm
-                return '#ef4444'; // Red for hot
-            }
-
-            showCurrentLocationError() {
-                const container = document.getElementById('currentLocationWeather');
-                container.innerHTML = `
-                <div class="bg-red-100 border border-red-300 rounded-xl p-4 text-center">
-                    <div class="text-red-500 text-2xl mb-2">⚠️</div>
-                    <p class="text-red-700 text-sm">Unable to fetch weather data</p>
-                    <button onclick="app.retryCurrentWeather()" class="mt-2 text-red-600 underline text-xs">
-                        Retry
-                    </button>
-                </div>
-            `;
-            }
-
-            showNearbyPlacesError() {
-                const container = document.getElementById('nearbyPlacesWeather');
-                container.innerHTML = `
-                <div class="bg-red-100 border border-red-300 rounded-lg p-4 text-center">
-                    <div class="text-red-500 text-xl mb-2">⚠️</div>
-                    <p class="text-red-700 text-sm">Unable to fetch nearby places</p>
-                </div>
-            `;
-            }
-
-            focusOnPlace(lat, lng) {
-                this.map.setView([lat, lng], 14);
-                this.handleLocationSelected(lat, lng, false, null);
-            }
-
-            retryCurrentWeather() {
-                if (this.currentLat && this.currentLng) {
-                    this.getCurrentLocationWeather(this.currentLat, this.currentLng);
-                }
+                    `;
             }
 
             getWeatherEmoji(weatherCode) {
                 const weatherEmojis = {
-                    0: '☀️',    // Clear sky
-                    1: '🌤️',   // Mainly clear
-                    2: '⛅',    // Partly cloudy
-                    3: '☁️',    // Overcast
-                    45: '🌫️',  // Foggy
-                    48: '🌫️',  // Depositing rime fog
-                    51: '🌦️',  // Light drizzle
-                    53: '🌦️',  // Moderate drizzle
-                    55: '🌧️',  // Dense drizzle
-                    61: '🌦️',  // Slight rain
-                    63: '🌧️',  // Moderate rain
-                    65: '🌧️',  // Heavy rain
-                    71: '🌨️',  // Slight snow fall
-                    73: '🌨️',  // Moderate snow fall
-                    75: '🌨️',  // Heavy snow fall
-                    80: '🌦️',  // Slight rain showers
-                    81: '🌧️',  // Moderate rain showers
-                    82: '⛈️',   // Violent rain showers
-                    95: '⛈️',   // Thunderstorm
-                    96: '⛈️',   // Thunderstorm with slight hail
-                    99: '⛈️'    // Thunderstorm with heavy hail
+                    0: '☀️', 1: '🌤️', 2: '⛅', 3: '☁️', 45: '🌫️', 48: '🌫️',
+                    51: '🌦️', 53: '🌦️', 55: '🌧️', 61: '🌦️', 63: '🌧️', 65: '🌧️',
+                    71: '🌨️', 73: '🌨️', 75: '🌨️', 80: '🌦️', 81: '🌧️', 82: '⛈️',
+                    95: '⛈️', 96: '⛈️', 99: '⛈️'
                 };
                 return weatherEmojis[weatherCode] || '🌤️';
             }
@@ -922,12 +1093,13 @@
                     minute: '2-digit'
                 });
                 document.getElementById('lastUpdated').textContent = `Updated: ${timeString}`;
+                document.getElementById('forecastUpdated').textContent = `Updated: ${timeString}`;
             }
         }
 
         let app;
         document.addEventListener('DOMContentLoaded', () => {
-            app = new CityWeatherMapApp();
+            app = new EnhancedWeatherMapApp();
         });
     </script>
 @endsection
