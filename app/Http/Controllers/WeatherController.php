@@ -323,6 +323,9 @@ class WeatherController extends Controller
                 'current' => implode(',', [
                     // Temperature data at different levels
                     'temperature_2m',
+                    'temperature_80m',      // Added this
+                    'temperature_120m',     // Added this  
+                    'temperature_180m',     // Added this
                     'apparent_temperature',
 
                     // Wind data at different levels

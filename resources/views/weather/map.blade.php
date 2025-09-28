@@ -1,28 +1,16 @@
 @extends('layouts.app')
 
 @section('content')
-    <!-- Header -->
-    <header class="glass-effect p-4 shadow-lg">
-        <div class="flex justify-between items-center">
-            <div>
-                <h1 class="text-white text-3xl font-bold mb-2">🌤️ SafeCast</h1>
-            </div>
-            <p class="text-white text-sm flex items-center gap-2">
-                Click anywhere on the map or search locations to get comprehensive weather data
-            </p>
-        </div>
-    </header>
-
     <!-- Main Container with Flexbox Layout -->
-    <div class="p-4 flex flex-col gap-4 min-h-screen">
+    <div class="p-4 flex flex-col gap-4 max-h-full">
 
         <!-- Top Section (Map + Forecast) -->
-        <div class="flex gap-4 min-h-[600px]" style="min-height: 0;">
+        <div class="flex gap-4 style=" min-height: 0;">
 
             <!-- Map Container (2/3 width) -->
-            <div class="flex-[2] relative rounded-2xl shadow-2xl border-4 border-white/30 overflow-hidden min-h-[600px]">
+            <div class="flex-[2] relative rounded-2xl shadow-2xl border-4 border-white/30 overflow-hidden">
                 <!-- Search Controls Overlay -->
-                <div class="overlay absolute justify-end top-4 left-4 right-4 flex gap-2 items-center z-50">
+                <div class="overlay absolute justify-end top-4 left-4 right-4 flex gap-2 items-center">
                     <div class="search-container relative flex-1 max-w-md">
                         <input type="text"
                             class="w-full px-4 py-3 border-2 border-blue-500/30 rounded-full outline-none text-sm bg-white/95 backdrop-blur-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:bg-blue-400 transition-all duration-300 shadow-lg"
@@ -47,32 +35,6 @@
                     <button
                         class="bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white px-6 py-3 rounded-3xl font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg backdrop-blur-sm shadow-lg"
                         onclick="app.searchLocation()">🔍 Search</button>
-                </div>
-
-                <!-- Map Layer Control -->
-                <div class="overlay absolute top-20 left-4 z-40">
-                    <details class="h-fit w-fit">
-                        <summary
-                            class="list-none cursor-pointer bg-white/95 backdrop-blur-sm rounded-lg p-3 shadow-lg hover:shadow-xl transition-all duration-300 border-2 border-blue-500/30 hover:border-blue-500">
-                            <div class="w-6 h-6 flex items-center justify-center text-blue-500" title="Map Layers">☰</div>
-                        </summary>
-
-                        <div
-                            class="menu-content absolute top-full left-0 mt-1 w-fit min-w-max rounded-2xl p-4 bg-white/95 backdrop-blur-sm shadow-xl border border-blue-100">
-                            <button id="standardBtn" onclick="app.changeMapLayer('standard')"
-                                class="bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white p-3 rounded-2xl font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg backdrop-blur-sm shadow-lg mr-2">
-                                🗺️
-                            </button>
-                            <button id="cycleBtn" onclick="app.changeMapLayer('cycle')"
-                                class="bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white p-3 rounded-2xl font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg backdrop-blur-sm shadow-lg mr-2">
-                                🚴
-                            </button>
-                            <button id="transportBtn" onclick="app.changeMapLayer('transport')"
-                                class="bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white p-3 rounded-2xl font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg backdrop-blur-sm shadow-lg">
-                                🚌
-                            </button>
-                        </div>
-                    </details>
                 </div>
 
                 <!-- Map Container -->
@@ -127,19 +89,16 @@
                 </div>
             </div>
 
-            <!-- Panel Content - No internal scrolling, expands naturally -->
             <div class="weather-content-container">
                 <div class="flex gap-4 p-4 min-w-max flex-wrap lg:flex-nowrap">
                     <!-- Current Weather Section -->
-                    <div class="flex-shrink-0 w-72">
+                    <div class="flex-1 min-w-72">
                         <h3 class="text-lg font-semibold text-gray-700 mb-3 flex items-center gap-2">
                             📍 Current Conditions
                         </h3>
-
                         <div id="currentWeatherData" class="hidden">
                             <!-- Current weather will be populated here -->
                         </div>
-
                         <div id="weatherPlaceholder" class="text-center py-6 text-gray-500">
                             <div class="text-3xl mb-2">🎯</div>
                             <p class="text-xs">Select location for weather data</p>
@@ -147,46 +106,32 @@
                     </div>
 
                     <!-- Multi-Level Temperature Section -->
-                    <div class="flex-shrink-0 w-64">
+                    <div class="flex-1 min-w-64">
                         <h3 class="text-lg font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                            🌡️ Temperature by Altitude
+                            🌡️ Temperature
                         </h3>
-                        <div id="temperatureByAltitude" class="space-y-2">
-                            <!-- Temperature data will be populated here -->
+                        <div id="temperatureByAltitude" class="grid grid-cols-2 gap-2">
+                            <!-- Temperature data will be populated here in 2x2 grid -->
                         </div>
                     </div>
 
                     <!-- Multi-Level Wind Section -->
-                    <div class="flex-shrink-0 w-64">
+                    <div class="flex-1 min-w-64">
                         <h3 class="text-lg font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                            💨 Wind by Altitude
+                            💨 Wind
                         </h3>
-                        <div id="windByAltitude" class="space-y-2">
-                            <!-- Wind data will be populated here -->
+                        <div id="windByAltitude" class="grid grid-cols-2 gap-2">
+                            <!-- Wind data will be populated here in 2x2 grid -->
                         </div>
                     </div>
 
                     <!-- Soil Conditions Section -->
-                    <div class="flex-shrink-0 w-64">
+                    <div class="flex-1 min-w-64">
                         <h3 class="text-lg font-semibold text-gray-700 mb-3 flex items-center gap-2">
                             🌱 Soil Conditions
                         </h3>
-                        <div id="soilConditions" class="space-y-2">
-                            <!-- Soil data will be populated here -->
-                        </div>
-                    </div>
-
-                    <!-- Additional Weather Metrics Section (optional) -->
-                    <div class="flex-shrink-0 w-64">
-                        <h3 class="text-lg font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                            📊 Additional Metrics
-                        </h3>
-                        <div id="additionalMetrics" class="space-y-2">
-                            <!-- Additional metrics can be populated here -->
-                            <div class="text-center py-6 text-gray-500">
-                                <div class="text-2xl mb-2">📈</div>
-                                <p class="text-xs">More data coming soon</p>
-                            </div>
+                        <div id="soilConditions" class="grid grid-cols-2 gap-2">
+                            <!-- Soil data will be populated here in 2x2 grid -->
                         </div>
                     </div>
                 </div>
@@ -215,9 +160,13 @@
             box-shadow: 0 8px 25px rgba(59, 130, 246, 0.15);
         }
 
+        /* Align current weather section height with other sections */
         .current-weather-card {
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-            color: white;
+            min-height: 168px !important;
+            height: 168px !important;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         .altitude-card {
@@ -397,6 +346,82 @@
             .flex-nowrap {
                 flex-wrap: wrap;
             }
+
+            .current-weather-card {
+                min-height: 148px !important;
+                height: 148px !important;
+            }
+        }
+
+        /* Uniform data card dimensions */
+        .metric-card-compact,
+        .altitude-card div,
+        #windByAltitude>div,
+        #soilConditions>div,
+        #temperatureByAltitude>div {
+            min-height: 80px;
+            height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        /* Ensure grid containers have consistent spacing */
+        #temperatureByAltitude,
+        #windByAltitude,
+        #soilConditions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            min-height: 168px;
+            /* (80px * 2) + (8px gap) */
+        }
+
+        /* Override existing metric card styles to ensure uniformity */
+        .metric-card-compact {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        /* Uniform styling for all altitude/level cards */
+        .data-card-uniform {
+            min-height: 80px;
+            height: 80px;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        /* Responsive adjustments for smaller screens */
+        @media (max-width: 768px) {
+
+            .metric-card-compact,
+            .altitude-card div,
+            #windByAltitude>div,
+            #soilConditions>div,
+            #temperatureByAltitude>div {
+                min-height: 70px;
+                height: 70px;
+            }
+
+            #temperatureByAltitude,
+            #windByAltitude,
+            #soilConditions {
+                min-height: 148px;
+                /* (70px * 2) + (8px gap) */
+            }
         }
     </style>
 
@@ -545,11 +570,11 @@
             displayAutocompleteError(message) {
                 const dropdown = document.getElementById('autocompleteDropdown');
                 dropdown.innerHTML = `
-                    <div class="p-4 text-center text-red-500">
-                        <div class="text-2xl mb-2">⚠️</div>
-                        <p class="text-sm">${message}</p>
-                    </div>
-                `;
+                                                                                <div class="p-4 text-center text-red-500">
+                                                                                    <div class="text-2xl mb-2">⚠️</div>
+                                                                                    <p class="text-sm">${message}</p>
+                                                                                </div>
+                                                                            `;
                 this.showAutocompleteDropdown();
             }
 
@@ -570,18 +595,18 @@
                         `<span class="text-xs text-gray-500">${this.formatPopulation(suggestion.population)}</span>` : '';
 
                     html += `
-                                        <div class="autocomplete-item p-3 cursor-pointer hover:bg-blue-50" 
-                                             onclick="app.selectAutocompleteSuggestion(${index})">
-                                            <div class="flex items-center justify-between">
-                                                <div>
-                                                    <div class="font-semibold text-gray-800">${suggestion.name}</div>
-                                                    <div class="text-sm text-gray-600">${suggestion.display_name}</div>
-                                                    ${population}
-                                                </div>
-                                                <div class="text-xl">🌍</div>
-                                            </div>
-                                        </div>
-                                    `;
+                                                                                                    <div class="autocomplete-item p-3 cursor-pointer hover:bg-blue-50" 
+                                                                                                         onclick="app.selectAutocompleteSuggestion(${index})">
+                                                                                                        <div class="flex items-center justify-between">
+                                                                                                            <div>
+                                                                                                                <div class="font-semibold text-gray-800">${suggestion.name}</div>
+                                                                                                                <div class="text-sm text-gray-600">${suggestion.display_name}</div>
+                                                                                                                ${population}
+                                                                                                            </div>
+                                                                                                            <div class="text-xl">🌍</div>
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                `;
                 });
 
                 dropdown.innerHTML = html;
@@ -605,7 +630,16 @@
                 this.hideAutocompleteDropdown();
 
                 this.map.setView([suggestion.lat, suggestion.lng], 12);
-                this.handleLocationSelected(suggestion.lat, suggestion.lng, suggestion);
+
+                // Pass the suggestion as location details
+                const locationDetails = {
+                    name: suggestion.name,
+                    admin1: suggestion.admin1,
+                    country: suggestion.country,
+                    display_name: suggestion.display_name
+                };
+
+                this.handleLocationSelected(suggestion.lat, suggestion.lng, locationDetails);
 
                 setTimeout(() => {
                     input.value = '';
@@ -799,37 +833,38 @@
                     titleElement.innerHTML = `🌦️ ${locationName}`;
                     detailsElement.textContent = locationName;
                     forecastLocationElement.textContent = locationName;
-                } else {
-                    // Get location name using reverse geocoding for map clicks
-                    try {
-                        const response = await fetch('/weather/location-name', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                            },
-                            body: JSON.stringify({ lat, lng })
-                        });
-
-                        if (response.ok) {
-                            const result = await response.json();
-                            if (result.success) {
-                                titleElement.innerHTML = `🌦️ ${result.data.location_name}`;
-                                detailsElement.textContent = result.data.full_address;
-                                forecastLocationElement.textContent = result.data.location_name;
-                                return;
-                            }
-                        }
-                    } catch (error) {
-                        console.error('Error getting location name:', error);
-                    }
-
-                    // Fallback to coordinates
-                    const coordsText = `${lat.toFixed(4)}°, ${lng.toFixed(4)}°`;
-                    titleElement.innerHTML = `🌦️ Location: ${coordsText}`;
-                    detailsElement.textContent = `Coordinates: ${coordsText}`;
-                    forecastLocationElement.textContent = `Location: ${coordsText}`;
+                    return; // Add this return statement
                 }
+
+                // Get location name using reverse geocoding for map clicks
+                try {
+                    const response = await fetch('/weather/location-name', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify({ lat, lng })
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        if (result.success) {
+                            titleElement.innerHTML = `🌦️ ${result.data.location_name}`;
+                            detailsElement.textContent = result.data.full_address;
+                            forecastLocationElement.textContent = result.data.location_name;
+                            return;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error getting location name:', error);
+                }
+
+                // Fallback to coordinates only if the API call failed
+                const coordsText = `${lat.toFixed(4)}°, ${lng.toFixed(4)}°`;
+                titleElement.innerHTML = `🌦️ Location: ${coordsText}`;
+                detailsElement.textContent = `Coordinates: ${coordsText}`;
+                forecastLocationElement.textContent = `Location: ${coordsText}`;
             }
 
             showLoadingStates() {
@@ -845,47 +880,41 @@
 
             getLoadingCard() {
                 return `
-                        <div class="current-weather-card rounded-xl p-4 loading-shimmer">
-                            <div class="animate-pulse">
-                                <div class="flex items-center justify-between mb-3">
-                                    <div class="h-4 bg-white/30 rounded w-24"></div>
-                                    <div class="h-8 bg-white/30 rounded-full w-8"></div>
-                                </div>
-                                <div class="h-8 bg-white/30 rounded w-20 mb-3"></div>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <div class="h-12 bg-white/30 rounded"></div>
-                                    <div class="h-12 bg-white/30 rounded"></div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
+                                                                                    <div class="current-weather-card rounded-xl p-4 loading-shimmer">
+                                                                                        <div class="animate-pulse">
+                                                                                            <div class="flex items-center justify-between mb-3">
+                                                                                                <div class="h-4 bg-white/30 rounded w-24"></div>
+                                                                                                <div class="h-8 bg-white/30 rounded-full w-8"></div>
+                                                                                            </div>
+                                                                                            <div class="h-8 bg-white/30 rounded w-20 mb-3"></div>
+                                                                                            <div class="grid grid-cols-2 gap-2">
+                                                                                                <div class="h-12 bg-white/30 rounded"></div>
+                                                                                                <div class="h-12 bg-white/30 rounded"></div>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                `;
             }
 
             getLoadingGrid() {
-                return `
-                        <div class="data-grid-compact">
-                            <div class="metric-card-compact animate-pulse">
-                                <div class="h-6 bg-gray-300 rounded mb-2"></div>
-                                <div class="h-3 bg-gray-300 rounded"></div>
-                            </div>
-                            <div class="metric-card-compact animate-pulse">
-                                <div class="h-6 bg-gray-300 rounded mb-2"></div>
-                                <div class="h-3 bg-gray-300 rounded"></div>
-                            </div>
-                        </div>
-                    `;
+                return Array(4).fill(0).map(() => `
+                                                    <div class="metric-card-compact animate-pulse">
+                                                        <div class="h-6 bg-gray-300 rounded mb-2"></div>
+                                                        <div class="h-3 bg-gray-300 rounded"></div>
+                                                    </div>
+                                                `).join('');
             }
 
             getForecastLoading() {
                 return Array(7).fill(0).map(() => `
-                        <div class="forecast-item animate-pulse">
-                            <div class="flex items-center gap-3">
-                                <div class="h-6 w-6 bg-gray-300 rounded"></div>
-                                <div class="h-3 bg-gray-300 rounded w-16"></div>
-                            </div>
-                            <div class="h-4 bg-gray-300 rounded w-12"></div>
-                        </div>
-                    `).join('');
+                                                                                    <div class="forecast-item animate-pulse">
+                                                                                        <div class="flex items-center gap-3">
+                                                                                            <div class="h-6 w-6 bg-gray-300 rounded"></div>
+                                                                                            <div class="h-3 bg-gray-300 rounded w-16"></div>
+                                                                                        </div>
+                                                                                        <div class="h-4 bg-gray-300 rounded w-12"></div>
+                                                                                    </div>
+                                                                                `).join('');
             }
 
             async getEnhancedWeatherData(lat, lng) {
@@ -931,53 +960,72 @@
                 const feelsLike = Math.round(current.apparent_temperature);
 
                 container.innerHTML = `
-                        <div class="current-weather-card rounded-xl p-4">
-                            <div class="flex items-center justify-between mb-3">
-                                <div>
-                                    <h4 class="text-sm font-semibold text-white">Current</h4>
-                                    <p class="text-blue-100 text-xs">${new Date().toLocaleTimeString()}</p>
+                            <div class="current-weather-card bg-blue-500 rounded-xl p-4" style="min-height: 168px; height: 168px;">
+                                <div class="flex items-center justify-between mb-2">
+                                    <div class="flex items-center gap-2">
+                                        <div class="text-4xl font-bold text-white">${temp}°C</div>
+                                        <div>
+                                            <h4 class="text-sm font-semibold text-white">Current</h4>
+                                            <p class="text-blue-100 text-xs">${new Date().toLocaleTimeString()}</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-3xl">${weatherEmoji}</div>
                                 </div>
-                                <div class="text-3xl">${weatherEmoji}</div>
-                            </div>
 
-                            <div class="mb-3">
-                                <div class="text-3xl font-bold text-white mb-1">${temp}°C</div>
-                                <div class="text-blue-100 text-xs">Feels like ${feelsLike}°C</div>
-                            </div>
+                                <div class="mb-2">
+                                    <div class="text-blue-100 text-xs">Feels like ${feelsLike}°C</div>
+                                </div>
 
-                            <div class="grid grid-cols-2 gap-2">
-                                <div class="bg-white/20 rounded-lg p-2 text-center">
-                                    <div class="text-white font-bold text-sm">${current.relative_humidity_2m}%</div>
-                                    <div class="text-blue-100 text-xs">Humidity</div>
-                                </div>
-                                <div class="bg-white/20 rounded-lg p-2 text-center">
-                                    <div class="text-white font-bold text-sm">${Math.round(current.surface_pressure)}</div>
-                                    <div class="text-blue-100 text-xs">Pressure</div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div class="bg-white/20 rounded-lg p-2 text-center">
+                                        <div class="text-white font-bold text-sm">${current.relative_humidity_2m}%</div>
+                                        <div class="text-blue-100 text-xs">Humidity</div>
+                                    </div>
+                                    <div class="bg-white/20 rounded-lg p-2 text-center">
+                                        <div class="text-white font-bold text-sm">${Math.round(current.surface_pressure)}</div>
+                                        <div class="text-blue-100 text-xs">Pressure</div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    `;
+                        `;
             }
 
             displayTemperatureByAltitude(current) {
                 const container = document.getElementById('temperatureByAltitude');
-                const temperatures = [
+
+                // Define all altitude levels we want to display
+                const altitudeLevels = [
                     { level: '2m', temp: current.temperature_2m, color: '#ef4444' },
                     { level: '80m', temp: current.temperature_80m, color: '#f97316' },
                     { level: '120m', temp: current.temperature_120m, color: '#eab308' },
                     { level: '180m', temp: current.temperature_180m, color: '#22c55e' }
-                ].filter(item => item.temp !== undefined);
+                ];
 
-                container.innerHTML = `
-                        <div class="data-grid-compact">
-                            ${temperatures.map(item => `
-                                <div class="metric-card-compact" style="border-left: 3px solid ${item.color}">
-                                    <div class="metric-value-compact">${Math.round(item.temp)}°C</div>
-                                    <div class="metric-label-compact">${item.level}</div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    `;
+                // Check if we have temperature data
+                const hasTemperatureData = altitudeLevels.some(item => item.temp !== undefined && item.temp !== null);
+
+                if (!hasTemperatureData) {
+                    container.innerHTML = `
+                                    <div class="data-card-uniform bg-gray-100 col-span-2">
+                                        <div class="text-2xl mb-1">🌡️</div>
+                                        <p class="text-xs text-gray-500">Temperature altitude data not available</p>
+                                    </div>
+                                `;
+                    return;
+                }
+
+                container.innerHTML = altitudeLevels.map(item => {
+                    const temp = item.temp;
+                    const displayTemp = (temp !== undefined && temp !== null) ? Math.round(temp) : '--';
+                    const tempClass = (temp !== undefined && temp !== null) ? 'text-white' : 'text-gray-200';
+
+                    return `
+                                    <div class="data-card-uniform" style="background: linear-gradient(135deg, ${item.color} 0%, ${item.color}dd 100%);">
+                                        <div class="text-xs font-semibold text-white mb-1">${item.level}</div>
+                                        <div class="text-lg font-bold ${tempClass}">${displayTemp}°C</div>
+                                    </div>
+                                `;
+                }).join('');
             }
 
             displayWindByAltitude(current) {
@@ -989,23 +1037,30 @@
                     { level: '180m', speed: current.wind_speed_180m, direction: current.wind_direction_180m }
                 ].filter(item => item.speed !== undefined);
 
-                container.innerHTML = `
-                        <div class="data-grid-compact">
-                            ${windData.map(item => `
-                                <div class="metric-card-compact">
-                                    <div class="metric-value-compact">${Math.round(item.speed)} km/h</div>
-                                    <div class="metric-label-compact">${item.level} - ${item.direction}°</div>
-                                    ${item.gusts ? `<div class="text-xs text-gray-500 mt-1">Gusts: ${Math.round(item.gusts)} km/h</div>` : ''}
+                // Ensure we have exactly 4 items for 2x2 grid
+                while (windData.length < 4) {
+                    windData.push({ level: '--', speed: 0, direction: 0 });
+                }
+
+                container.innerHTML = windData.slice(0, 4).map(item => `
+                                <div class="data-card-uniform bg-blue-100">
+                                    <div class="text-xs font-semibold text-gray-700 mb-1">${item.level}</div>
+                                    <div class="text-lg font-bold text-blue-600">${Math.round(item.speed)} km/h</div>
+                                    ${item.direction ? `<div class="text-xs text-gray-600">${item.direction}°</div>` : ''}
+                                    ${item.gusts ? `<div class="text-xs text-gray-500">Gusts: ${Math.round(item.gusts)}</div>` : ''}
                                 </div>
-                            `).join('')}
-                        </div>
-                    `;
+                            `).join('');
             }
 
             displaySoilConditions(hourly) {
                 const container = document.getElementById('soilConditions');
                 if (!hourly) {
-                    container.innerHTML = '<div class="text-gray-500 text-center text-xs py-4">Soil data not available</div>';
+                    container.innerHTML = `
+                                    <div class="data-card-uniform bg-gray-100 col-span-2">
+                                        <div class="text-2xl mb-1">🌱</div>
+                                        <p class="text-xs text-gray-500">Soil data not available</p>
+                                    </div>
+                                `;
                     return;
                 }
 
@@ -1014,25 +1069,35 @@
                     { depth: '6cm', temp: hourly.soil_temperature_6cm?.[0], moisture: hourly.soil_moisture_1_3cm?.[0] },
                     { depth: '18cm', temp: hourly.soil_temperature_18cm?.[0], moisture: hourly.soil_moisture_3_9cm?.[0] },
                     { depth: '54cm', temp: hourly.soil_temperature_54cm?.[0], moisture: hourly.soil_moisture_9_27cm?.[0] }
-                ].filter(item => item.temp !== undefined || item.moisture !== undefined);
+                ];
 
-                if (soilData.length === 0) {
-                    container.innerHTML = '<div class="text-gray-500 text-center text-xs py-4">Soil data not available</div>';
+                // Ensure we have exactly 4 items for 2x2 grid
+                const validSoilData = soilData.filter(item => item.temp !== undefined || item.moisture !== undefined);
+
+                if (validSoilData.length === 0) {
+                    container.innerHTML = `
+                                    <div class="data-card-uniform bg-gray-100 col-span-2">
+                                        <div class="text-2xl mb-1">🌱</div>
+                                        <p class="text-xs text-gray-500">Soil data not available</p>
+                                    </div>
+                                `;
                     return;
                 }
 
-                container.innerHTML = `
-                        <div class="data-grid-compact">
-                            ${soilData.map(item => `
-                                <div class="soil-card rounded-lg p-2 text-white text-center">
-                                    <div class="font-bold text-xs mb-1">${item.depth}</div>
-                                    ${item.temp ? `<div class="text-sm font-bold">${Math.round(item.temp)}°C</div>` : ''}
-                                    ${item.moisture ? `<div class="text-xs opacity-90">${item.moisture.toFixed(2)} m³/m³</div>` : ''}
+                // Fill missing slots with placeholder data
+                while (validSoilData.length < 4) {
+                    validSoilData.push({ depth: '--', temp: null, moisture: null });
+                }
+
+                container.innerHTML = validSoilData.slice(0, 4).map(item => `
+                                <div class="data-card-uniform bg-orange-500 text-white">
+                                    <div class="text-xs font-semibold mb-1">${item.depth}</div>
+                                    ${item.temp ? `<div class="text-lg font-bold">${Math.round(item.temp)}°C</div>` : '<div class="text-lg font-bold">--°C</div>'}
+                                    ${item.moisture ? `<div class="text-xs">${item.moisture.toFixed(2)} m³/m³</div>` : '<div class="text-xs">-- m³/m³</div>'}
                                 </div>
-                            `).join('')}
-                        </div>
-                    `;
+                            `).join('');
             }
+
 
             displayExtendedForecast(daily) {
                 const container = document.getElementById('extendedForecast');
@@ -1051,29 +1116,29 @@
                 }));
 
                 container.innerHTML = days.map(day => `
-                        <div class="forecast-item">
-                            <div class="flex items-center gap-3">
-                                <div class="text-xl">${this.getWeatherEmoji(day.weatherCode)}</div>
-                                <div>
-                                    <div class="font-semibold text-gray-800 text-sm">${day.date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</div>
-                                    <div class="text-xs text-gray-600">Rain: ${Math.round(day.precipitation || 0)}mm</div>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <div class="font-bold text-gray-800 text-sm">${Math.round(day.maxTemp)}° / ${Math.round(day.minTemp)}°</div>
-                                <div class="text-xs text-gray-600">${Math.round(day.windSpeed)} km/h</div>
-                            </div>
-                        </div>
-                    `).join('');
+                                                                                    <div class="forecast-item">
+                                                                                        <div class="flex items-center gap-3">
+                                                                                            <div class="text-xl">${this.getWeatherEmoji(day.weatherCode)}</div>
+                                                                                            <div>
+                                                                                                <div class="font-semibold text-gray-800 text-sm">${day.date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</div>
+                                                                                                <div class="text-xs text-gray-600">Rain: ${Math.round(day.precipitation || 0)}mm</div>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div class="text-right">
+                                                                                            <div class="font-bold text-gray-800 text-sm">${Math.round(day.maxTemp)}° / ${Math.round(day.minTemp)}°</div>
+                                                                                            <div class="text-xs text-gray-600">${Math.round(day.windSpeed)} km/h</div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                `).join('');
             }
 
             showWeatherError() {
                 document.getElementById('currentWeatherData').innerHTML = `
-                        <div class="bg-red-100 border border-red-300 rounded-xl p-3 text-center">
-                            <div class="text-red-500 text-xl mb-1">⚠️</div>
-                            <p class="text-red-700 text-xs">Unable to fetch weather data</p>
-                        </div>
-                    `;
+                                                                                    <div class="bg-red-100 border border-red-300 rounded-xl p-3 text-center">
+                                                                                        <div class="text-red-500 text-xl mb-1">⚠️</div>
+                                                                                        <p class="text-red-700 text-xs">Unable to fetch weather data</p>
+                                                                                    </div>
+                                                                                `;
             }
 
             getWeatherEmoji(weatherCode) {
