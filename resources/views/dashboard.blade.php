@@ -1,565 +1,788 @@
 @extends('layouts.app')
 
+@section('header')
+    <h1 class="text-xl font-semibold text-gray-800">Dashboard</h1>
+@endsection
+
 @section('content')
-    <div class="p-8">
-        <!-- Main Content Area -->
-        <div class="grid grid-cols-1 gap-6 mb-6">
-            <!-- Current Location Details -->
-            <div class="glass-effect rounded-xl p-6">
-                <h3 class="text-xl font-semibold text-white mb-4">Current Location Weather</h3>
-                <div class="space-y-3">
-                    <div class="flex items-center justify-between p-4 rounded-lg bg-white/5">
-                        <div>
-                            <h4 class="text-white font-semibold" id="locationName">Loading location...</h4>
-                            <p class="text-white/60 text-sm" id="locationStatus">Getting your current position</p>
+    <div class="p-6">
+        <div class="p-6">
+            <!-- Welcome Section -->
+            <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl shadow-sm mb-6 overflow-hidden">
+                <div class="p-8 text-white">
+                    <h2 class="text-3xl font-bold mb-2">Welcome back, {{ Auth::user()->name }}! 👋</h2>
+                    <p class="text-blue-100 text-lg">Here's your current weather</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+
+                <!-- Current Weather Section (Left Side) -->
+                <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+                    <div class="p-6 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-xl font-bold text-gray-800">Current Weather</h3>
+                            <button id="refreshWeather"
+                                class="flex items-center gap-2 px-4 py-2 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow text-sm font-medium text-gray-700 hover:text-blue-600">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                                    </path>
+                                </svg>
+                                Refresh
+                            </button>
                         </div>
-                        <button onclick="dashboard.refreshCurrentLocation()"
-                            class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition-all duration-300 hover:scale-105">
-                            🔄 Refresh
-                        </button>
+                    </div>
+
+                    <div id="weatherContent" class="p-8">
+                        <!-- Loading State -->
+                        <div id="loadingState" class="flex flex-col items-center justify-center py-12">
+                            <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 mb-4"></div>
+                            <p class="text-gray-600">Getting your location and weather data...</p>
+                        </div>
+
+                        <!-- Error State -->
+                        <div id="errorState" class="hidden flex-col items-center justify-center py-12">
+                            <div class="text-6xl mb-4">⚠️</div>
+                            <h4 class="text-xl font-semibold text-gray-800 mb-2">Unable to Load Weather</h4>
+                            <p class="text-gray-600 text-center mb-4" id="errorMessage"></p>
+                            <button onclick="loadWeather()"
+                                class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                                Try Again
+                            </button>
+                        </div>
+
+                        <!-- Weather Data -->
+                        <div id="weatherData" class="hidden">
+                            <!-- Location Info -->
+                            <div class="flex items-center gap-2 mb-6 text-gray-600">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
+                                    </path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                                <span id="locationName" class="font-medium">Loading...</span>
+                            </div>
+
+                            <!-- Main Temperature Display -->
+                            <div class="flex items-start justify-between mb-8">
+                                <div class="flex items-start gap-6">
+                                    <div id="weatherIcon" class="text-8xl">🌤️</div>
+                                    <div>
+                                        <div class="text-6xl font-bold text-gray-800 mb-2">
+                                            <span id="temperature">--</span>°C
+                                        </div>
+                                        <p id="weatherDescription" class="text-xl text-gray-600 capitalize">Loading...</p>
+                                        <p class="text-sm text-gray-500 mt-2">
+                                            Feels like <span id="feelsLike">--</span>°C
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-sm text-gray-500">Last updated</p>
+                                    <p id="lastUpdated" class="text-sm font-medium text-gray-700">--</p>
+                                </div>
+                            </div>
+
+                            <!-- Weather Details Grid -->
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <!-- Humidity -->
+                                <div class="bg-blue-50 rounded-xl p-4">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="text-2xl">💧</span>
+                                        <span class="text-xs font-medium text-gray-600 uppercase">Humidity</span>
+                                    </div>
+                                    <p class="text-2xl font-bold text-gray-800"><span id="humidity">--</span>%</p>
+                                </div>
+
+                                <!-- Wind Speed -->
+                                <div class="bg-green-50 rounded-xl p-4">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="text-2xl">💨</span>
+                                        <span class="text-xs font-medium text-gray-600 uppercase">Wind Speed</span>
+                                    </div>
+                                    <p class="text-2xl font-bold text-gray-800"><span id="windSpeed">--</span> km/h</p>
+                                </div>
+
+                                <!-- Pressure -->
+                                <div class="bg-purple-50 rounded-xl p-4">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="text-2xl">🌡️</span>
+                                        <span class="text-xs font-medium text-gray-600 uppercase">Pressure</span>
+                                    </div>
+                                    <p class="text-2xl font-bold text-gray-800"><span id="pressure">--</span> hPa</p>
+                                </div>
+
+                                <!-- Precipitation -->
+                                <div class="bg-indigo-50 rounded-xl p-4">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="text-2xl">🌧️</span>
+                                        <span class="text-xs font-medium text-gray-600 uppercase">Precipitation</span>
+                                    </div>
+                                    <p class="text-2xl font-bold text-gray-800"><span id="precipitation">--</span> mm</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weather Alerts Section (Right Side) -->
+                <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+                    <div class="p-6 border-b border-gray-100 bg-gradient-to-r from-orange-50 to-red-50">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <span class="text-2xl">🚨</span>
+                                <h3 class="text-xl font-bold text-gray-800">Weather Alerts</h3>
+                            </div>
+                            <button id="refreshAlerts"
+                                class="flex items-center gap-2 px-4 py-2 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow text-sm font-medium text-gray-700 hover:text-orange-600">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                                    </path>
+                                </svg>
+                                Refresh
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="alertsContent" class="p-8">
+                        <!-- Loading State -->
+                        <div id="alertsLoadingState" class="flex flex-col items-center justify-center py-12">
+                            <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-orange-500 mb-4"></div>
+                            <p class="text-gray-600">Analyzing weather conditions...</p>
+                        </div>
+
+                        <!-- Error State -->
+                        <div id="alertsErrorState" class="hidden flex-col items-center justify-center py-12">
+                            <div class="text-6xl mb-4">⚠️</div>
+                            <h4 class="text-xl font-semibold text-gray-800 mb-2">Unable to Load Alerts</h4>
+                            <p class="text-gray-600 text-center mb-4" id="alertsErrorMessage"></p>
+                            <button onclick="loadWeatherAlerts()"
+                                class="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors">
+                                Try Again
+                            </button>
+                        </div>
+
+                        <!-- Alerts Data -->
+                        <div id="alertsData" class="hidden">
+                            <!-- Alert Statistics -->
+                            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+                                <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-3 text-center">
+                                    <div class="text-2xl font-bold text-blue-700" id="totalAlerts">0</div>
+                                    <div class="text-xs text-blue-600 font-medium mt-1">Total</div>
+                                </div>
+                                <div class="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-3 text-center">
+                                    <div class="text-2xl font-bold text-red-700" id="dangerAlerts">0</div>
+                                    <div class="text-xs text-red-600 font-medium mt-1">Danger</div>
+                                </div>
+                                <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-3 text-center">
+                                    <div class="text-2xl font-bold text-yellow-700" id="warningAlerts">0</div>
+                                    <div class="text-xs text-yellow-600 font-medium mt-1">Warning</div>
+                                </div>
+                                <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-3 text-center">
+                                    <div class="text-2xl font-bold text-green-700" id="infoAlerts">0</div>
+                                    <div class="text-xs text-green-600 font-medium mt-1">Info</div>
+                                </div>
+                            </div>
+
+                            <!-- Location Info -->
+                            <div class="flex items-center gap-2 mb-4 text-gray-600">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
+                                    </path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                                <span id="alertsLocationName" class="font-medium">Loading...</span>
+                            </div>
+
+                            <!-- Scrollable Alerts Container -->
+                            <div class="max-h-96 overflow-y-auto custom-scrollbar">
+                                <!-- No Alerts Message -->
+                                <div id="noAlertsMessage" class="hidden">
+                                    <div
+                                        class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-8 text-center border-2 border-green-200">
+                                        <div class="text-6xl mb-4">✅</div>
+                                        <h4 class="text-2xl font-bold text-green-800 mb-2">All Clear!</h4>
+                                        <p class="text-green-700 text-lg">No notable alerts in this area</p>
+                                        <p class="text-green-600 text-sm mt-2">Current weather conditions are within normal
+                                            ranges</p>
+                                    </div>
+                                </div>
+
+                                <!-- Active Alerts List -->
+                                <div id="activeAlertsList" class="space-y-4"></div>
+                            </div>
+
+                            <!-- Last Updated -->
+                            <div class="mt-6 text-center text-sm text-gray-500">
+                                Last checked: <span id="alertsLastUpdated" class="font-medium">--</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Additional Features Section -->
+            <div class="mb-4">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">Additional Features</h3>
+            </div>
+
+
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <!-- Total Searches -->
+                <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="text-3xl">🔍</div>
+                        <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">Coming
+                            Soon</span>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-800">0</h3>
+                    <p class="text-sm text-gray-600 mt-1">Total Searches</p>
+                </div>
+
+                <!-- Saved Locations -->
+                <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="text-3xl">📍</div>
+                        <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">Coming
+                            Soon</span>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-800">0</h3>
+                    <p class="text-sm text-gray-600 mt-1">Saved Locations</p>
+                </div>
+
+                <!-- Favorites -->
+                <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="text-3xl">⭐</div>
+                        <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">Coming
+                            Soon</span>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-800">0</h3>
+                    <p class="text-sm text-gray-600 mt-1">Favorite Spots</p>
+                </div>
+
+                <!-- Member Since -->
+                <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="text-3xl">📅</div>
+                        <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium">Active</span>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-800">{{ Auth::user()->created_at->diffForHumans(null, true) }}
+                    </h3>
+                    <p class="text-sm text-gray-600 mt-1">Member Since</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Quick Actions -->
+                <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100">
+                    <div class="p-6 border-b border-gray-100">
+                        <h3 class="text-lg font-semibold text-gray-800">Quick Actions</h3>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Weather Map -->
+                            <a href="{{ route('weather.map') }}"
+                                class="group flex items-start gap-4 p-4 rounded-xl border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50 transition-all duration-300">
+                                <div class="text-4xl">🗺️</div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-800 group-hover:text-blue-700 mb-1">Explore Weather
+                                        Map
+                                    </h4>
+                                    <p class="text-sm text-gray-600">View real-time weather data worldwide</p>
+                                </div>
+                            </a>
+
+                            <!-- Recent Searches -->
+                            <div
+                                class="group flex items-start gap-4 p-4 rounded-xl border-2 border-gray-200 bg-gray-50 opacity-60 cursor-not-allowed">
+                                <div class="text-4xl">🔎</div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-800 mb-1 flex items-center gap-2">
+                                        View Recent Searches
+                                        <span
+                                            class="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">Soon</span>
+                                    </h4>
+                                    <p class="text-sm text-gray-600">Access your search history</p>
+                                </div>
+                            </div>
+
+                            <!-- Favorites -->
+                            <div
+                                class="group flex items-start gap-4 p-4 rounded-xl border-2 border-gray-200 bg-gray-50 opacity-60 cursor-not-allowed">
+                                <div class="text-4xl">⭐</div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-800 mb-1 flex items-center gap-2">
+                                        Manage Favorites
+                                        <span
+                                            class="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">Soon</span>
+                                    </h4>
+                                    <p class="text-sm text-gray-600">Organize your favorite locations</p>
+                                </div>
+                            </div>
+
+                            <!-- Settings -->
+                            <a href="{{ route('profile.edit') }}"
+                                class="group flex items-start gap-4 p-4 rounded-xl border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50 transition-all duration-300">
+                                <div class="text-4xl">⚙️</div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-800 group-hover:text-blue-700 mb-1">Account Settings
+                                    </h4>
+                                    <p class="text-sm text-gray-600">Manage your profile and preferences</p>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Info & Tips -->
+                <div class="space-y-6">
+                    <!-- Account Info -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+                        <div class="p-6 border-b border-gray-100">
+                            <h3 class="text-lg font-semibold text-gray-800">Account Info</h3>
+                        </div>
+                        <div class="p-6 space-y-4">
+                            <div class="flex items-start gap-3">
+                                <span class="text-2xl">📧</span>
+                                <div>
+                                    <p class="text-xs font-medium text-gray-500 uppercase">Email</p>
+                                    <p class="text-sm text-gray-800 mt-0.5">{{ Auth::user()->email }}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <span class="text-2xl">📅</span>
+                                <div>
+                                    <p class="text-xs font-medium text-gray-500 uppercase">Joined</p>
+                                    <p class="text-sm text-gray-800 mt-0.5">{{ Auth::user()->created_at->format('F j, Y') }}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <span class="text-2xl">🔐</span>
+                                <div>
+                                    <p class="text-xs font-medium text-gray-500 uppercase">Status</p>
+                                    <p class="text-sm text-gray-800 mt-0.5">
+                                        <span class="inline-flex items-center gap-1">
+                                            <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                                            Active Account
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tips & Updates -->
+                    <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-sm overflow-hidden">
+                        <div class="p-6 text-white">
+                            <div class="text-3xl mb-3">💡</div>
+                            <h3 class="text-lg font-semibold mb-2">Coming Soon!</h3>
+                            <p class="text-sm text-blue-100 leading-relaxed">
+                                We're working on exciting new features including saved search history, favorite locations,
+                                and
+                                personalized weather alerts!
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Quick Stats Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <!-- Temperature Card -->
-            <div class="glass-effect rounded-xl p-6" id="tempCard">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-white/70 text-sm">Current Temp</p>
-                        <p class="text-2xl font-bold text-white" id="currentTemp">--°C</p>
-                        <p class="text-white/50 text-xs mt-1" id="feelsLike">Feels like --°C</p>
-                    </div>
-                    <div class="text-blue-300">
-                        <div class="text-3xl" id="weatherEmoji">🌤️</div>
-                    </div>
-                </div>
-            </div>
+        <script>
+            // Weather icons mapping
+            const weatherIcons = {
+                0: '☀️',    // Clear sky
+                1: '🌤️',   // Mainly clear
+                2: '⛅',    // Partly cloudy
+                3: '☁️',    // Overcast
+                45: '🌫️',  // Foggy
+                48: '🌫️',  // Depositing rime fog
+                51: '🌦️',  // Light drizzle
+                53: '🌦️',  // Moderate drizzle
+                55: '🌦️',  // Dense drizzle
+                61: '🌧️',  // Slight rain
+                63: '🌧️',  // Moderate rain
+                65: '🌧️',  // Heavy rain
+                71: '🌨️',  // Slight snow
+                73: '🌨️',  // Moderate snow
+                75: '🌨️',  // Heavy snow
+                77: '❄️',   // Snow grains
+                80: '🌦️',  // Slight rain showers
+                81: '🌧️',  // Moderate rain showers
+                82: '⛈️',   // Violent rain showers
+                85: '🌨️',  // Slight snow showers
+                86: '🌨️',  // Heavy snow showers
+                95: '⛈️',   // Thunderstorm
+                96: '⛈️',   // Thunderstorm with slight hail
+                99: '⛈️'    // Thunderstorm with heavy hail
+            };
 
-            <!-- Humidity Card -->
-            <div class="glass-effect rounded-xl p-6" id="humidityCard">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-white/70 text-sm">Humidity</p>
-                        <p class="text-2xl font-bold text-white" id="currentHumidity">--%</p>
-                        <p class="text-white/50 text-xs mt-1" id="humidityStatus">--</p>
-                    </div>
-                    <div class="text-blue-300">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M19.428 15.428a2 2 0 00-1.022-.547l-2.987-.532c-.584-.104-1.204.021-1.632.492l-.7.7c-.604.604-.47 1.584.308 2.308a8 8 0 001.429 1.429c.724.778 1.704.912 2.308.308l.7-.7c.471-.428.596-1.048.492-1.632l-.532-2.987a2 2 0 00-.364-.839z">
-                            </path>
-                        </svg>
-                    </div>
-                </div>
-            </div>
+            const weatherDescriptions = {
+                0: 'Clear sky',
+                1: 'Mainly clear',
+                2: 'Partly cloudy',
+                3: 'Overcast',
+                45: 'Foggy',
+                48: 'Depositing rime fog',
+                51: 'Light drizzle',
+                53: 'Moderate drizzle',
+                55: 'Dense drizzle',
+                61: 'Slight rain',
+                63: 'Moderate rain',
+                65: 'Heavy rain',
+                71: 'Slight snow',
+                73: 'Moderate snow',
+                75: 'Heavy snow',
+                77: 'Snow grains',
+                80: 'Slight rain showers',
+                81: 'Moderate rain showers',
+                82: 'Violent rain showers',
+                85: 'Slight snow showers',
+                86: 'Heavy snow showers',
+                95: 'Thunderstorm',
+                96: 'Thunderstorm with slight hail',
+                99: 'Thunderstorm with heavy hail'
+            };
 
-            <!-- Wind Speed Card -->
-            <div class="glass-effect rounded-xl p-6" id="windCard">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-white/70 text-sm">Wind Speed</p>
-                        <p class="text-2xl font-bold text-white" id="currentWind">-- km/h</p>
-                        <p class="text-white/50 text-xs mt-1" id="windDirection">Direction: --°</p>
-                    </div>
-                    <div class="text-blue-300">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" id="windIcon">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                        </svg>
-                    </div>
-                </div>
-            </div>
+            async function loadWeather() {
+                const loadingState = document.getElementById('loadingState');
+                const errorState = document.getElementById('errorState');
+                const weatherData = document.getElementById('weatherData');
 
-            <!-- Pressure Card -->
-            <div class="glass-effect rounded-xl p-6" id="pressureCard">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-white/70 text-sm">Pressure</p>
-                        <p class="text-2xl font-bold text-white" id="currentPressure">-- hPa</p>
-                        <p class="text-white/50 text-xs mt-1" id="pressureStatus">--</p>
-                    </div>
-                    <div class="text-blue-300">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
-                            </path>
-                        </svg>
-                    </div>
-                </div>
-            </div>
-        </div>
+                // Show loading
+                loadingState.classList.remove('hidden');
+                loadingState.classList.add('flex');
+                errorState.classList.add('hidden');
+                errorState.classList.remove('flex');
+                weatherData.classList.add('hidden');
 
-        <!-- Enhanced Weather Details -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <!-- Additional Weather Info -->
-            <div class="glass-effect rounded-xl p-6">
-                <h3 class="text-xl font-semibold text-white mb-4">Additional Weather Info</h3>
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-white/10 rounded-lg p-4">
-                        <p class="text-white/70 text-sm">UV Index</p>
-                        <p class="text-xl font-bold text-white" id="uvIndex">--</p>
-                        <p class="text-white/50 text-xs" id="uvStatus">--</p>
-                    </div>
-                    <div class="bg-white/10 rounded-lg p-4">
-                        <p class="text-white/70 text-sm">Visibility</p>
-                        <p class="text-xl font-bold text-white" id="visibility">-- km</p>
-                    </div>
-                    <div class="bg-white/10 rounded-lg p-4">
-                        <p class="text-white/70 text-sm">Cloud Cover</p>
-                        <p class="text-xl font-bold text-white" id="cloudCover">--%</p>
-                    </div>
-                    <div class="bg-white/10 rounded-lg p-4">
-                        <p class="text-white/70 text-sm">Precipitation</p>
-                        <p class="text-xl font-bold text-white" id="precipitation">-- mm</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 24-Hour Forecast -->
-            <div class="glass-effect rounded-xl p-6">
-                <h3 class="text-xl font-semibold text-white mb-4">24-Hour Forecast</h3>
-                <div class="space-y-3 max-h-80 overflow-y-auto custom-scrollbar" id="hourlyForecast">
-                    <div class="text-center py-8 text-white/60">
-                        <p class="text-sm">Loading forecast data...</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-
-        <!-- Loading Overlay -->
-        <div id="loadingOverlay"
-            class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center hidden">
-            <div class="glass-effect rounded-xl p-8 text-center">
-                <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent mx-auto mb-4">
-                </div>
-                <p class="text-white text-lg font-semibold">Loading weather data...</p>
-                <p class="text-white/70 text-sm">Please wait</p>
-            </div>
-        </div>
-
-        <!-- Footer Info -->
-        <div class="mt-8 text-center">
-            <p class="text-white/60 text-sm" id="lastUpdated">
-                Last updated: Never
-            </p>
-        </div>
-    </div>
-
-    <style>
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 2px;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 2px;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.5);
-        }
-
-        .loading-shimmer {
-            background: linear-gradient(90deg, rgba(255, 255, 255, 0.1) 25%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0.1) 75%);
-            background-size: 200% 100%;
-            animation: shimmer 2s infinite;
-        }
-
-        @keyframes shimmer {
-            0% {
-                background-position: 200% 0;
-            }
-
-            100% {
-                background-position: -200% 0;
-            }
-        }
-
-        .weather-card-loading {
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: 0.7;
-            }
-        }
-    </style>
-
-    <script>
-        class DashboardWeatherApp {
-            constructor() {
-                this.currentLat = null;
-                this.currentLng = null;
-                this.init();
-            }
-
-            init() {
-                this.bindEvents();
-                this.updateLastUpdated();
-
-                // Automatically get user's current location on page load
-                this.getCurrentLocation();
-            }
-
-            bindEvents() {
-                // Auto-refresh every 10 minutes
-                setInterval(() => {
-                    if (this.currentLat && this.currentLng) {
-                        this.getWeatherData(this.currentLat, this.currentLng, true);
-                    }
-                }, 600000);
-            }
-
-            showLoading(show = true) {
-                const overlay = document.getElementById('loadingOverlay');
-                if (show) {
-                    overlay.classList.remove('hidden');
-                } else {
-                    overlay.classList.add('hidden');
-                }
-            }
-
-            showCardLoading() {
-                const cards = ['tempCard', 'humidityCard', 'windCard', 'pressureCard'];
-                cards.forEach(cardId => {
-                    document.getElementById(cardId).classList.add('weather-card-loading');
-                });
-            }
-
-            hideCardLoading() {
-                const cards = ['tempCard', 'humidityCard', 'windCard', 'pressureCard'];
-                cards.forEach(cardId => {
-                    document.getElementById(cardId).classList.remove('weather-card-loading');
-                });
-            }
-
-            async getCurrentLocation() {
-                if (!navigator.geolocation) {
-                    document.getElementById('locationStatus').textContent = 'Geolocation not supported by this browser';
-                    return;
-                }
-
-                document.getElementById('locationStatus').textContent = 'Getting your location...';
-
-                navigator.geolocation.getCurrentPosition(
-                    async (position) => {
-                        const lat = position.coords.latitude;
-                        const lng = position.coords.longitude;
-
-                        this.currentLat = lat;
-                        this.currentLng = lng;
-
-                        await this.handleLocationSelected(lat, lng);
-                    },
-                    (error) => {
-                        console.error('Geolocation error:', error);
-                        let errorMessage = '';
-
-                        switch (error.code) {
-                            case error.PERMISSION_DENIED:
-                                errorMessage = 'Location access denied. Please enable location access and refresh the page.';
-                                break;
-                            case error.POSITION_UNAVAILABLE:
-                                errorMessage = 'Location information unavailable.';
-                                break;
-                            case error.TIMEOUT:
-                                errorMessage = 'Location request timed out. Please refresh the page.';
-                                break;
-                            default:
-                                errorMessage = 'Unable to get your location.';
-                                break;
-                        }
-
-                        document.getElementById('locationStatus').textContent = errorMessage;
-                        document.getElementById('locationName').textContent = 'Location unavailable';
-                        document.getElementById('locationDetails').textContent = errorMessage;
-                    },
-                    {
-                        enableHighAccuracy: true,
-                        timeout: 10000,
-                        maximumAge: 300000 // 5 minutes cache
-                    }
-                );
-            }
-
-            async handleLocationSelected(lat, lng) {
-                // Get location name
-                const locationDetails = await this.getLocationName(lat, lng);
-
-                // Update location display
-                const locationName = this.formatLocationName(locationDetails);
-                document.getElementById('locationStatus').textContent = `Current location: ${locationName}`;
-                document.getElementById('locationName').textContent = locationName;
-                document.getElementById('locationDetails').textContent = locationDetails.full_address || locationName;
-
-                // Get weather data
-                await this.getWeatherData(lat, lng);
-            }
-
-            async getLocationName(lat, lng) {
                 try {
-                    const response = await fetch('/weather/location-name', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                        },
-                        body: JSON.stringify({ lat, lng })
+                    // Get user's location
+                    const position = await new Promise((resolve, reject) => {
+                        if (!navigator.geolocation) {
+                            reject(new Error('Geolocation is not supported by your browser'));
+                        }
+                        navigator.geolocation.getCurrentPosition(resolve, reject);
                     });
 
-                    if (response.ok) {
-                        const result = await response.json();
-                        if (result.success) {
-                            return {
-                                name: result.data.location_name,
-                                full_address: result.data.full_address
-                            };
-                        }
+                    const { latitude, longitude } = position.coords;
+
+                    // Fetch weather data from Open-Meteo API
+                    const weatherResponse = await fetch(
+                        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,surface_pressure,wind_speed_10m&timezone=auto`
+                    );
+
+                    if (!weatherResponse.ok) {
+                        throw new Error('Failed to fetch weather data');
                     }
+
+                    const weather = await weatherResponse.json();
+
+                    // Fetch location name using reverse geocoding
+                    let locationName = `${latitude.toFixed(2)}, ${longitude.toFixed(2)}`;
+                    try {
+                        const geoResponse = await fetch(
+                            `https://geocoding-api.open-meteo.com/v1/search?latitude=${latitude}&longitude=${longitude}&count=1`
+                        );
+                        if (geoResponse.ok) {
+                            const geoData = await geoResponse.json();
+                            if (geoData.results && geoData.results.length > 0) {
+                                const location = geoData.results[0];
+                                locationName = `${location.name}${location.admin1 ? ', ' + location.admin1 : ''}${location.country ? ', ' + location.country : ''}`;
+                            }
+                        }
+                    } catch (e) {
+                        console.warn('Could not fetch location name:', e);
+                    }
+
+                    // Update UI
+                    const current = weather.current;
+                    const weatherCode = current.weather_code;
+
+                    document.getElementById('locationName').textContent = locationName;
+                    document.getElementById('temperature').textContent = Math.round(current.temperature_2m);
+                    document.getElementById('feelsLike').textContent = Math.round(current.apparent_temperature);
+                    document.getElementById('humidity').textContent = current.relative_humidity_2m;
+                    document.getElementById('windSpeed').textContent = Math.round(current.wind_speed_10m);
+                    document.getElementById('pressure').textContent = Math.round(current.surface_pressure);
+                    document.getElementById('precipitation').textContent = current.precipitation;
+                    document.getElementById('weatherIcon').textContent = weatherIcons[weatherCode] || '🌤️';
+                    document.getElementById('weatherDescription').textContent = weatherDescriptions[weatherCode] || 'Unknown';
+                    document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString('en-US', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+
+                    // Show weather data
+                    loadingState.classList.add('hidden');
+                    loadingState.classList.remove('flex');
+                    weatherData.classList.remove('hidden');
+
                 } catch (error) {
-                    console.error('Error getting location name:', error);
-                }
+                    console.error('Error loading weather:', error);
 
-                return {
-                    name: `${lat.toFixed(4)}°, ${lng.toFixed(4)}°`,
-                    full_address: `Coordinates: ${lat.toFixed(4)}°, ${lng.toFixed(4)}°`
-                };
-            }
+                    // Show error state
+                    loadingState.classList.add('hidden');
+                    loadingState.classList.remove('flex');
+                    errorState.classList.remove('hidden');
+                    errorState.classList.add('flex');
 
-            formatLocationName(locationDetails) {
-                if (!locationDetails) return 'Unknown Location';
-                return locationDetails.name || 'Unknown Location';
-            }
-
-            async getWeatherData(lat, lng, isAutoRefresh = false) {
-                if (!isAutoRefresh) {
-                    this.showCardLoading();
-                }
-
-                try {
-                    const response = await fetch('/weather/data', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                        },
-                        body: JSON.stringify({ lat, lng })
-                    });
-
-                    const result = await response.json();
-                    if (result.success) {
-                        this.displayWeatherData(result.data.weather);
-                        this.updateLastUpdated();
+                    let errorMessage = 'Unable to load weather data. ';
+                    if (error.message.includes('Geolocation')) {
+                        errorMessage += 'Please enable location access in your browser settings.';
+                    } else if (error.code === 1) {
+                        errorMessage += 'Location access was denied. Please enable it to see your weather.';
+                    } else if (error.code === 2) {
+                        errorMessage += 'Location information is unavailable.';
+                    } else if (error.code === 3) {
+                        errorMessage += 'Location request timed out.';
                     } else {
-                        this.showWeatherError();
+                        errorMessage += 'Please try again later.';
                     }
+
+                    document.getElementById('errorMessage').textContent = errorMessage;
+                }
+            }
+
+            let alertsRefreshInterval;
+
+            async function loadWeatherAlerts() {
+                const loadingState = document.getElementById('alertsLoadingState');
+                const errorState = document.getElementById('alertsErrorState');
+                const alertsData = document.getElementById('alertsData');
+                const noAlertsMessage = document.getElementById('noAlertsMessage');
+                const activeAlertsList = document.getElementById('activeAlertsList');
+
+                // Show loading
+                loadingState.classList.remove('hidden');
+                loadingState.classList.add('flex');
+                errorState.classList.add('hidden');
+                errorState.classList.remove('flex');
+                alertsData.classList.add('hidden');
+
+                try {
+                    // Get user's location
+                    const position = await new Promise((resolve, reject) => {
+                        if (!navigator.geolocation) {
+                            reject(new Error('Geolocation is not supported by your browser'));
+                        }
+                        navigator.geolocation.getCurrentPosition(resolve, reject);
+                    });
+
+                    const { latitude, longitude } = position.coords;
+
+                    // Fetch weather alerts
+                    const alertsResponse = await fetch(
+                        `/weather/alerts?lat=${latitude}&lng=${longitude}`
+                    );
+
+                    if (!alertsResponse.ok) {
+                        throw new Error('Failed to fetch weather alerts');
+                    }
+
+                    const alertsResult = await alertsResponse.json();
+
+                    if (!alertsResult.success) {
+                        throw new Error(alertsResult.message || 'Failed to load alerts');
+                    }
+
+                    const { alerts, statistics, location } = alertsResult.data;
+
+                    // Update statistics
+                    document.getElementById('totalAlerts').textContent = statistics.total;
+                    document.getElementById('dangerAlerts').textContent = statistics.danger;
+                    document.getElementById('warningAlerts').textContent = statistics.warning;
+                    document.getElementById('infoAlerts').textContent = statistics.info;
+                    document.getElementById('alertsLocationName').textContent = location;
+                    document.getElementById('alertsLastUpdated').textContent = new Date().toLocaleTimeString('en-US', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+
+                    // Clear previous alerts
+                    activeAlertsList.innerHTML = '';
+
+                    if (alerts.length === 0) {
+                        // Show no alerts message
+                        noAlertsMessage.classList.remove('hidden');
+                        activeAlertsList.classList.add('hidden');
+                    } else {
+                        // Hide no alerts message and show alerts
+                        noAlertsMessage.classList.add('hidden');
+                        activeAlertsList.classList.remove('hidden');
+
+                        // Render each alert
+                        alerts.forEach(alert => {
+                            const alertCard = createAlertCard(alert);
+                            activeAlertsList.appendChild(alertCard);
+                        });
+                    }
+
+                    // Show alerts data
+                    loadingState.classList.add('hidden');
+                    loadingState.classList.remove('flex');
+                    alertsData.classList.remove('hidden');
+
                 } catch (error) {
-                    console.error('Error fetching weather data:', error);
-                    this.showWeatherError();
-                } finally {
-                    if (!isAutoRefresh) {
-                        this.hideCardLoading();
+                    console.error('Error loading weather alerts:', error);
+
+                    // Show error state
+                    loadingState.classList.add('hidden');
+                    loadingState.classList.remove('flex');
+                    errorState.classList.remove('hidden');
+                    errorState.classList.add('flex');
+
+                    let errorMessage = 'Unable to load weather alerts. ';
+                    if (error.message.includes('Geolocation')) {
+                        errorMessage += 'Please enable location access in your browser settings.';
+                    } else if (error.code === 1) {
+                        errorMessage += 'Location access was denied. Please enable it to see alerts.';
+                    } else {
+                        errorMessage += 'Please try again later.';
+                    }
+
+                    document.getElementById('alertsErrorMessage').textContent = errorMessage;
+                }
+            }
+
+            function createAlertCard(alert) {
+                const card = document.createElement('div');
+
+                // Severity color mapping
+                const severityColors = {
+                    danger: {
+                        bg: 'from-red-50 to-red-100',
+                        border: 'border-red-300',
+                        text: 'text-red-800',
+                        badge: 'bg-red-600',
+                        detailBg: 'bg-red-200/50'
+                    },
+                    warning: {
+                        bg: 'from-yellow-50 to-yellow-100',
+                        border: 'border-yellow-300',
+                        text: 'text-yellow-800',
+                        badge: 'bg-yellow-600',
+                        detailBg: 'bg-yellow-200/50'
+                    },
+                    info: {
+                        bg: 'from-blue-50 to-blue-100',
+                        border: 'border-blue-300',
+                        text: 'text-blue-800',
+                        badge: 'bg-blue-600',
+                        detailBg: 'bg-blue-200/50'
+                    }
+                };
+
+                const colors = severityColors[alert.severity] || severityColors.info;
+
+                card.className = `bg-gradient-to-r ${colors.bg} rounded-xl p-5 border-2 ${colors.border} shadow-sm hover:shadow-md transition-shadow`;
+
+                // Build value display
+                let valueDisplay = '';
+                if (alert.value !== undefined && alert.value !== null) {
+                    valueDisplay = `<span class="text-2xl font-bold ${colors.text}">${alert.value}${alert.unit}</span>`;
+                }
+
+                // Build details section for heat index and wind chill
+                let detailsDisplay = '';
+                if (alert.details) {
+                    const details = alert.details;
+                    let detailItems = [];
+
+                    if (alert.type === 'heat_index') {
+                        detailItems.push(`
+                        <div class="text-xs ${colors.text}">
+                            <span class="font-semibold">Temperature:</span> ${details.temperature}°C
+                        </div>
+                    `);
+                        detailItems.push(`
+                        <div class="text-xs ${colors.text}">
+                            <span class="font-semibold">Humidity:</span> ${details.humidity}%
+                        </div>
+                    `);
+                        detailItems.push(`
+                        <div class="text-xs ${colors.text}">
+                            <span class="font-semibold">Category:</span> ${details.category}
+                        </div>
+                    `);
+                    } else if (alert.type === 'wind_chill') {
+                        detailItems.push(`
+                        <div class="text-xs ${colors.text}">
+                            <span class="font-semibold">Temperature:</span> ${details.temperature}°C
+                        </div>
+                    `);
+                        detailItems.push(`
+                        <div class="text-xs ${colors.text}">
+                            <span class="font-semibold">Wind Speed:</span> ${details.wind_speed} km/h
+                        </div>
+                    `);
+                        detailItems.push(`
+                        <div class="text-xs ${colors.text}">
+                            <span class="font-semibold">Category:</span> ${details.category}
+                        </div>
+                    `);
+                    }
+
+                    if (detailItems.length > 0) {
+                        detailsDisplay = `
+                        <div class="${colors.detailBg} rounded-lg p-3 mt-3 space-y-1">
+                            ${detailItems.join('')}
+                        </div>
+                    `;
                     }
                 }
-            }
 
-            displayWeatherData(weatherData) {
-                if (!weatherData || !weatherData.current) {
-                    this.showWeatherError();
-                    return;
-                }
-
-                const current = weatherData.current;
-
-                // Update main cards
-                this.updateTemperatureCard(current);
-                this.updateHumidityCard(current);
-                this.updateWindCard(current);
-                this.updatePressureCard(current);
-
-                // Update additional info
-                this.updateAdditionalInfo(current);
-
-                // Update hourly forecast
-                if (weatherData.hourly) {
-                    this.updateHourlyForecast(weatherData.hourly);
-                }
-            }
-
-            updateTemperatureCard(current) {
-                const temp = Math.round(current.temperature_2m);
-                const feelsLike = Math.round(current.apparent_temperature);
-                const weatherEmoji = this.getWeatherEmoji(current.weather_code);
-
-                document.getElementById('currentTemp').textContent = `${temp}°C`;
-                document.getElementById('feelsLike').textContent = `Feels like ${feelsLike}°C`;
-                document.getElementById('weatherEmoji').textContent = weatherEmoji;
-            }
-
-            updateHumidityCard(current) {
-                const humidity = Math.round(current.relative_humidity_2m);
-                let status = 'Normal';
-
-                if (humidity < 30) status = 'Dry';
-                else if (humidity > 70) status = 'Humid';
-
-                document.getElementById('currentHumidity').textContent = `${humidity}%`;
-                document.getElementById('humidityStatus').textContent = status;
-            }
-
-            updateWindCard(current) {
-                const windSpeed = Math.round(current.wind_speed_10m);
-                const windDir = Math.round(current.wind_direction_10m);
-
-                document.getElementById('currentWind').textContent = `${windSpeed} km/h`;
-                document.getElementById('windDirection').textContent = `Direction: ${windDir}°`;
-
-                // Rotate wind icon based on direction
-                const windIcon = document.getElementById('windIcon');
-                windIcon.style.transform = `rotate(${windDir}deg)`;
-            }
-
-            updatePressureCard(current) {
-                const pressure = Math.round(current.surface_pressure);
-                let status = 'Normal';
-
-                if (pressure < 1000) status = 'Low';
-                else if (pressure > 1020) status = 'High';
-
-                document.getElementById('currentPressure').textContent = `${pressure} hPa`;
-                document.getElementById('pressureStatus').textContent = status;
-            }
-
-            updateAdditionalInfo(current) {
-                // UV Index
-                const uvIndex = Math.round(current.uv_index || 0);
-                let uvStatus = 'Low';
-                if (uvIndex >= 3 && uvIndex < 6) uvStatus = 'Moderate';
-                else if (uvIndex >= 6 && uvIndex < 8) uvStatus = 'High';
-                else if (uvIndex >= 8) uvStatus = 'Very High';
-
-                document.getElementById('uvIndex').textContent = uvIndex;
-                document.getElementById('uvStatus').textContent = uvStatus;
-
-                // Visibility
-                const visibility = current.visibility ? (current.visibility / 1000).toFixed(1) : '--';
-                document.getElementById('visibility').textContent = `${visibility} km`;
-
-                // Cloud Cover
-                document.getElementById('cloudCover').textContent = `${Math.round(current.cloud_cover || 0)}%`;
-
-                // Precipitation
-                document.getElementById('precipitation').textContent = `${(current.precipitation || 0).toFixed(1)} mm`;
-            }
-
-            updateHourlyForecast(hourly) {
-                const container = document.getElementById('hourlyForecast');
-                if (!hourly.time) {
-                    container.innerHTML = '<div class="text-center py-4 text-white/60">Hourly forecast not available</div>';
-                    return;
-                }
-
-                // Show next 24 hours
-                const next24Hours = hourly.time.slice(0, 24).map((time, index) => ({
-                    time: new Date(time),
-                    temp: Math.round(hourly.temperature_2m[index]),
-                    weatherCode: hourly.weather_code[index],
-                    precipitation: hourly.precipitation_probability[index] || 0,
-                    windSpeed: Math.round(hourly.wind_speed_10m[index])
-                }));
-
-                container.innerHTML = next24Hours.map(hour => `
-                <div class="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
-                    <div class="flex items-center gap-3">
-                        <div class="text-lg">${this.getWeatherEmoji(hour.weatherCode)}</div>
-                        <div>
-                            <div class="text-white font-medium text-sm">${hour.time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</div>
-                            <div class="text-white/60 text-xs">${Math.round(hour.precipitation)}% rain</div>
+                card.innerHTML = `
+                <div class="flex items-start gap-4">
+                    <div class="text-4xl flex-shrink-0">${alert.icon}</div>
+                    <div class="flex-1">
+                        <div class="flex items-start justify-between gap-4 mb-2">
+                            <h5 class="text-lg font-bold ${colors.text}">${alert.title}</h5>
+                            <span class="px-3 py-1 ${colors.badge} text-white text-xs font-bold rounded-full uppercase flex-shrink-0">
+                                ${alert.severity}
+                            </span>
                         </div>
-                    </div>
-                    <div class="text-right">
-                        <div class="text-white font-bold">${hour.temp}°C</div>
-                        <div class="text-white/60 text-xs">${hour.windSpeed} km/h</div>
+                        <p class="${colors.text} text-sm leading-relaxed mb-3">${alert.message}</p>
+                        ${valueDisplay}
+                        ${detailsDisplay}
                     </div>
                 </div>
-            `).join('');
+            `;
+
+                return card;
             }
 
-            async refreshCurrentLocation() {
-                if (!this.currentLat || !this.currentLng) {
-                    // If no current location, try to get it again
-                    await this.getCurrentLocation();
-                    return;
+            // Load alerts on page load
+            document.addEventListener('DOMContentLoaded', () => {
+                loadWeatherAlerts();
+
+                // Auto-refresh alerts every 5 minutes
+                alertsRefreshInterval = setInterval(loadWeatherAlerts, 300000);
+            });
+
+            // Refresh button
+            document.getElementById('refreshAlerts')?.addEventListener('click', loadWeatherAlerts);
+
+            // Clean up interval on page unload
+            window.addEventListener('beforeunload', () => {
+                if (alertsRefreshInterval) {
+                    clearInterval(alertsRefreshInterval);
                 }
+            });
 
-                await this.getWeatherData(this.currentLat, this.currentLng);
-            }
+            // Load weather on page load
+            document.addEventListener('DOMContentLoaded', loadWeather);
 
-            showWeatherError() {
-                const errorMessage = 'Unable to fetch weather data';
-                document.getElementById('currentTemp').textContent = '--°C';
-                document.getElementById('feelsLike').textContent = 'Feels like --°C';
-                document.getElementById('currentHumidity').textContent = '--%';
-                document.getElementById('humidityStatus').textContent = '--';
-                document.getElementById('currentWind').textContent = '-- km/h';
-                document.getElementById('windDirection').textContent = 'Direction: --°';
-                document.getElementById('currentPressure').textContent = '-- hPa';
-                document.getElementById('pressureStatus').textContent = '--';
-                document.getElementById('weatherEmoji').textContent = '🌤️';
-
-                // Additional info
-                document.getElementById('uvIndex').textContent = '--';
-                document.getElementById('uvStatus').textContent = '--';
-                document.getElementById('visibility').textContent = '-- km';
-                document.getElementById('cloudCover').textContent = '--%';
-                document.getElementById('precipitation').textContent = '-- mm';
-
-                // Hourly forecast
-                document.getElementById('hourlyForecast').innerHTML =
-                    '<div class="text-center py-4 text-white/60">Unable to load weather data</div>';
-            }
-
-            getWeatherEmoji(weatherCode) {
-                const weatherEmojis = {
-                    0: '☀️', 1: '🌤️', 2: '⛅', 3: '☁️', 45: '🌫️', 48: '🌫️',
-                    51: '🌦️', 53: '🌦️', 55: '🌧️', 61: '🌦️', 63: '🌧️', 65: '🌧️',
-                    71: '🌨️', 73: '🌨️', 75: '🌨️', 80: '🌦️', 81: '🌧️', 82: '⛈️',
-                    95: '⛈️', 96: '⛈️', 99: '⛈️'
-                };
-                return weatherEmojis[weatherCode] || '🌤️';
-            }
-
-            updateLastUpdated() {
-                const now = new Date();
-                const timeString = now.toLocaleTimeString('en-US', {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-                document.getElementById('lastUpdated').textContent = `Last updated: ${timeString}`;
-            }
-        }
-
-        // Initialize the dashboard
-        let dashboard;
-        document.addEventListener('DOMContentLoaded', () => {
-            dashboard = new DashboardWeatherApp();
-        });
-    </script>
-
+            // Refresh button
+            document.getElementById('refreshWeather')?.addEventListener('click', loadWeather);
+        </script>
 @endsection

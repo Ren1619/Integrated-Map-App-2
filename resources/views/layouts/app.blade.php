@@ -6,111 +6,190 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'SafeCast Weather App') }}</title>
+    <title>{{ config('app.name', 'Weather Map') }}</title>
 
     <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
     <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
-    <!-- Styles -->
+    <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    
-    <style>
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .sidebar-glass {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border-right: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .nav-button {
-            transition: all 0.3s ease;
-        }
-        
-        .nav-button:hover {
-            background: rgba(255, 255, 255, 0.1);
-            transform: translateX(4px);
-        }
-        
-        .nav-button.active {
-            background: rgba(255, 255, 255, 0.2);
-            border-left: 4px solid #60a5fa;
-        }
-    </style>
 </head>
 
-<body class="bg-gradient-primary min-h-screen">
-    <div class="min-h-screen flex">
-        <!-- Sidebar Navigation -->
-        <div class="sidebar-glass w-64 fixed left-0 top-0 h-full z-40 flex flex-col">
-            <!-- Logo Section -->
-            <div class="p-6 border-b border-white/10">
-                <h2 class="text-white text-2xl font-bold">🌤️ SafeCast</h2>
-                <p class="text-white/70 text-sm mt-1">Weather Dashboard</p>
-            </div>
-            
-            <!-- Navigation Links -->
-            <nav class="flex-1 p-4">
-                <ul class="space-y-2">
-                    <li>
-                        <a href="{{ route('dashboard') }}" 
-                           class="nav-button {{ request()->routeIs('dashboard') ? 'active' : '' }} flex items-center gap-3 text-white px-4 py-3 rounded-lg block">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                      d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                      d="M8 5a2 2 0 012-2h4a2 2 0 012 2v6H8V5z"></path>
-                            </svg>
-                            Dashboard
+<body class="font-sans antialiased bg-gradient-to-br from-blue-50 via-white to-blue-50">
+    <div class="min-h-screen">
+        @auth
+            <!-- Authenticated Layout with Sidebar -->
+            <div class="flex h-screen overflow-hidden">
+                <!-- Sidebar Navigation -->
+                <aside class="w-64 bg-white border-r border-gray-200 flex flex-col flex-shrink-0" x-data="{ open: true }">
+                    <!-- Sidebar Header -->
+                    <div class="h-16 flex items-center justify-between px-6 border-b border-gray-200">
+                        <a href="{{ route('weather.map') }}" class="flex items-center gap-2">
+                            <span class="text-2xl">🌍</span>
+                            <span
+                                class="text-lg font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+                                {{ config('app.name', 'Weather Map') }}
+                            </span>
                         </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('weather.map') }}" 
-                           class="nav-button {{ request()->routeIs('weather.map') ? 'active' : '' }} flex items-center gap-3 text-white px-4 py-3 rounded-lg block">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                      d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
-                            </svg>
-                            Map
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-            
-            <!-- Logout Section -->
-            <div class="p-4 border-t border-white/10">
-                <button class="nav-button flex items-center gap-3 text-white px-4 py-3 rounded-lg w-full hover:bg-red-500/20">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-                    </svg>
-                    Logout
-                </button>
-            </div>
-        </div>
+                    </div>
 
-        <!-- Main Content Area -->
-        <div class="flex-1 ml-64">
-            <!-- Content Section -->
-            <main class="flex-1">
-                @yield('content')
-            </main>
-        </div>
+                    <!-- User Profile Section -->
+                    <div class="p-4 border-b border-gray-200">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div
+                                class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold">
+                                {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-semibold text-gray-900 truncate">{{ Auth::user()->name }}</p>
+                                <p class="text-xs text-gray-500 truncate">{{ Auth::user()->email }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Navigation Links -->
+                    <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+                        <a href="{{ route('dashboard') }}"
+                            class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors duration-200
+                                    {{ request()->routeIs('dashboard') ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-50' }}">
+                            <span class="text-xl">📊</span>
+                            <span>Dashboard</span>
+                        </a>
+
+                        <a href="{{ route('weather.map') }}"
+                            class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors duration-200
+                                    {{ request()->routeIs('weather.map') ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-50' }}">
+                            <span class="text-xl">🗺️</span>
+                            <span>{{ config('app.name', 'Weather Map') }}</span>
+                        </a>
+
+                        <!-- <div class="relative">
+                            <a href="#"
+                                class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg text-gray-400 cursor-not-allowed">
+                                <span class="text-xl">📍</span>
+                                <span>Saved Searches</span>
+                                <span
+                                    class="ml-auto text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">Soon</span>
+                            </a>
+                        </div>
+
+                        <div class="relative">
+                            <a href="#"
+                                class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg text-gray-400 cursor-not-allowed">
+                                <span class="text-xl">⭐</span>
+                                <span>Favorites</span>
+                                <span
+                                    class="ml-auto text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">Soon</span>
+                            </a>
+                        </div> -->
+
+                        <hr class="my-3 border-gray-200">
+
+                        <a href="{{ route('profile.show') }}"
+                            class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors duration-200
+                                    {{ request()->routeIs('profile.show') ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-50' }}">
+                            <span class="text-xl">👤</span>
+                            <span>My Profile</span>
+                        </a>
+
+                        <a href="{{ route('profile.edit') }}"
+                            class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors duration-200
+                                    {{ request()->routeIs('profile.edit') ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-50' }}">
+                            <span class="text-xl">⚙️</span>
+                            <span>Settings</span>
+                        </a>
+                    </nav>
+
+                    <!-- Sidebar Footer -->
+                    <div class="p-3 border-t border-gray-200">
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit"
+                                class="flex items-center gap-3 w-full px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200">
+                                <span class="text-xl">🚪</span>
+                                <span>Sign Out</span>
+                            </button>
+                        </form>
+                    </div>
+                </aside>
+
+                <!-- Main Content Area -->
+                <div class="flex-1 flex flex-col overflow-hidden">
+                    <!-- Top Bar (Optional - for breadcrumbs or actions) -->
+                    <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
+                        <div>
+                            @yield('header')
+                        </div>
+                        <div class="flex items-center gap-2 text-sm text-gray-600">
+                            <span>{{ now()->format('l, F j, Y') }}</span>
+                        </div>
+                    </header>
+
+                    <!-- Page Content -->
+                    <main class="flex-1 overflow-y-auto bg-gray-50">
+                        @yield('content')
+                    </main>
+                </div>
+            </div>
+        @else
+            <!-- Guest Layout (Original Design) -->
+            <div class="min-h-screen flex flex-col">
+                <!-- Navigation Bar -->
+                <nav class="bg-white/80 backdrop-blur-md shadow-sm border-b border-blue-100 sticky top-0 z-50">
+                    <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
+                        <div class="flex justify-between h-16">
+                            <!-- Logo/Brand -->
+                            <div class="flex items-center">
+                                <a href="{{ route('weather.map') }}" class="flex items-center gap-2">
+                                    <span class="text-2xl">🌍</span>
+                                    <span
+                                        class="text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+                                        {{ config('app.name', 'Weather Map') }}
+                                    </span>
+                                </a>
+                            </div>
+
+                            <!-- Guest Links -->
+                            <div class="flex items-center gap-2">
+                                <a href="{{ route('login') }}"
+                                    class="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors duration-200">
+                                    Sign In
+                                </a>
+                                <a href="{{ route('register') }}"
+                                    class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm hover:shadow-md transition-all duration-200">
+                                    Get Started
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+
+                <!-- Page Content -->
+                <main class="flex-1 overflow-y-auto">
+                    @yield('content')
+                </main>
+
+                <!-- Optional Footer -->
+                <footer class="bg-white/50 backdrop-blur-sm border-t border-gray-100 py-4">
+                    <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
+                        <div class="flex justify-between items-center text-sm text-gray-600">
+                            <p>Powered by Open-Meteo & Leaflet</p>
+                            <p class="hidden sm:block">© {{ date('Y') }} {{ config('app.name', 'Weather Map') }}. All rights reserved.</p>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        @endauth
     </div>
 
     <!-- Leaflet JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-</body>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
+    @stack('scripts')
+</body>
+    
 </html>

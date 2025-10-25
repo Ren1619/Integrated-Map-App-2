@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use App\Services\WeatherAlertService;
 
 class WeatherController extends Controller
 {
@@ -225,7 +226,7 @@ class WeatherController extends Controller
     private function fallbackNominatimSearch(string $query): JsonResponse
     {
         try {
-            $response = Http::timeout(30)->get('https://nominatim.openstreetmap.org/search', [
+            $response = Http::timeout(30)->get('    ', [
                 'format' => 'json',
                 'q' => $query,
                 'limit' => 1,
@@ -507,4 +508,120 @@ class WeatherController extends Controller
             'message' => 'Nearby directional cities feature has been removed. Use precise location search instead.'
         ], 410);
     }
+
+    // Add this method to your WeatherController.php
+
+
+
+    /**
+     * Get weather alerts for current location
+     */
+    public function getWeatherAlerts(Request $request): JsonResponse
+    {
+        try {
+            $request->validate([
+                'lat' => 'required|numeric|between:-90,90',
+                'lng' => 'required|numeric|between:-180,180'
+            ]);
+
+            $lat = $request->lat;
+            $lng = $request->lng;
+
+            Log::info("Fetching weather alerts for coordinates: {$lat}, {$lng}");
+
+            // Fetch weather data using existing method
+            $weatherData = $this->fetchEnhancedWeatherData($lat, $lng);
+
+            if (!$weatherData) {
+                Log::error('Weather data is null');
+                throw new \Exception('Failed to fetch weather data from API');
+            }
+
+            // Check if WeatherAlertService exists
+            if (!class_exists('App\Services\WeatherAlertService')) {
+                Log::error('WeatherAlertService class not found');
+                throw new \Exception('Weather Alert Service not available');
+            }
+
+            // Analyze alerts
+            $alertService = new WeatherAlertService();
+            $alerts = $alertService->analyzeWeatherData($weatherData);
+            $alerts = $alertService->sortAlertsBySeverity($alerts);
+            $stats = $alertService->getAlertStatistics($alerts);
+
+            // Get location name with better error handling
+            $locationName = "Current Location";
+            try {
+                $geoResponse = Http::timeout(10)
+                    ->withHeaders([
+                        'User-Agent' => 'WeatherMapApp/1.0'
+                    ])
+                    ->get('https://nominatim.openstreetmap.org/reverse', [
+                        'format' => 'json',
+                        'lat' => $lat,
+                        'lon' => $lng,
+                        'zoom' => 10,
+                        'addressdetails' => 1
+                    ]);
+
+                if ($geoResponse->successful()) {
+                    $result = $geoResponse->json();
+                    if (isset($result['address'])) {
+                        $address = $result['address'];
+                        $locationParts = [];
+
+                        $keys = ['city', 'town', 'village', 'municipality', 'county', 'state'];
+                        foreach ($keys as $key) {
+                            if (!empty($address[$key])) {
+                                $locationParts[] = $address[$key];
+                                if (count($locationParts) >= 2)
+                                    break;
+                            }
+                        }
+
+                        if (!empty($locationParts)) {
+                            $locationName = implode(', ', $locationParts);
+                        }
+                    }
+                }
+            } catch (\Exception $e) {
+                Log::warning('Failed to fetch location name: ' . $e->getMessage());
+                // Continue with default location name
+            }
+
+            Log::info("Successfully generated {$stats['total']} alerts");
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'alerts' => $alerts,
+                    'statistics' => $stats,
+                    'location' => $locationName,
+                    'coordinates' => [
+                        'lat' => (float) $lat,
+                        'lng' => (float) $lng
+                    ],
+                    'timestamp' => now()->toIso8601String()
+                ]
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Validation error: ' . json_encode($e->errors()));
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid coordinates provided',
+                'errors' => $e->errors()
+            ], 422);
+
+        } catch (\Exception $e) {
+            Log::error('Weather alerts error: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching weather alerts: ' . $e->getMessage(),
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+            ], 500);
+        }
+    }   
 }
