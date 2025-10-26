@@ -570,11 +570,11 @@
             displayAutocompleteError(message) {
                 const dropdown = document.getElementById('autocompleteDropdown');
                 dropdown.innerHTML = `
-                                                                                <div class="p-4 text-center text-red-500">
-                                                                                    <div class="text-2xl mb-2">⚠️</div>
-                                                                                    <p class="text-sm">${message}</p>
-                                                                                </div>
-                                                                            `;
+                                                                                            <div class="p-4 text-center text-red-500">
+                                                                                                <div class="text-2xl mb-2">⚠️</div>
+                                                                                                <p class="text-sm">${message}</p>
+                                                                                            </div>
+                                                                                        `;
                 this.showAutocompleteDropdown();
             }
 
@@ -595,18 +595,18 @@
                         `<span class="text-xs text-gray-500">${this.formatPopulation(suggestion.population)}</span>` : '';
 
                     html += `
-                                                                                                    <div class="autocomplete-item p-3 cursor-pointer hover:bg-blue-50" 
-                                                                                                         onclick="app.selectAutocompleteSuggestion(${index})">
-                                                                                                        <div class="flex items-center justify-between">
-                                                                                                            <div>
-                                                                                                                <div class="font-semibold text-gray-800">${suggestion.name}</div>
-                                                                                                                <div class="text-sm text-gray-600">${suggestion.display_name}</div>
-                                                                                                                ${population}
-                                                                                                            </div>
-                                                                                                            <div class="text-xl">🌍</div>
-                                                                                                        </div>
-                                                                                                    </div>
-                                                                                                `;
+                                                                                                                <div class="autocomplete-item p-3 cursor-pointer hover:bg-blue-50" 
+                                                                                                                     onclick="app.selectAutocompleteSuggestion(${index})">
+                                                                                                                    <div class="flex items-center justify-between">
+                                                                                                                        <div>
+                                                                                                                            <div class="font-semibold text-gray-800">${suggestion.name}</div>
+                                                                                                                            <div class="text-sm text-gray-600">${suggestion.display_name}</div>
+                                                                                                                            ${population}
+                                                                                                                        </div>
+                                                                                                                        <div class="text-xl">🌍</div>
+                                                                                                                    </div>
+                                                                                                                </div>
+                                                                                                            `;
                 });
 
                 dropdown.innerHTML = html;
@@ -822,8 +822,8 @@
                 const detailsElement = document.getElementById('locationDetails');
                 const forecastLocationElement = document.getElementById('forecastLocation');
 
-                if (locationDetails) {
-                    // Use provided location details
+                // If location details are provided (from search), use them
+                if (locationDetails && locationDetails.name) {
                     const parts = [];
                     if (locationDetails.name) parts.push(locationDetails.name);
                     if (locationDetails.admin1) parts.push(locationDetails.admin1);
@@ -833,35 +833,68 @@
                     titleElement.innerHTML = `🌦️ ${locationName}`;
                     detailsElement.textContent = locationName;
                     forecastLocationElement.textContent = locationName;
-                    return; // Add this return statement
+                    return;
                 }
 
-                // Get location name using reverse geocoding for map clicks
+                // Otherwise, perform reverse geocoding
+                console.log('Performing reverse geocoding for:', lat, lng);
+
+                // Show loading state
+                const coordsText = `${lat.toFixed(6)}°, ${lng.toFixed(6)}°`;
+                titleElement.innerHTML = `🌦️ Loading location...`;
+                detailsElement.textContent = `Coordinates: ${coordsText}`;
+                forecastLocationElement.textContent = 'Loading...';
+
                 try {
                     const response = await fetch('/weather/location-name', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Accept': 'application/json'
                         },
-                        body: JSON.stringify({ lat, lng })
+                        body: JSON.stringify({
+                            lat: parseFloat(lat),
+                            lng: parseFloat(lng)
+                        })
                     });
 
-                    if (response.ok) {
-                        const result = await response.json();
-                        if (result.success) {
-                            titleElement.innerHTML = `🌦️ ${result.data.location_name}`;
-                            detailsElement.textContent = result.data.full_address;
-                            forecastLocationElement.textContent = result.data.location_name;
-                            return;
-                        }
+                    console.log('Reverse geocoding response status:', response.status);
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    console.log('Reverse geocoding result:', result);
+
+                    if (result.success && result.data && result.data.location_name) {
+                        // Use short name for title
+                        titleElement.innerHTML = `🌦️ ${result.data.location_name}`;
+
+                        // Use full address for details with better formatting
+                        const fullAddress = result.data.full_address || result.data.location_name;
+                        detailsElement.innerHTML = `
+                    <div class="text-sm">
+                        <div class="font-medium">${fullAddress}</div>
+                        ${result.data.address_components && result.data.address_components.barangay ?
+                                `<div class="text-xs text-gray-500 mt-1">Barangay: ${result.data.address_components.barangay}</div>` : ''}
+                    </div>
+                `;
+
+                        // Use location name for forecast
+                        forecastLocationElement.textContent = result.data.location_name;
+
+                        console.log('Location name updated successfully');
+                        return;
+                    } else {
+                        console.warn('Reverse geocoding returned no location name');
                     }
                 } catch (error) {
-                    console.error('Error getting location name:', error);
+                    console.error('Reverse geocoding error:', error);
                 }
 
-                // Fallback to coordinates only if the API call failed
-                const coordsText = `${lat.toFixed(4)}°, ${lng.toFixed(4)}°`;
+                // Fallback to coordinates if geocoding failed
                 titleElement.innerHTML = `🌦️ Location: ${coordsText}`;
                 detailsElement.textContent = `Coordinates: ${coordsText}`;
                 forecastLocationElement.textContent = `Location: ${coordsText}`;
@@ -880,41 +913,41 @@
 
             getLoadingCard() {
                 return `
-                                                                                    <div class="current-weather-card rounded-xl p-4 loading-shimmer">
-                                                                                        <div class="animate-pulse">
-                                                                                            <div class="flex items-center justify-between mb-3">
-                                                                                                <div class="h-4 bg-white/30 rounded w-24"></div>
-                                                                                                <div class="h-8 bg-white/30 rounded-full w-8"></div>
-                                                                                            </div>
-                                                                                            <div class="h-8 bg-white/30 rounded w-20 mb-3"></div>
-                                                                                            <div class="grid grid-cols-2 gap-2">
-                                                                                                <div class="h-12 bg-white/30 rounded"></div>
-                                                                                                <div class="h-12 bg-white/30 rounded"></div>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                `;
+                                                                                                <div class="current-weather-card rounded-xl p-4 loading-shimmer">
+                                                                                                    <div class="animate-pulse">
+                                                                                                        <div class="flex items-center justify-between mb-3">
+                                                                                                            <div class="h-4 bg-white/30 rounded w-24"></div>
+                                                                                                            <div class="h-8 bg-white/30 rounded-full w-8"></div>
+                                                                                                        </div>
+                                                                                                        <div class="h-8 bg-white/30 rounded w-20 mb-3"></div>
+                                                                                                        <div class="grid grid-cols-2 gap-2">
+                                                                                                            <div class="h-12 bg-white/30 rounded"></div>
+                                                                                                            <div class="h-12 bg-white/30 rounded"></div>
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            `;
             }
 
             getLoadingGrid() {
                 return Array(4).fill(0).map(() => `
-                                                    <div class="metric-card-compact animate-pulse">
-                                                        <div class="h-6 bg-gray-300 rounded mb-2"></div>
-                                                        <div class="h-3 bg-gray-300 rounded"></div>
-                                                    </div>
-                                                `).join('');
+                                                                <div class="metric-card-compact animate-pulse">
+                                                                    <div class="h-6 bg-gray-300 rounded mb-2"></div>
+                                                                    <div class="h-3 bg-gray-300 rounded"></div>
+                                                                </div>
+                                                            `).join('');
             }
 
             getForecastLoading() {
                 return Array(7).fill(0).map(() => `
-                                                                                    <div class="forecast-item animate-pulse">
-                                                                                        <div class="flex items-center gap-3">
-                                                                                            <div class="h-6 w-6 bg-gray-300 rounded"></div>
-                                                                                            <div class="h-3 bg-gray-300 rounded w-16"></div>
-                                                                                        </div>
-                                                                                        <div class="h-4 bg-gray-300 rounded w-12"></div>
-                                                                                    </div>
-                                                                                `).join('');
+                                                                                                <div class="forecast-item animate-pulse">
+                                                                                                    <div class="flex items-center gap-3">
+                                                                                                        <div class="h-6 w-6 bg-gray-300 rounded"></div>
+                                                                                                        <div class="h-3 bg-gray-300 rounded w-16"></div>
+                                                                                                    </div>
+                                                                                                    <div class="h-4 bg-gray-300 rounded w-12"></div>
+                                                                                                </div>
+                                                                                            `).join('');
             }
 
             async getEnhancedWeatherData(lat, lng) {
@@ -960,34 +993,34 @@
                 const feelsLike = Math.round(current.apparent_temperature);
 
                 container.innerHTML = `
-                            <div class="current-weather-card bg-blue-500 rounded-xl p-4" style="min-height: 168px; height: 168px;">
-                                <div class="flex items-center justify-between mb-2">
-                                    <div class="flex items-center gap-2">
-                                        <div class="text-4xl font-bold text-white">${temp}°C</div>
-                                        <div>
-                                            <h4 class="text-sm font-semibold text-white">Current</h4>
-                                            <p class="text-blue-100 text-xs">${new Date().toLocaleTimeString()}</p>
+                                        <div class="current-weather-card bg-blue-500 rounded-xl p-4" style="min-height: 168px; height: 168px;">
+                                            <div class="flex items-center justify-between mb-2">
+                                                <div class="flex items-center gap-2">
+                                                    <div class="text-4xl font-bold text-white">${temp}°C</div>
+                                                    <div>
+                                                        <h4 class="text-sm font-semibold text-white">Current</h4>
+                                                        <p class="text-blue-100 text-xs">${new Date().toLocaleTimeString()}</p>
+                                                    </div>
+                                                </div>
+                                                <div class="text-3xl">${weatherEmoji}</div>
+                                            </div>
+
+                                            <div class="mb-2">
+                                                <div class="text-blue-100 text-xs">Feels like ${feelsLike}°C</div>
+                                            </div>
+
+                                            <div class="grid grid-cols-2 gap-2">
+                                                <div class="bg-white/20 rounded-lg p-2 text-center">
+                                                    <div class="text-white font-bold text-sm">${current.relative_humidity_2m}%</div>
+                                                    <div class="text-blue-100 text-xs">Humidity</div>
+                                                </div>
+                                                <div class="bg-white/20 rounded-lg p-2 text-center">
+                                                    <div class="text-white font-bold text-sm">${Math.round(current.surface_pressure)}</div>
+                                                    <div class="text-blue-100 text-xs">Pressure</div>
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="text-3xl">${weatherEmoji}</div>
-                                </div>
-
-                                <div class="mb-2">
-                                    <div class="text-blue-100 text-xs">Feels like ${feelsLike}°C</div>
-                                </div>
-
-                                <div class="grid grid-cols-2 gap-2">
-                                    <div class="bg-white/20 rounded-lg p-2 text-center">
-                                        <div class="text-white font-bold text-sm">${current.relative_humidity_2m}%</div>
-                                        <div class="text-blue-100 text-xs">Humidity</div>
-                                    </div>
-                                    <div class="bg-white/20 rounded-lg p-2 text-center">
-                                        <div class="text-white font-bold text-sm">${Math.round(current.surface_pressure)}</div>
-                                        <div class="text-blue-100 text-xs">Pressure</div>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
+                                    `;
             }
 
             displayTemperatureByAltitude(current) {
@@ -1006,11 +1039,11 @@
 
                 if (!hasTemperatureData) {
                     container.innerHTML = `
-                                    <div class="data-card-uniform bg-gray-100 col-span-2">
-                                        <div class="text-2xl mb-1">🌡️</div>
-                                        <p class="text-xs text-gray-500">Temperature altitude data not available</p>
-                                    </div>
-                                `;
+                                                <div class="data-card-uniform bg-gray-100 col-span-2">
+                                                    <div class="text-2xl mb-1">🌡️</div>
+                                                    <p class="text-xs text-gray-500">Temperature altitude data not available</p>
+                                                </div>
+                                            `;
                     return;
                 }
 
@@ -1020,11 +1053,11 @@
                     const tempClass = (temp !== undefined && temp !== null) ? 'text-white' : 'text-gray-200';
 
                     return `
-                                    <div class="data-card-uniform" style="background: linear-gradient(135deg, ${item.color} 0%, ${item.color}dd 100%);">
-                                        <div class="text-xs font-semibold text-white mb-1">${item.level}</div>
-                                        <div class="text-lg font-bold ${tempClass}">${displayTemp}°C</div>
-                                    </div>
-                                `;
+                                                <div class="data-card-uniform" style="background: linear-gradient(135deg, ${item.color} 0%, ${item.color}dd 100%);">
+                                                    <div class="text-xs font-semibold text-white mb-1">${item.level}</div>
+                                                    <div class="text-lg font-bold ${tempClass}">${displayTemp}°C</div>
+                                                </div>
+                                            `;
                 }).join('');
             }
 
@@ -1043,24 +1076,24 @@
                 }
 
                 container.innerHTML = windData.slice(0, 4).map(item => `
-                                <div class="data-card-uniform bg-blue-100">
-                                    <div class="text-xs font-semibold text-gray-700 mb-1">${item.level}</div>
-                                    <div class="text-lg font-bold text-blue-600">${Math.round(item.speed)} km/h</div>
-                                    ${item.direction ? `<div class="text-xs text-gray-600">${item.direction}°</div>` : ''}
-                                    ${item.gusts ? `<div class="text-xs text-gray-500">Gusts: ${Math.round(item.gusts)}</div>` : ''}
-                                </div>
-                            `).join('');
+                                            <div class="data-card-uniform bg-blue-100">
+                                                <div class="text-xs font-semibold text-gray-700 mb-1">${item.level}</div>
+                                                <div class="text-lg font-bold text-blue-600">${Math.round(item.speed)} km/h</div>
+                                                ${item.direction ? `<div class="text-xs text-gray-600">${item.direction}°</div>` : ''}
+                                                ${item.gusts ? `<div class="text-xs text-gray-500">Gusts: ${Math.round(item.gusts)}</div>` : ''}
+                                            </div>
+                                        `).join('');
             }
 
             displaySoilConditions(hourly) {
                 const container = document.getElementById('soilConditions');
                 if (!hourly) {
                     container.innerHTML = `
-                                    <div class="data-card-uniform bg-gray-100 col-span-2">
-                                        <div class="text-2xl mb-1">🌱</div>
-                                        <p class="text-xs text-gray-500">Soil data not available</p>
-                                    </div>
-                                `;
+                                                <div class="data-card-uniform bg-gray-100 col-span-2">
+                                                    <div class="text-2xl mb-1">🌱</div>
+                                                    <p class="text-xs text-gray-500">Soil data not available</p>
+                                                </div>
+                                            `;
                     return;
                 }
 
@@ -1076,11 +1109,11 @@
 
                 if (validSoilData.length === 0) {
                     container.innerHTML = `
-                                    <div class="data-card-uniform bg-gray-100 col-span-2">
-                                        <div class="text-2xl mb-1">🌱</div>
-                                        <p class="text-xs text-gray-500">Soil data not available</p>
-                                    </div>
-                                `;
+                                                <div class="data-card-uniform bg-gray-100 col-span-2">
+                                                    <div class="text-2xl mb-1">🌱</div>
+                                                    <p class="text-xs text-gray-500">Soil data not available</p>
+                                                </div>
+                                            `;
                     return;
                 }
 
@@ -1090,12 +1123,12 @@
                 }
 
                 container.innerHTML = validSoilData.slice(0, 4).map(item => `
-                                <div class="data-card-uniform bg-orange-500 text-white">
-                                    <div class="text-xs font-semibold mb-1">${item.depth}</div>
-                                    ${item.temp ? `<div class="text-lg font-bold">${Math.round(item.temp)}°C</div>` : '<div class="text-lg font-bold">--°C</div>'}
-                                    ${item.moisture ? `<div class="text-xs">${item.moisture.toFixed(2)} m³/m³</div>` : '<div class="text-xs">-- m³/m³</div>'}
-                                </div>
-                            `).join('');
+                                            <div class="data-card-uniform bg-orange-500 text-white">
+                                                <div class="text-xs font-semibold mb-1">${item.depth}</div>
+                                                ${item.temp ? `<div class="text-lg font-bold">${Math.round(item.temp)}°C</div>` : '<div class="text-lg font-bold">--°C</div>'}
+                                                ${item.moisture ? `<div class="text-xs">${item.moisture.toFixed(2)} m³/m³</div>` : '<div class="text-xs">-- m³/m³</div>'}
+                                            </div>
+                                        `).join('');
             }
 
 
@@ -1116,29 +1149,29 @@
                 }));
 
                 container.innerHTML = days.map(day => `
-                                                                                    <div class="forecast-item">
-                                                                                        <div class="flex items-center gap-3">
-                                                                                            <div class="text-xl">${this.getWeatherEmoji(day.weatherCode)}</div>
-                                                                                            <div>
-                                                                                                <div class="font-semibold text-gray-800 text-sm">${day.date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</div>
-                                                                                                <div class="text-xs text-gray-600">Rain: ${Math.round(day.precipitation || 0)}mm</div>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                        <div class="text-right">
-                                                                                            <div class="font-bold text-gray-800 text-sm">${Math.round(day.maxTemp)}° / ${Math.round(day.minTemp)}°</div>
-                                                                                            <div class="text-xs text-gray-600">${Math.round(day.windSpeed)} km/h</div>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                `).join('');
+                                                                                                <div class="forecast-item">
+                                                                                                    <div class="flex items-center gap-3">
+                                                                                                        <div class="text-xl">${this.getWeatherEmoji(day.weatherCode)}</div>
+                                                                                                        <div>
+                                                                                                            <div class="font-semibold text-gray-800 text-sm">${day.date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</div>
+                                                                                                            <div class="text-xs text-gray-600">Rain: ${Math.round(day.precipitation || 0)}mm</div>
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                    <div class="text-right">
+                                                                                                        <div class="font-bold text-gray-800 text-sm">${Math.round(day.maxTemp)}° / ${Math.round(day.minTemp)}°</div>
+                                                                                                        <div class="text-xs text-gray-600">${Math.round(day.windSpeed)} km/h</div>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            `).join('');
             }
 
             showWeatherError() {
                 document.getElementById('currentWeatherData').innerHTML = `
-                                                                                    <div class="bg-red-100 border border-red-300 rounded-xl p-3 text-center">
-                                                                                        <div class="text-red-500 text-xl mb-1">⚠️</div>
-                                                                                        <p class="text-red-700 text-xs">Unable to fetch weather data</p>
-                                                                                    </div>
-                                                                                `;
+                                                                                                <div class="bg-red-100 border border-red-300 rounded-xl p-3 text-center">
+                                                                                                    <div class="text-red-500 text-xl mb-1">⚠️</div>
+                                                                                                    <p class="text-red-700 text-xs">Unable to fetch weather data</p>
+                                                                                                </div>
+                                                                                            `;
             }
 
             getWeatherEmoji(weatherCode) {

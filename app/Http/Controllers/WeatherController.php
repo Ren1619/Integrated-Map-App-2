@@ -156,48 +156,90 @@ class WeatherController extends Controller
             $lat = $request->lat;
             $lng = $request->lng;
 
-            // Try Nominatim reverse geocoding
-            $response = Http::timeout(30)->get('https://nominatim.openstreetmap.org/reverse', [
-                'format' => 'json',
-                'lat' => $lat,
-                'lon' => $lng,
-                'addressdetails' => 1,
-                'zoom' => 10
-            ]);
+            Log::info("Reverse geocoding request for: {$lat}, {$lng}");
+
+            // Try Nominatim reverse geocoding with User-Agent header
+            // zoom=18 gives street-level detail
+            $response = Http::timeout(30)
+                ->withHeaders([
+                    'User-Agent' => 'WeatherMapApp/1.0'
+                ])
+                ->get('https://nominatim.openstreetmap.org/reverse', [
+                    'format' => 'json',
+                    'lat' => $lat,
+                    'lon' => $lng,
+                    'addressdetails' => 1,
+                    'zoom' => 18,  // Changed from 10 to 18 for street-level detail
+                    'accept-language' => 'en'
+                ]);
 
             if ($response->successful()) {
                 $result = $response->json();
+                Log::info('Nominatim response received', ['result' => $result]);
 
                 if (isset($result['display_name'])) {
-                    // Parse the address to get a cleaner location name
+                    // Parse the address to get detailed location
                     $address = $result['address'] ?? [];
                     $locationParts = [];
 
-                    // Priority order for location components
-                    $priorityKeys = ['city', 'town', 'village', 'municipality', 'county', 'state', 'country'];
+                    // More detailed priority order including streets and barangays
+                    $priorityKeys = [
+                        'house_number',      // House/building number
+                        'road',              // Street name
+                        'neighbourhood',     // Barangay/neighborhood
+                        'suburb',            // Subdivision/suburb
+                        'village',           // Village
+                        'municipality',      // Municipality
+                        'city',              // City
+                        'town',              // Town
+                        'county',            // County/district
+                        'state',             // State/province
+                        'country'            // Country
+                    ];
 
                     foreach ($priorityKeys as $key) {
                         if (!empty($address[$key])) {
                             $locationParts[] = $address[$key];
-                            if (count($locationParts) >= 3)
-                                break; // Limit to 3 parts
+                            if (count($locationParts) >= 5)
+                                break; // Increased from 3 to 5 for more detail
                         }
                     }
 
-                    $locationName = !empty($locationParts) ? implode(', ', $locationParts) : $result['display_name'];
+                    $locationName = !empty($locationParts)
+                        ? implode(', ', $locationParts)
+                        : $result['display_name'];
+
+                    // Create a short version for title (first 3 components)
+                    $shortName = implode(', ', array_slice($locationParts, 0, 3));
+
+                    Log::info("Location name resolved: {$locationName}");
 
                     return response()->json([
                         'success' => true,
                         'data' => [
-                            'location_name' => $locationName,
-                            'full_address' => $result['display_name'],
-                            'coordinates' => ['lat' => $lat, 'lng' => $lng]
+                            'location_name' => $shortName ?: $locationName,
+                            'full_address' => $locationName,
+                            'display_name' => $result['display_name'],
+                            'coordinates' => ['lat' => $lat, 'lng' => $lng],
+                            'address_components' => [
+                                'house_number' => $address['house_number'] ?? null,
+                                'road' => $address['road'] ?? null,
+                                'neighbourhood' => $address['neighbourhood'] ?? null,
+                                'barangay' => $address['neighbourhood'] ?? $address['suburb'] ?? null,
+                                'city' => $address['city'] ?? $address['town'] ?? $address['municipality'] ?? null,
+                                'state' => $address['state'] ?? null,
+                                'country' => $address['country'] ?? null,
+                                'postcode' => $address['postcode'] ?? null
+                            ]
                         ]
                     ]);
                 }
+            } else {
+                Log::warning('Nominatim API returned non-successful status: ' . $response->status());
             }
 
             // Fallback to coordinates if reverse geocoding fails
+            Log::info('Falling back to coordinates display');
             return response()->json([
                 'success' => true,
                 'data' => [
@@ -209,8 +251,9 @@ class WeatherController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Reverse geocoding error: ' . $e->getMessage());
+
             return response()->json([
-                'success' => true, // Still return success with coordinates
+                'success' => true,
                 'data' => [
                     'location_name' => "Location: {$request->lat}, {$request->lng}",
                     'full_address' => "Coordinates: {$request->lat}, {$request->lng}",
@@ -623,5 +666,5 @@ class WeatherController extends Controller
                 'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
             ], 500);
         }
-    }   
+    }
 }
