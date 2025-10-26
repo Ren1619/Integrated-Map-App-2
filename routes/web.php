@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WeatherController;
+use App\Http\Controllers\UserDataController;
 
 // ============================================
 // PUBLIC ROUTES (No Authentication Required)
@@ -26,14 +27,6 @@ Route::post('/weather/data', [WeatherController::class, 'getWeatherData'])->name
 // Debug endpoint for testing enhanced weather API
 Route::get('/debug/enhanced-weather', [WeatherController::class, 'debugEnhancedWeatherApi'])->name('debug.enhanced.weather');
 
-// ============================================
-// AUTHENTICATED ROUTES
-// ============================================
-
-// ============================================
-// AUTHENTICATED & VERIFIED ROUTES
-// ============================================
-// All authenticated features require email verification
 Route::middleware(['auth', 'verified'])->group(function () {
     // Dashboard
     Route::get('/dashboard', function () {
@@ -47,19 +40,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// ============================================
-// FUTURE: AUTHENTICATED WEATHER FEATURES
-// ============================================
-// Uncomment these when you implement saved searches feature
-// Route::middleware(['auth'])->group(function () {
-//     Route::get('/weather/saved-searches', [WeatherController::class, 'getSavedSearches'])->name('weather.saved.index');
-//     Route::post('/weather/save-search', [WeatherController::class, 'saveSearch'])->name('weather.saved.store');
-//     Route::delete('/weather/saved-searches/{id}', [WeatherController::class, 'deleteSavedSearch'])->name('weather.saved.destroy');
-// });
-
-// ============================================
-// LEGACY ENDPOINTS (Deprecated)
-// ============================================
 Route::prefix('weather/legacy')->group(function () {
     // These endpoints return deprecation notices
     Route::get('/cities/all', [WeatherController::class, 'getAllCitiesWeatherData'])->name('weather.legacy.cities.all');
@@ -74,5 +54,36 @@ Route::prefix('weather/legacy')->group(function () {
 
 Route::get('/weather/alerts', [WeatherController::class, 'getWeatherAlerts'])->name('weather.alerts');
 
-// Include authentication routes (login, register, password reset, etc.)
+
+// User Data Routes (Authenticated & Verified)
+Route::middleware(['auth', 'verified'])->group(function () {
+    
+    // ==================== SEARCH HISTORY ====================
+    Route::post('/user/search-history', [UserDataController::class, 'recordSearch'])
+        ->name('user.search.record');
+    Route::get('/user/search-history', [UserDataController::class, 'getSearchHistory'])
+        ->name('user.search.history');
+    Route::delete('/user/search-history', [UserDataController::class, 'clearSearchHistory'])
+        ->name('user.search.clear');
+    Route::delete('/user/search-history/{search}', [UserDataController::class, 'deleteSearchEntry'])
+        ->name('user.search.delete');
+    
+    // ==================== SAVED LOCATIONS ====================
+    Route::post('/user/saved-locations/toggle', [UserDataController::class, 'toggleSavedLocation'])
+        ->name('user.saved.toggle');
+    Route::get('/user/saved-locations', [UserDataController::class, 'getSavedLocations'])
+        ->name('user.saved.list');
+    Route::put('/user/saved-locations/{saved}', [UserDataController::class, 'updateSavedLocation'])
+        ->name('user.saved.update');
+    Route::delete('/user/saved-locations/{saved}', [UserDataController::class, 'deleteSavedLocation'])
+        ->name('user.saved.delete');
+    Route::post('/user/saved-locations/{saved}/visit', [UserDataController::class, 'recordSavedLocationVisit'])
+        ->name('user.saved.visit');
+    Route::post('/user/saved-locations/check', [UserDataController::class, 'checkSavedLocation'])
+        ->name('user.saved.check');
+    Route::post('/user/saved-locations/reorder', [UserDataController::class, 'reorderSavedLocations'])
+        ->name('user.saved.reorder');
+});
+
+
 require __DIR__ . '/auth.php';
