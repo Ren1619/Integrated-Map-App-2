@@ -11,69 +11,321 @@
 
     body {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-        background: #0f1419;
-        color: white;
-        overflow: hidden;
+        @apply bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100;
+        overflow-x: hidden;
+        transition: background-color 0.3s ease, color 0.3s ease;
     }
 
     .app-container {
-        position: relative;
-        height: 100vh;
-        width: 100vw;
+        @apply relative min-h-screen w-full;
+    }
+
+    /* Dark mode transitions */
+    * {
+        @apply transition-colors duration-300;
     }
 }
 
 @layer components {
+    /* ============================================
+       GRADIENT BACKGROUNDS
+       ============================================ */
     .bg-gradient-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        @apply bg-gradient-to-br from-blue-50 via-white to-blue-50;
+        @apply dark:from-gray-900 dark:via-gray-800 dark:to-gray-900;
         min-height: 100vh;
     }
 
+    /* ============================================
+       GLASS EFFECTS
+       ============================================ */
     .glass-effect {
         background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        @apply border border-white/20 dark:border-gray-700/20;
         box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
     }
+    
+    .dark .glass-effect {
+        background: rgba(31, 41, 55, 0.95);
+    }
 
+    .panel-glass {
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        @apply border border-white/30 dark:border-gray-700/30;
+        @apply shadow-lg;
+    }
+    
+    .dark .panel-glass {
+        background: rgba(31, 41, 55, 0.98);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+    }
+
+    /* ============================================
+       BUTTONS
+       ============================================ */
     .btn-primary {
-        @apply bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white px-6 py-3 rounded-full font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg;
+        @apply bg-blue-500 hover:bg-blue-600 active:bg-blue-700;
+        @apply dark:bg-blue-600 dark:hover:bg-blue-700 dark:active:bg-blue-800;
+        @apply text-white px-6 py-3 rounded-full font-medium;
+        @apply transition-all duration-300 hover:scale-105 hover:shadow-lg;
     }
 
     .btn-secondary {
-        @apply bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-full font-medium transition-all duration-300 backdrop-blur-sm border border-white/20;
+        @apply bg-white/20 hover:bg-white/30 dark:bg-gray-700/20 dark:hover:bg-gray-700/30;
+        @apply text-gray-900 dark:text-white px-4 py-2 rounded-full font-medium;
+        @apply transition-all duration-300 backdrop-blur-sm;
+        @apply border border-white/20 dark:border-gray-600/20;
     }
 
+    .btn-danger {
+        @apply bg-red-600 hover:bg-red-700 active:bg-red-800;
+        @apply dark:bg-red-700 dark:hover:bg-red-800 dark:active:bg-red-900;
+        @apply text-white px-6 py-3 rounded-lg font-medium;
+        @apply transition-all duration-300 hover:shadow-lg;
+    }
+
+    /* ============================================
+       INPUTS
+       ============================================ */
     .input-primary {
-        @apply px-4 py-3 border-2 border-blue-500/30 rounded-full outline-none text-sm min-w-64 bg-white/90 backdrop-blur-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300;
+        @apply px-4 py-3 border-2 border-blue-500/30 dark:border-blue-400/30;
+        @apply rounded-full outline-none text-sm min-w-64;
+        @apply bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm;
+        @apply focus:border-blue-500 dark:focus:border-blue-400;
+        @apply focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20;
+        @apply transition-all duration-300;
+        @apply text-gray-900 dark:text-gray-100;
+        @apply placeholder:text-gray-500 dark:placeholder:text-gray-400;
     }
 
+    .input-standard {
+        @apply w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600;
+        @apply rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400;
+        @apply focus:border-blue-500 dark:focus:border-blue-400;
+        @apply bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100;
+        @apply transition-colors;
+    }
+
+    /* ============================================
+       CARDS
+       ============================================ */
     .card {
-        @apply bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/20;
+        @apply bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm;
+        @apply rounded-2xl p-6 shadow-xl dark:shadow-gray-900/50;
+        @apply border border-white/20 dark:border-gray-700/20;
     }
 
-    .weather-icon {
-        @apply text-6xl mb-4 drop-shadow-lg;
+    .weather-card {
+        @apply bg-gradient-to-br from-gray-50 to-gray-100;
+        @apply dark:from-gray-800 dark:to-gray-700;
+        @apply border border-blue-200/20 dark:border-blue-500/20;
+        @apply transition-all duration-300;
     }
 
+    .weather-card:hover {
+        @apply transform -translate-y-1 shadow-xl dark:shadow-gray-900/50;
+    }
+
+    .current-weather-card {
+        min-height: 168px !important;
+        height: 168px !important;
+        @apply flex flex-col justify-between;
+    }
+
+    .metric-card-compact {
+        @apply bg-blue-100/50 dark:bg-blue-900/30;
+        @apply border border-blue-200 dark:border-blue-700;
+        @apply rounded-lg p-3 text-center;
+        @apply transition-all duration-300;
+    }
+
+    .metric-card-compact:hover {
+        @apply bg-blue-100 dark:bg-blue-900/50 transform -translate-y-0.5;
+    }
+
+    /* ============================================
+       WEATHER SPECIFIC CARDS
+       ============================================ */
+    .altitude-card {
+        @apply bg-gradient-to-br from-green-500 to-green-600;
+        @apply dark:from-green-600 dark:to-green-700;
+        @apply text-white;
+    }
+
+    .soil-card {
+        @apply bg-gradient-to-br from-orange-500 to-orange-600;
+        @apply dark:from-orange-600 dark:to-orange-700;
+        @apply text-white;
+    }
+
+    /* ============================================
+       DATA CARDS
+       ============================================ */
+    .data-card-uniform {
+        min-height: 80px;
+        height: 80px;
+        @apply p-3 rounded-lg flex flex-col justify-center items-center;
+        @apply text-center transition-all duration-300;
+    }
+
+    .metric-value-compact {
+        @apply text-xl font-bold text-blue-700 dark:text-blue-300;
+    }
+
+    .metric-label-compact {
+        @apply text-xs text-gray-600 dark:text-gray-400 mt-1;
+    }
+
+    /* ============================================
+       FORECAST ITEMS
+       ============================================ */
+    .forecast-item {
+        @apply flex items-center justify-between p-3 rounded-xl;
+        @apply bg-gray-50/80 dark:bg-gray-700/80;
+        @apply border border-gray-200/50 dark:border-gray-600/50;
+        @apply mb-2 transition-all duration-300;
+    }
+
+    .forecast-item:hover {
+        @apply bg-gray-100 dark:bg-gray-700 transform translate-x-1;
+    }
+
+    /* ============================================
+       POI ITEMS
+       ============================================ */
     .poi-item {
-        @apply bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-xl cursor-pointer transition-all duration-300 hover:from-blue-100 hover:to-indigo-100 hover:scale-105 hover:shadow-md border border-blue-100;
+        @apply bg-gradient-to-r from-blue-50 to-indigo-50;
+        @apply dark:from-blue-900/30 dark:to-indigo-900/30;
+        @apply p-4 rounded-xl cursor-pointer;
+        @apply transition-all duration-300;
+        @apply hover:from-blue-100 hover:to-indigo-100;
+        @apply dark:hover:from-blue-900/50 dark:hover:to-indigo-900/50;
+        @apply hover:scale-105 hover:shadow-md;
+        @apply border border-blue-100 dark:border-blue-800;
     }
 
+    /* ============================================
+       SECTION HEADERS
+       ============================================ */
     .section-header {
-        @apply text-xl font-bold text-gray-800 mb-4 pb-2 border-b-2 border-blue-500;
+        @apply text-xl font-bold text-gray-800 dark:text-gray-100;
+        @apply mb-4 pb-2 border-b-2 border-blue-500 dark:border-blue-400;
     }
 
+    /* ============================================
+       OVERLAYS
+       ============================================ */
     .overlay {
         z-index: 9999 !important;
     }
 
+    /* ============================================
+       SIDEBAR
+       ============================================ */
+    .sidebar-overlay {
+        @apply transition-opacity duration-300 ease-in-out;
+    }
+    
+    .sidebar-menu {
+        @apply transition-transform duration-300 ease-in-out;
+        @apply bg-white dark:bg-gray-800;
+        @apply border-gray-200 dark:border-gray-700;
+    }
+    
+    @media (max-width: 1024px) {
+        .sidebar-menu {
+            transform: translateX(-100%);
+        }
+        
+        .sidebar-menu.open {
+            transform: translateX(0);
+        }
+    }
+
+    /* ============================================
+       SEARCH & AUTOCOMPLETE
+       ============================================ */
+    .search-container {
+        @apply relative z-[1000];
+    }
+
+    .autocomplete-dropdown {
+        @apply shadow-2xl border border-blue-100 dark:border-blue-900;
+        @apply bg-white/95 dark:bg-gray-800/95;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+
+    .autocomplete-item {
+        @apply transition-all duration-200;
+        @apply hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100;
+        @apply dark:hover:from-blue-900/30 dark:hover:to-blue-800/30;
+    }
+
+    .autocomplete-item:hover {
+        @apply transform translate-x-0.5;
+    }
+
+    .autocomplete-item.selected {
+        @apply bg-gradient-to-r from-blue-500 to-blue-600;
+        @apply dark:from-blue-600 dark:to-blue-700;
+        @apply text-white transform translate-x-0.5;
+    }
+
+    /* ============================================
+       SCROLLBARS
+       ============================================ */
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+        @apply bg-gray-100 dark:bg-gray-800 rounded-xl;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        @apply bg-blue-500/50 dark:bg-blue-400/50 rounded-xl;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        @apply bg-blue-500/70 dark:bg-blue-400/70;
+    }
+
+    .custom-scrollbar {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(59, 130, 246, 0.5) rgba(0, 0, 0, 0.1);
+    }
+
+    .custom-scrollbar-thin::-webkit-scrollbar {
+        width: 4px;
+        height: 4px;
+    }
+
+    .custom-scrollbar-thin::-webkit-scrollbar-track {
+        @apply bg-gray-100/50 dark:bg-gray-800/50 rounded;
+    }
+
+    .custom-scrollbar-thin::-webkit-scrollbar-thumb {
+        @apply bg-blue-500/30 dark:bg-blue-400/30 rounded;
+    }
+
+    .custom-scrollbar-thin::-webkit-scrollbar-thumb:hover {
+        @apply bg-blue-500/50 dark:bg-blue-400/50;
+    }
+
+    /* ============================================
+       MENU & DROPDOWN
+       ============================================ */
     .menu-content {
         transform: translateY(-10px);
         opacity: 0;
         visibility: hidden;
-        transition: all 0.3s ease;
+        @apply transition-all duration-300 ease-in-out;
     }
 
     details[open] .menu-content {
@@ -82,91 +334,76 @@
         visibility: visible;
     }
 
-    .search-container {
-        position: relative;
-        z-index: 1000;
+    /* ============================================
+       LOADING STATES
+       ============================================ */
+    .loading-shimmer {
+        @apply bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200;
+        @apply dark:from-gray-700 dark:via-gray-600 dark:to-gray-700;
+        background-size: 200% 100%;
+        animation: shimmer 2s infinite;
     }
 
-    .autocomplete-dropdown {
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
+    @keyframes shimmer {
+        0% {
+            background-position: 200% 0;
+        }
+        100% {
+            background-position: -200% 0;
+        }
     }
 
-    .autocomplete-item {
-        transition: all 0.2s ease;
+    .weather-loading {
+        @apply relative overflow-hidden;
     }
 
-    .autocomplete-item:hover {
-        transform: translateX(2px);
-        background: linear-gradient(to right, #dbeafe, #bfdbfe);
+    .weather-loading::after {
+        content: '';
+        @apply absolute top-0 left-0 w-full h-full;
+        background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 255, 255, 0.4),
+            transparent
+        );
+        animation: shimmer 1.5s infinite;
+        transform: translateX(-100%);
     }
 
-    .autocomplete-item.selected {
-        background: linear-gradient(to right, #3b82f6, #1d4ed8);
-        color: white;
-        transform: translateX(2px);
-    }
-
-    .autocomplete-item.selected .text-gray-600 {
-        color: rgba(255, 255, 255, 0.8);
-    }
-
-    .autocomplete-item.selected .text-blue-500 {
-        color: rgba(255, 255, 255, 0.9);
-    }
-
-    /* Enhanced Weather Layer Styles */
+    /* ============================================
+       WEATHER LAYERS
+       ============================================ */
     .weather-layer-toggle:checked + div {
-        background-color: #3b82f6;
+        @apply bg-blue-500 dark:bg-blue-600;
     }
-    
+
     .weather-layer-toggle:checked + div .dot {
         transform: translateX(100%);
     }
 
+    .weather-layer-toggle + div {
+        @apply relative w-10 h-6 bg-gray-300 dark:bg-gray-600;
+        @apply rounded-full transition-colors duration-300 cursor-pointer;
+    }
+
+    .weather-layer-toggle + div .dot {
+        @apply absolute top-0.5 left-0.5 w-5 h-5;
+        @apply bg-white rounded-full shadow-md;
+        @apply transition-transform duration-300;
+    }
+
     /* Weather Tooltips */
     .temp-tooltip {
-        background: rgba(0, 0, 0, 0.8) !important;
-        color: white !important;
-        border: none !important;
-        border-radius: 6px !important;
-        font-weight: 600 !important;
-        font-size: 12px !important;
-        padding: 4px 8px !important;
+        @apply bg-gray-900 dark:bg-gray-800 text-white;
+        @apply border-0 rounded-md font-semibold text-xs px-2 py-1;
     }
 
     .precip-tooltip {
-        background: rgba(59, 130, 246, 0.9) !important;
-        color: white !important;
-        border: none !important;
-        border-radius: 6px !important;
-        font-weight: 600 !important;
-        font-size: 11px !important;
-        padding: 3px 6px !important;
+        @apply bg-blue-600 dark:bg-blue-700 text-white;
+        @apply border-0 rounded-md font-semibold text-xs px-2 py-1;
     }
 
-    /* Wind Arrow Animations */
-    .wind-arrow {
-        position: absolute;
-        pointer-events: none;
-        z-index: 1000;
-        animation: windPulse 2s ease-in-out infinite;
-    }
-
-    .wind-arrow div {
-        color: #1d4ed8;
-        filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.8));
-        font-weight: bold;
-        transition: all 0.3s ease;
-    }
-
-    @keyframes windPulse {
-        0%, 100% { opacity: 0.8; }
-        50% { opacity: 1; }
-    }
-
-    /* Temperature Layer Styles */
+    /* Temperature Layer Classes */
     .temp-cold {
         background: radial-gradient(circle, rgba(59, 130, 246, 0.7) 0%, rgba(59, 130, 246, 0.2) 70%, transparent 100%) !important;
         animation: tempGlow 3s ease-in-out infinite;
@@ -188,11 +425,17 @@
     }
 
     @keyframes tempGlow {
-        0%, 100% { transform: scale(1); opacity: 0.7; }
-        50% { transform: scale(1.1); opacity: 0.9; }
+        0%, 100% { 
+            transform: scale(1); 
+            opacity: 0.7; 
+        }
+        50% { 
+            transform: scale(1.1); 
+            opacity: 0.9; 
+        }
     }
 
-    /* Precipitation Layer Styles */
+    /* Precipitation Layers */
     .precip-light {
         background: radial-gradient(circle, rgba(34, 197, 94, 0.6) 0%, rgba(34, 197, 94, 0.1) 80%, transparent 100%) !important;
         animation: precipFall 2s linear infinite;
@@ -214,14 +457,39 @@
         100% { opacity: 0.3; }
     }
 
-    /* Weather Info Panel Enhancements */
-    #weatherInfo {
-        backdrop-filter: blur(15px);
-        -webkit-backdrop-filter: blur(15px);
-        background: rgba(255, 255, 255, 0.95);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-        animation: slideInFromBottom 0.5s ease-out;
+    /* Wind Arrows */
+    .wind-arrow {
+        @apply absolute pointer-events-none z-[1000];
+        animation: windPulse 2s ease-in-out infinite;
+    }
+
+    .wind-arrow div {
+        @apply text-blue-800 dark:text-blue-300 font-bold;
+        filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.8));
+        @apply transition-all duration-300;
+    }
+
+    @keyframes windPulse {
+        0%, 100% { opacity: 0.8; }
+        50% { opacity: 1; }
+    }
+
+    /* ============================================
+       NOTIFICATIONS
+       ============================================ */
+    @keyframes slideInRight {
+        from {
+            transform: translateX(400px);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    .notification-enter {
+        animation: slideInRight 0.3s ease-out;
     }
 
     @keyframes slideInFromBottom {
@@ -235,205 +503,150 @@
         }
     }
 
-    /* Weather Layer Control Panel */
-    .weather-layer-panel {
-        backdrop-filter: blur(15px);
-        -webkit-backdrop-filter: blur(15px);
-        background: rgba(255, 255, 255, 0.95);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    /* ============================================
+       PROFILE & DASHBOARD SPECIFIC
+       ============================================ */
+    .stat-card {
+        @apply bg-white dark:bg-gray-800 rounded-xl shadow-sm;
+        @apply p-6 border border-gray-100 dark:border-gray-700;
+        @apply transition-all duration-300 hover:shadow-md;
     }
 
-    /* Enhanced Toggle Switches */
-    .weather-layer-toggle + div {
-        position: relative;
-        width: 2.5rem;
-        height: 1.5rem;
-        background-color: #d1d5db;
-        border-radius: 9999px;
-        transition: background-color 0.3s ease;
-        cursor: pointer;
+    .quick-action-card {
+        @apply flex items-start gap-4 p-4 rounded-xl;
+        @apply border-2 border-gray-200 dark:border-gray-700;
+        @apply hover:border-blue-400 dark:hover:border-blue-500;
+        @apply hover:bg-blue-50 dark:hover:bg-blue-900/20;
+        @apply transition-all duration-300;
     }
 
-    .weather-layer-toggle + div .dot {
-        position: absolute;
-        top: 0.125rem;
-        left: 0.125rem;
-        width: 1.25rem;
-        height: 1.25rem;
-        background-color: white;
-        border-radius: 50%;
-        transition: transform 0.3s ease;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    .quick-action-card:hover {
+        @apply transform -translate-y-0.5;
     }
 
-    .weather-layer-toggle:checked + div {
-        background-color: #3b82f6;
+    /* ============================================
+       RESPONSIVE UTILITIES
+       ============================================ */
+    @media (max-width: 1024px) {
+        .h-\[66\%\] {
+            height: auto;
+            min-height: 400px;
+        }
+
+        .h-\[33\%\] {
+            height: auto;
+            min-height: 300px;
+        }
     }
 
-    .weather-layer-toggle:checked + div .dot {
-        transform: translateX(1rem);
-    }
-
-    /* Opacity Slider */
-    #layerOpacity {
-        -webkit-appearance: none;
-        appearance: none;
-        height: 6px;
-        background: linear-gradient(to right, #e5e7eb, #3b82f6);
-        border-radius: 3px;
-        outline: none;
-    }
-
-    #layerOpacity::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        appearance: none;
-        width: 20px;
-        height: 20px;
-        background: #3b82f6;
-        border-radius: 50%;
-        cursor: pointer;
-        box-shadow: 0 2px 6px rgba(59, 130, 246, 0.4);
-        transition: all 0.3s ease;
-    }
-
-    #layerOpacity::-webkit-slider-thumb:hover {
-        transform: scale(1.1);
-        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.6);
-    }
-
-    #layerOpacity::-moz-range-thumb {
-        width: 20px;
-        height: 20px;
-        background: #3b82f6;
-        border-radius: 50%;
-        cursor: pointer;
-        border: none;
-        box-shadow: 0 2px 6px rgba(59, 130, 246, 0.4);
-    }
-
-    /* Loading States */
-    .weather-loading {
-        position: relative;
-        overflow: hidden;
-    }
-
-    .weather-loading::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(
-            90deg,
-            transparent,
-            rgba(255, 255, 255, 0.4),
-            transparent
-        );
-        animation: shimmer 1.5s infinite;
-    }
-
-    @keyframes shimmer {
-        0% { left: -100%; }
-        100% { left: 100%; }
-    }
-
-    /* Responsive Design */
     @media (max-width: 768px) {
-        .overlay {
-            position: static !important;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            margin: 1rem;
-            border-radius: 1rem;
-            padding: 1rem;
+        .current-weather-card {
+            min-height: 148px !important;
+            height: 148px !important;
         }
 
-        #weatherInfo {
-            position: static !important;
-            margin: 1rem;
-            max-width: none;
+        .data-card-uniform {
+            min-height: 70px;
+            height: 70px;
+            @apply p-2;
         }
 
-        .search-container input {
-            min-width: 250px;
+        .metric-value-compact {
+            @apply text-base;
         }
 
-        .menu-content {
-            width: 200px;
-            right: -3rem;
+        .metric-label-compact {
+            @apply text-[0.625rem];
         }
     }
 
-    /* High contrast mode support */
-    @media (prefers-contrast: high) {
-        .temp-tooltip,
-        .precip-tooltip {
-            background: #000000 !important;
-            color: #ffffff !important;
-            border: 2px solid #ffffff !important;
+    @media (max-width: 480px) {
+        .current-weather-card {
+            min-height: 128px !important;
+            height: 128px !important;
         }
 
-        .wind-arrow div {
-            color: #000000;
-            filter: drop-shadow(0 0 2px #ffffff);
+        .data-card-uniform {
+            min-height: 60px;
+            height: 60px;
+            @apply p-1.5;
         }
     }
+}
 
-    /* Reduced motion support */
-    @media (prefers-reduced-motion: reduce) {
-        .wind-arrow,
-        .temp-cold,
-        .temp-cool,
-        .temp-warm,
-        .temp-hot,
-        .precip-light,
-        .precip-moderate,
-        .precip-heavy {
-            animation: none;
-        }
-
-        .weather-layer-toggle + div,
-        .weather-layer-toggle + div .dot,
-        #layerOpacity::-webkit-slider-thumb {
-            transition: none;
-        }
+@layer utilities {
+    /* Dark mode toggle utilities */
+    .dark-mode-transition {
+        @apply transition-colors duration-300 ease-in-out;
     }
 
-    /* Dark mode support */
-    @media (prefers-color-scheme: dark) {
-        .glass-effect {
-            background: rgba(31, 41, 55, 0.95);
-            border: 1px solid rgba(75, 85, 99, 0.3);
-        }
-
-        .weather-layer-panel {
-            background: rgba(31, 41, 55, 0.95);
-            border: 1px solid rgba(75, 85, 99, 0.3);
-        }
-
-        #weatherInfo {
-            background: rgba(31, 41, 55, 0.95);
-            border: 1px solid rgba(75, 85, 99, 0.3);
-            color: #f9fafb;
-        }
-
-        .temp-tooltip {
-            background: rgba(31, 41, 55, 0.95) !important;
+    /* Touch device optimizations */
+    @media (hover: none) and (pointer: coarse) {
+        .touch-target {
+            min-height: 44px;
         }
     }
+}
 
-    /* Print styles */
-    @media print {
-        .overlay,
-        #weatherInfo,
-        .weather-layer-panel {
-            display: none !important;
-        }
+/* ============================================
+   REDUCED MOTION SUPPORT
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
 
-        #map {
-            border-radius: 0 !important;
-        }
+    .wind-arrow,
+    .temp-cold,
+    .temp-cool,
+    .temp-warm,
+    .temp-hot,
+    .precip-light,
+    .precip-moderate,
+    .precip-heavy {
+        animation: none;
+    }
+}
+
+/* ============================================
+   HIGH CONTRAST MODE SUPPORT
+   ============================================ */
+@media (prefers-contrast: high) {
+    .temp-tooltip,
+    .precip-tooltip {
+        @apply bg-black text-white border-2 border-white;
+    }
+
+    .wind-arrow div {
+        @apply text-black;
+        filter: drop-shadow(0 0 2px #ffffff);
+    }
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+@media print {
+    .overlay,
+    aside,
+    nav,
+    footer,
+    button,
+    .no-print {
+        display: none !important;
+    }
+
+    body {
+        @apply bg-white text-black;
+    }
+
+    .panel-glass,
+    .card {
+        @apply border border-gray-300 shadow-none;
+        page-break-inside: avoid;
     }
 }
