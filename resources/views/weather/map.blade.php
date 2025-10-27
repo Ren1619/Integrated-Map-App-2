@@ -4,32 +4,27 @@
     <!-- Meta tag for authentication check -->
     <meta name="user-authenticated" content="{{ Auth::check() ? 'true' : 'false' }}">
 
-    <!-- Main Container with Flexbox Layout -->
     <div class="p-4 flex flex-col gap-4 h-[calc(100vh-5rem)]">
 
-        <!-- Top Section (Map + Forecast) - 2/3 height -->
         <div class="flex gap-4 h-[66%]">
 
-            <!-- Map Container (2/3 width) -->
             <div class="flex-[2] relative rounded-2xl shadow-2xl border-4 border-white/30 overflow-hidden h-full">
-                <!-- Search Controls Overlay -->
+
                 <div class="overlay absolute justify-end top-4 left-4 right-4 flex gap-2 items-center">
                     <div class="search-container relative flex-1 max-w-md">
                         <input type="text"
                             class="w-full px-4 py-3 border-2 border-blue-500/30 rounded-full outline-none text-sm bg-white/95 backdrop-blur-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:bg-blue-400 transition-all duration-300 shadow-lg"
                             placeholder="Search for any place worldwide..." id="searchInput" autocomplete="off">
 
-                        <!-- Loading indicator -->
+
                         <div id="loadingIndicator" class="absolute right-14 top-1/2 transform -translate-y-1/2 hidden">
                             <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500"></div>
                         </div>
 
-                        <!-- Clear button -->
                         <button id="clearButton"
                             class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xl hidden"
                             title="Clear search">×</button>
 
-                        <!-- Autocomplete Dropdown -->
                         <div id="autocompleteDropdown"
                             class="absolute top-full left-0 right-0 mt-2 bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-blue-100 hidden max-h-80 overflow-y-auto z-50">
                         </div>
@@ -40,11 +35,9 @@
                         onclick="app.searchLocation()">🔍 Search</button>
                 </div>
 
-                <!-- Map Container -->
                 <div id="map" class="w-full h-full rounded-2xl"></div>
             </div>
 
-            <!-- 7-Day Forecast Panel (1/3 width) -->
             <div class="flex-1 panel-glass flex flex-col rounded-2xl h-full overflow-hidden">
                 <!-- Panel Header -->
                 <div class="p-6 border-b border-blue-100 flex-shrink-0">

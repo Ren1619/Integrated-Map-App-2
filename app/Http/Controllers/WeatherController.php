@@ -157,9 +157,6 @@ class WeatherController extends Controller
             $lng = $request->lng;
 
             Log::info("Reverse geocoding request for: {$lat}, {$lng}");
-
-            // Try Nominatim reverse geocoding with User-Agent header
-            // zoom=18 gives street-level detail
             $response = Http::timeout(30)
                 ->withHeaders([
                     'User-Agent' => 'WeatherMapApp/1.0'
@@ -169,7 +166,7 @@ class WeatherController extends Controller
                     'lat' => $lat,
                     'lon' => $lng,
                     'addressdetails' => 1,
-                    'zoom' => 18,  // Changed from 10 to 18 for street-level detail
+                    'zoom' => 18, 
                     'accept-language' => 'en'
                 ]);
 
@@ -178,23 +175,22 @@ class WeatherController extends Controller
                 Log::info('Nominatim response received', ['result' => $result]);
 
                 if (isset($result['display_name'])) {
-                    // Parse the address to get detailed location
                     $address = $result['address'] ?? [];
                     $locationParts = [];
 
-                    // More detailed priority order including streets and barangays
+                    
                     $priorityKeys = [
-                        'house_number',      // House/building number
-                        'road',              // Street name
-                        'neighbourhood',     // Barangay/neighborhood
-                        'suburb',            // Subdivision/suburb
-                        'village',           // Village
-                        'municipality',      // Municipality
-                        'city',              // City
-                        'town',              // Town
-                        'county',            // County/district
-                        'state',             // State/province
-                        'country'            // Country
+                        'house_number',     
+                        'road',              
+                        'neighbourhood',     
+                        'suburb',            
+                        'village',           
+                        'municipality',      
+                        'city',              
+                        'town',              
+                        'county',            
+                        'state',             
+                        'country'           
                     ];
 
                     foreach ($priorityKeys as $key) {
@@ -208,8 +204,6 @@ class WeatherController extends Controller
                     $locationName = !empty($locationParts)
                         ? implode(', ', $locationParts)
                         : $result['display_name'];
-
-                    // Create a short version for title (first 3 components)
                     $shortName = implode(', ', array_slice($locationParts, 0, 3));
 
                     Log::info("Location name resolved: {$locationName}");
@@ -238,7 +232,6 @@ class WeatherController extends Controller
                 Log::warning('Nominatim API returned non-successful status: ' . $response->status());
             }
 
-            // Fallback to coordinates if reverse geocoding fails
             Log::info('Falling back to coordinates display');
             return response()->json([
                 'success' => true,
