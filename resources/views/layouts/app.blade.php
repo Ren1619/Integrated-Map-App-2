@@ -18,6 +18,25 @@
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script>
+        // Auto-apply Tailwind dark mode based on OS preference
+        (function () {
+            const apply = () => {
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+            };
+            apply();
+            try {
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', apply);
+            } catch (e) {
+                // Safari fallback
+                window.matchMedia('(prefers-color-scheme: dark)').addListener(apply);
+            }
+        })();
+    </script>
 </head>
 
 <body class="font-sans antialiased bg-gradient-primary">
@@ -176,11 +195,11 @@
                             <!-- Guest Links -->
                             <div class="flex items-center gap-2">
                                 <a href="{{ route('login') }}"
-                                    class="px-3 sm:px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors duration-200">
+                                    class="h-10 inline-flex items-center justify-center px-4 sm:px-5 text-sm font-medium text-blue-600 dark:text-blue-300 hover:text-blue-700 dark:hover:text-blue-200 bg-transparent hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-full transition-colors duration-200">
                                     Sign In
                                 </a>
                                 <a href="{{ route('register') }}"
-                                    class="px-3 sm:px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 rounded-lg shadow-sm hover:shadow-md transition-all duration-200">
+                                    class="h-10 inline-flex items-center justify-center px-4 sm:px-5 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 rounded-full shadow-sm hover:shadow-md transition-all duration-200">
                                     <span class="hidden sm:inline">Get Started</span>
                                     <span class="sm:hidden">Sign Up</span>
                                 </a>

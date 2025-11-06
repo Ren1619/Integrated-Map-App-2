@@ -4,91 +4,110 @@
     <!-- Meta tag for authentication check -->
     <meta name="user-authenticated" content="{{ Auth::check() ? 'true' : 'false' }}">
 
-    <!-- Main Container - Full Height with Proper Padding -->
-    <div class="h-[calc(100vh-4rem)] flex flex-col gap-3 p-3 sm:gap-4 sm:p-4 overflow-hidden">
+    <!-- Main Container with Smooth Transitions -->
+    <div class="min-h-[calc(100vh-4rem)] flex flex-col gap-2 p-2 md:gap-3 md:p-3 lg:gap-4 lg:p-4 overflow-x-hidden overflow-y-auto bg-gradient-to-br from-white to-blue-50 dark:from-slate-900 dark:to-slate-800 transition-colors duration-300">
 
-        <!-- Top Section: Map + 7-Day Forecast - 60% height on desktop, full on mobile -->
-        <div class="flex flex-col lg:flex-row gap-3 sm:gap-4 h-auto lg:h-[60%] min-h-[300px]">
+        <!-- Top Section: Map + 7-Day Forecast with Enhanced Layout -->
+        <div class="flex flex-col lg:flex-row gap-2 md:gap-3 lg:gap-4 h-auto lg:h-[60vh] min-h-[300px] animate-fadeIn">
 
-            <!-- Map Container - Full width on mobile, 65% on desktop -->
+            <!-- Map Container with Improved Visuals -->
             <div
-                class="w-full lg:w-[65%] relative rounded-xl sm:rounded-2xl shadow-2xl border-2 sm:border-4 border-white/30 overflow-hidden h-[400px] sm:h-[500px] lg:h-full">
+                class="w-full lg:w-[65%] relative rounded-lg md:rounded-xl lg:rounded-2xl shadow-lg md:shadow-xl lg:shadow-2xl border border-blue-200/30 dark:border-slate-700/50 overflow-hidden h-[300px] sm:h-[400px] md:h-[450px] lg:h-full bg-white dark:bg-slate-900 transition-all duration-300 hover:shadow-2xl dark:hover:shadow-blue-500/10">
 
-                <!-- Search Bar Overlay -->
+                <!-- Enhanced Search Bar Overlay with Visual Feedback -->
                 <div
-                    class="overlay absolute top-2 sm:top-4 left-2 sm:left-4 right-2 sm:right-4 flex flex-col sm:flex-row gap-2 items-stretch sm:items-center z-[1000]">
-                    <div class="search-container relative flex-1 max-w-full sm:max-w-md">
+                    class="overlay absolute top-2 md:top-3 lg:top-4 left-2 md:left-3 lg:left-4 right-2 md:right-3 lg:right-4 flex flex-col sm:flex-row gap-2 items-center z-[1000] max-w-full animate-fadeIn">
+                    <div class="search-container relative flex-1 w-full sm:max-w-2xl group">
+                        <div class="absolute inset-0 bg-blue-400/20 dark:bg-blue-500/20 rounded-full blur opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"></div>
                         <input type="text"
-                            class="w-full px-3 sm:px-4 py-2 sm:py-3 border-2 border-blue-500/30 rounded-full outline-none text-xs sm:text-sm bg-white/95 backdrop-blur-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300 shadow-lg"
-                            placeholder="Search worldwide..." id="searchInput" autocomplete="off">
+                            class="w-full h-9 sm:h-10 md:h-11 px-3 sm:px-4 border-2 border-blue-400/30 dark:border-blue-500/30 rounded-full outline-none text-xs sm:text-sm bg-white/95 dark:bg-slate-800/90 text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-400 backdrop-blur-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 dark:focus:ring-blue-500/20 transition-all duration-300 shadow-lg hover:shadow-xl"
+                            placeholder="🔍 Search any location..." id="searchInput" autocomplete="off">
 
                         <div id="loadingIndicator"
-                            class="absolute right-12 sm:right-14 top-1/2 transform -translate-y-1/2 hidden">
-                            <div class="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-blue-500"></div>
+                            class="absolute right-10 sm:right-12 md:right-14 top-1/2 transform -translate-y-1/2 hidden">
+                            <div class="animate-spin rounded-full h-4 w-4 sm:h-4.5 md:h-5 border-2 border-blue-500 border-t-transparent"></div>
                         </div>
 
                         <button id="clearButton"
-                            class="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 text-lg sm:text-xl hidden"
+                            class="absolute right-2.5 sm:right-3 md:right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-base sm:text-lg md:text-xl hidden hover:scale-110 transition-all duration-200"
                             title="Clear search">×</button>
 
                         <div id="autocompleteDropdown"
-                            class="absolute top-full left-0 right-0 mt-2 bg-white/95 backdrop-blur-md rounded-xl sm:rounded-2xl shadow-2xl border border-blue-100 hidden max-h-60 sm:max-h-80 overflow-y-auto z-[1001] text-xs sm:text-sm">
+                            class="absolute top-full left-0 right-0 mt-1.5 sm:mt-2 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md rounded-lg sm:rounded-xl md:rounded-2xl shadow-xl border border-blue-200 dark:border-blue-500/20 hidden max-h-48 sm:max-h-56 md:max-h-64 lg:max-h-80 overflow-y-auto z-[1001] text-xs sm:text-sm transition-all duration-300">
                         </div>
                     </div>
 
                     <button
-                        class="bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-full text-xs sm:text-sm font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg backdrop-blur-sm shadow-lg whitespace-nowrap"
-                        onclick="app.searchLocation()">🔍 Search</button>
+                        class="h-9 sm:h-10 md:h-11 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 active:from-blue-700 active:to-blue-800 text-white px-4 sm:px-5 md:px-6 rounded-full text-xs sm:text-sm font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 dark:hover:shadow-blue-600/20 backdrop-blur-sm shadow-lg whitespace-nowrap dark:from-blue-600 dark:to-blue-700 dark:hover:from-blue-500 dark:hover:to-blue-600"
+                        onclick="app.searchLocation()">
+                        <span class="flex items-center gap-2">
+                            <span>Search</span>
+                            <span class="animate-pulse">🔍</span>
+                        </span>
+                    </button>
                 </div>
 
                 <!-- Leaflet Map -->
                 <div id="map" class="w-full h-full"></div>
             </div>
 
-            <!-- 7-Day Forecast Panel - Full width on mobile, 35% on desktop -->
+            <!-- Enhanced 7-Day Forecast Panel -->
             <div
-                class="w-full lg:w-[35%] panel-glass flex flex-col rounded-xl sm:rounded-2xl overflow-hidden min-h-[300px] lg:h-full">
-                <!-- Panel Header -->
-                <div class="p-3 sm:p-4 lg:p-6 border-b border-blue-100 flex-shrink-0">
-                    <h2 class="text-base sm:text-lg lg:text-xl font-bold text-gray-800 flex items-center gap-2">
-                        📅 7-Day Forecast
+                class="w-full lg:w-[35%] panel-glass flex flex-col rounded-lg sm:rounded-xl lg:rounded-2xl overflow-hidden min-h-[250px] sm:min-h-[300px] lg:h-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-md transition-all duration-300 hover:shadow-xl dark:hover:shadow-blue-500/10">
+                <!-- Modernized Panel Header -->
+                <div class="relative p-2.5 sm:p-3 md:p-4 lg:p-5 border-b border-blue-200/50 dark:border-blue-500/20 flex-shrink-0 bg-gradient-to-r from-blue-50/50 to-transparent dark:from-blue-950/50">
+                    <div class="absolute inset-0 bg-blue-400/5 dark:bg-blue-400/5"></div>
+                    <h2 class="relative text-sm sm:text-base md:text-lg lg:text-xl font-bold text-gray-800 dark:text-slate-100 flex items-center gap-2">
+                        <span class="text-blue-500 dark:text-blue-400">📅</span>
+                        <span class="bg-gradient-to-r from-blue-600 to-blue-400 dark:from-blue-400 dark:to-blue-300 bg-clip-text text-transparent">7-Day Forecast</span>
                     </h2>
-                    <p class="text-xs sm:text-sm text-gray-600 mt-1" id="forecastLocation">Select a location to view
-                        forecast</p>
+                    <p class="relative text-xs sm:text-sm text-gray-600 dark:text-slate-300 mt-0.5 sm:mt-1" id="forecastLocation">
+                        <span class="animate-pulse">📍</span> Select a location to view forecast
+                    </p>
                 </div>
 
-                <!-- Panel Content - Scrollable -->
-                <div class="flex-1 overflow-y-auto custom-scrollbar p-3 sm:p-4">
-                    <div id="extendedForecast" class="space-y-2 sm:space-y-3">
-                        <div class="text-center py-6 sm:py-8 text-gray-500">
-                            <div class="text-3xl sm:text-4xl mb-3">🎯</div>
-                            <p class="text-xs sm:text-sm px-4">Select any location worldwide to view 7-day weather forecast
+                <!-- Enhanced Panel Content -->
+                <div class="flex-1 overflow-y-auto custom-scrollbar p-2.5 sm:p-3 md:p-4 bg-gradient-to-b from-transparent to-blue-50/30 dark:to-blue-950/30">
+                    <div id="extendedForecast" class="space-y-1.5 sm:space-y-2 md:space-y-3">
+                        <div class="text-center py-4 sm:py-6 md:py-8 text-gray-500 dark:text-gray-400">
+                            <div class="text-2xl sm:text-3xl md:text-4xl mb-2 sm:mb-3 animate-bounce">🎯</div>
+                            <p class="text-xs sm:text-sm px-2 sm:px-4 animate-pulse">
+                                Select any location worldwide to view 7-day weather forecast
                             </p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Panel Footer -->
-                <div class="p-3 sm:p-4 border-t border-blue-100 bg-gray-50/50 rounded-b-xl sm:rounded-b-2xl flex-shrink-0">
-                    <div class="flex items-center justify-between text-xs text-gray-500">
-                        <span>Extended Forecast</span>
-                        <span id="forecastUpdated">Updated: --:--</span>
+                <!-- Enhanced Panel Footer -->
+                <div class="p-2 sm:p-3 md:p-4 border-t border-blue-200/50 dark:border-blue-500/20 bg-gradient-to-b from-blue-50/50 to-blue-100/50 dark:from-blue-950/50 dark:to-slate-900/60 rounded-b-lg sm:rounded-b-xl md:rounded-b-2xl flex-shrink-0">
+                    <div class="flex items-center justify-between text-[10px] sm:text-xs text-gray-600 dark:text-slate-300">
+                        <span class="flex items-center gap-1">
+                            <span class="text-blue-500 dark:text-blue-400">📊</span>
+                            Extended Forecast
+                        </span>
+                        <span class="flex items-center gap-1" id="forecastUpdated">
+                            <span class="text-blue-500 dark:text-blue-400">🕒</span>
+                            Updated: --:--
+                        </span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Bottom Section - Comprehensive Weather Data - 40% height on desktop, auto on mobile -->
-        <div class="panel-glass flex flex-col rounded-xl sm:rounded-2xl overflow-hidden h-auto lg:h-[40%] min-h-[250px]">
-            <!-- Panel Header -->
-            <div class="p-3 sm:p-4 border-b border-blue-100 flex-shrink-0">
-                <div class="flex flex-col sm:flex-row justify-between items-start gap-3 sm:gap-4">
-                    <!-- Left side: Title and Location -->
+        <!-- Bottom Section - Enhanced Comprehensive Weather Data -->
+        <div class="panel-glass flex flex-col rounded-lg sm:rounded-xl lg:rounded-2xl overflow-hidden h-auto lg:h-[40vh] min-h-[250px] bg-white/80 dark:bg-slate-900/80 backdrop-blur-md transition-all duration-300 hover:shadow-xl dark:hover:shadow-blue-500/10">
+            <!-- Modern Panel Header -->
+            <div class="p-2.5 sm:p-3 md:p-4 border-b border-blue-200/50 dark:border-blue-500/20 flex-shrink-0 bg-gradient-to-r from-blue-50/50 to-transparent dark:from-blue-950/50">
+                <div class="flex flex-col sm:flex-row justify-between items-start gap-2 sm:gap-3 md:gap-4">
+                    <!-- Left side: Enhanced Title and Location -->
                     <div class="flex-1 min-w-0 w-full sm:w-auto">
-                        <div class="flex items-center gap-2 mb-1 flex-wrap">
-                            <h2 class="text-base sm:text-lg lg:text-xl font-bold text-gray-800 flex items-center gap-2"
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-0.5 sm:mb-1 flex-wrap">
+                            <h2 class="text-sm sm:text-base md:text-lg lg:text-xl font-bold text-gray-800 dark:text-slate-100 flex items-center gap-2"
                                 id="weatherPanelTitle">
-                                🌦️ Comprehensive Weather Data
+                                <span class="text-blue-500 dark:text-blue-400">🌦️</span>
+                                <span class="bg-gradient-to-r from-blue-600 to-blue-400 dark:from-blue-400 dark:to-blue-300 bg-clip-text text-transparent">
+                                    Comprehensive Weather Data
+                                </span>
                             </h2>
 
                             <!-- Save Location Button (Inline with title) -->
@@ -101,64 +120,73 @@
                                 </button>
                             @endauth
                         </div>
-                        <p class="text-xs sm:text-sm text-gray-600" id="locationDetails">Click on map or search for detailed
+                        <p class="text-xs sm:text-sm text-gray-600 dark:text-slate-300" id="locationDetails">Click on map or search for detailed
                             weather information</p>
                     </div>
 
                     <!-- Right side: Last Updated -->
-                    <div class="text-xs text-gray-500 whitespace-nowrap">
+                    <div class="text-xs text-gray-500 dark:text-slate-300 whitespace-nowrap">
                         <span id="lastUpdated">Updated: --:--</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Scrollable Content --> 
+            <!-- Enhanced Scrollable Content with Grid Layout --> 
             <div class="flex-1 overflow-y-auto overflow-x-auto custom-scrollbar">
-                <div class="flex flex-col lg:flex-row gap-3 sm:gap-4 p-3 sm:p-4">
-                    <!-- Current Weather Section -->
-                    <div class="flex-shrink-0 w-full lg:w-72">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4 p-2.5 sm:p-3 md:p-4 bg-gradient-to-b from-transparent to-blue-50/30 dark:to-blue-950/30">
+                    <!-- Enhanced Current Weather Section -->
+                    <div class="w-full transform transition-all duration-300 hover:scale-[1.02]">
                         <h3
-                            class="text-sm sm:text-base lg:text-lg font-semibold text-gray-700 mb-2 sm:mb-3 flex items-center gap-2">
-                            📍 Current Conditions
+                            class="text-xs sm:text-sm md:text-base lg:text-lg font-semibold mb-1.5 sm:mb-2 md:mb-3 flex items-center gap-1.5 sm:gap-2">
+                            <span class="text-blue-500 dark:text-blue-400">📍</span>
+                            <span class="bg-gradient-to-r from-gray-800 to-gray-600 dark:from-gray-200 dark:to-gray-400 bg-clip-text text-transparent">
+                                Current Conditions
+                            </span>
                         </h3>
-                        <div id="currentWeatherData" class="hidden">
+                        <div id="currentWeatherData" class="hidden transform transition-all duration-300">
                             <!-- Current weather will be populated here -->
                         </div>
-                        <div id="weatherPlaceholder" class="text-center py-4 sm:py-6 text-gray-500">
-                            <div class="text-2xl sm:text-3xl mb-2">🎯</div>
-                            <p class="text-xs">Select location for weather data</p>
+                        <div id="weatherPlaceholder" class="text-center py-3 sm:py-4 md:py-6 text-gray-500 dark:text-gray-400 bg-white/50 dark:bg-slate-800/50 rounded-lg backdrop-blur-sm border border-blue-100/20 dark:border-blue-500/20 shadow-sm">
+                            <div class="text-xl sm:text-2xl md:text-3xl mb-1.5 sm:mb-2 animate-bounce">🎯</div>
+                            <p class="text-[10px] sm:text-xs animate-pulse">Select location for weather data</p>
                         </div>
                     </div>
 
-                    <!-- Multi-Level Temperature Section -->
-                    <div class="flex-shrink-0 w-full lg:w-64">
-                        <h3
-                            class="text-sm sm:text-base lg:text-lg font-semibold text-gray-700 mb-2 sm:mb-3 flex items-center gap-2">
-                            🌡️ Temperature
+                    <!-- Enhanced Temperature Section -->
+                    <div class="w-full transform transition-all duration-300 hover:scale-[1.02]">
+                        <h3 class="text-xs sm:text-sm md:text-base lg:text-lg font-semibold mb-1.5 sm:mb-2 md:mb-3 flex items-center gap-1.5 sm:gap-2">
+                            <span class="text-red-500 dark:text-red-400">🌡️</span>
+                            <span class="bg-gradient-to-r from-gray-800 to-gray-600 dark:from-gray-200 dark:to-gray-400 bg-clip-text text-transparent">
+                                Temperature Levels
+                            </span>
                         </h3>
-                        <div id="temperatureByAltitude" class="grid grid-cols-2 gap-2">
+                        <div id="temperatureByAltitude" class="grid grid-cols-2 gap-1.5 sm:gap-2">
                             <!-- Temperature data will be populated here -->
                         </div>
                     </div>
 
-                    <!-- Multi-Level Wind Section -->
-                    <div class="flex-shrink-0 w-full lg:w-64">
-                        <h3
-                            class="text-sm sm:text-base lg:text-lg font-semibold text-gray-700 mb-2 sm:mb-3 flex items-center gap-2">
-                            💨 Wind
+                    <!-- Enhanced Wind Section -->
+                    <div class="w-full transform transition-all duration-300 hover:scale-[1.02]">
+                        <h3 class="text-xs sm:text-sm md:text-base lg:text-lg font-semibold mb-1.5 sm:mb-2 md:mb-3 flex items-center gap-1.5 sm:gap-2">
+                            <span class="text-blue-500 dark:text-blue-400">💨</span>
+                            <span class="bg-gradient-to-r from-gray-800 to-gray-600 dark:from-gray-200 dark:to-gray-400 bg-clip-text text-transparent">
+                                Wind Analysis
+                            </span>
                         </h3>
-                        <div id="windByAltitude" class="grid grid-cols-2 gap-2">
+                        <div id="windByAltitude" class="grid grid-cols-2 gap-1.5 sm:gap-2">
                             <!-- Wind data will be populated here -->
                         </div>
                     </div>
 
-                    <!-- Soil Conditions Section -->
-                    <div class="flex-shrink-0 w-full lg:w-64">
-                        <h3
-                            class="text-sm sm:text-base lg:text-lg font-semibold text-gray-700 mb-2 sm:mb-3 flex items-center gap-2">
-                            🌱 Soil Conditions
+                    <!-- Enhanced Soil Conditions Section -->
+                    <div class="w-full transform transition-all duration-300 hover:scale-[1.02]">
+                        <h3 class="text-xs sm:text-sm md:text-base lg:text-lg font-semibold mb-1.5 sm:mb-2 md:mb-3 flex items-center gap-1.5 sm:gap-2">
+                            <span class="text-green-500 dark:text-green-400">🌱</span>
+                            <span class="bg-gradient-to-r from-gray-800 to-gray-600 dark:from-gray-200 dark:to-gray-400 bg-clip-text text-transparent">
+                                Soil Analysis
+                            </span>
                         </h3>
-                        <div id="soilConditions" class="grid grid-cols-2 gap-2">
+                        <div id="soilConditions" class="grid grid-cols-2 gap-1.5 sm:gap-2">
                             <!-- Soil data will be populated here -->
                         </div>
                     </div>
@@ -793,28 +821,28 @@
                 const feelsLike = Math.round(current.apparent_temperature);
 
                 container.innerHTML = `
-                    <div class="current-weather-card bg-blue-500 rounded-xl p-4" style="min-height: 168px; height: 168px;">
+                    <div class="current-weather-card bg-blue-500 dark:bg-slate-700 rounded-xl p-2" style="min-height: 104px; height: 104px;">
                         <div class="flex items-center justify-between mb-2">
                             <div class="flex items-center gap-2">
-                                <div class="text-4xl font-bold text-white">${temp}°C</div>
+                                <div class="text-2xl font-bold text-white">${temp}°C</div>
                                 <div>
-                                    <h4 class="text-sm font-semibold text-white">Current</h4>
-                                    <p class="text-blue-100 text-xs">${new Date().toLocaleTimeString()}</p>
+                                    <h4 class="text-xs font-semibold text-white">Current</h4>
+                                    <p class="text-blue-100 text-[10px]">${new Date().toLocaleTimeString()}</p>
                                 </div>
                             </div>
                             <div class="text-3xl">${weatherEmoji}</div>
                         </div>
                         <div class="mb-2">
-                            <div class="text-blue-100 text-xs">Feels like ${feelsLike}°C</div>
+                            <div class="text-blue-100 text-[11px]">Feels like ${feelsLike}°C</div>
                         </div>
-                        <div class="grid grid-cols-2 gap-2">
-                            <div class="bg-white/20 rounded-lg p-2 text-center">
-                                <div class="text-white font-bold text-sm">${current.relative_humidity_2m}%</div>
-                                <div class="text-blue-100 text-xs">Humidity</div>
+                        <div class="grid grid-cols-2 gap-1.5">
+                            <div class="bg-white/20 dark:bg-white/10 rounded-lg px-1.5 py-1 text-center">
+                                <div class="text-white font-bold text-xs">${current.relative_humidity_2m}%</div>
+                                <div class="text-blue-100 text-[10px]">Humidity</div>
                             </div>
-                            <div class="bg-white/20 rounded-lg p-2 text-center">
-                                <div class="text-white font-bold text-sm">${Math.round(current.surface_pressure)}</div>
-                                <div class="text-blue-100 text-xs">Pressure</div>
+                            <div class="bg-white/20 dark:bg-white/10 rounded-lg px-1.5 py-1 text-center">
+                                <div class="text-white font-bold text-xs">${Math.round(current.surface_pressure)}</div>
+                                <div class="text-blue-100 text-[10px]">Pressure</div>
                             </div>
                         </div>
                     </div>
@@ -835,9 +863,9 @@
                     const displayTemp = (temp !== undefined && temp !== null) ? Math.round(temp) : '--';
 
                     return `
-                        <div class="data-card-uniform" style="background: linear-gradient(135deg, ${item.color} 0%, ${item.color}dd 100%);">
-                            <div class="text-xs font-semibold text-white mb-1">${item.level}</div>
-                            <div class="text-lg font-bold text-white">${displayTemp}°C</div>
+                        <div class="data-card-uniform p-2 text-white min-h-[64px]" style="background: linear-gradient(135deg, ${item.color} 0%, ${item.color}dd 100%);">
+                            <div class="text-[10px] font-semibold mb-0.5">${item.level}</div>
+                            <div class="text-sm font-bold">${displayTemp}°C</div>
                         </div>
                     `;
                 }).join('');
@@ -853,10 +881,10 @@
                 ];
 
                 container.innerHTML = windData.map(item => `
-                    <div class="data-card-uniform bg-blue-100">
-                        <div class="text-xs font-semibold text-gray-700 mb-1">${item.level}</div>
-                        <div class="text-lg font-bold text-blue-600">${Math.round(item.speed || 0)} km/h</div>
-                        ${item.direction ? `<div class="text-xs text-gray-600">${item.direction}°</div>` : ''}
+                    <div class="data-card-uniform bg-blue-100 dark:bg-slate-800 p-2 min-h-[64px]">
+                        <div class="text-[10px] font-semibold text-gray-700 dark:text-slate-200 mb-0.5">${item.level}</div>
+                        <div class="text-sm font-bold text-blue-600 dark:text-slate-100">${Math.round(item.speed || 0)} km/h</div>
+                        ${item.direction ? `<div class=\"text-[10px] text-gray-600 dark:text-slate-300\">${item.direction}°</div>` : ''}
                     </div>
                 `).join('');
             }
@@ -881,10 +909,10 @@
                 ];
 
                 container.innerHTML = soilData.map(item => `
-                    <div class="data-card-uniform bg-orange-500 text-white">
-                        <div class="text-xs font-semibold mb-1">${item.depth}</div>
-                        ${item.temp ? `<div class="text-lg font-bold">${Math.round(item.temp)}°C</div>` : '<div class="text-lg font-bold">--°C</div>'}
-                        ${item.moisture ? `<div class="text-xs">${item.moisture.toFixed(2)} m³/m³</div>` : '<div class="text-xs">-- m³/m³</div>'}
+                    <div class="data-card-uniform bg-orange-500 text-white p-2 dark:bg-amber-600 min-h-[64px]">
+                        <div class="text-[10px] font-semibold mb-0.5">${item.depth}</div>
+                        ${item.temp ? `<div class="text-sm font-bold">${Math.round(item.temp)}°C</div>` : '<div class="text-sm font-bold">--°C</div>'}
+                        ${item.moisture ? `<div class="text-[10px]">${item.moisture.toFixed(2)} m³/m³</div>` : '<div class="text-[10px]">-- m³/m³</div>'}
                     </div>
                 `).join('');
             }
@@ -910,13 +938,13 @@
                         <div class="flex items-center gap-3">
                             <div class="text-xl">${this.getWeatherEmoji(day.weatherCode)}</div>
                             <div>
-                                <div class="font-semibold text-gray-800 text-sm">${day.date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</div>
-                                <div class="text-xs text-gray-600">Rain: ${Math.round(day.precipitation || 0)}mm</div>
+                                <div class="font-semibold text-gray-800 dark:text-slate-100 text-sm">${day.date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</div>
+                                <div class="text-xs text-gray-600 dark:text-slate-300">Rain: ${Math.round(day.precipitation || 0)}mm</div>
                             </div>
                         </div>
                         <div class="text-right">
-                            <div class="font-bold text-gray-800 text-sm">${Math.round(day.maxTemp)}° / ${Math.round(day.minTemp)}°</div>
-                            <div class="text-xs text-gray-600">${Math.round(day.windSpeed)} km/h</div>
+                            <div class="font-bold text-gray-800 dark:text-slate-100 text-sm">${Math.round(day.maxTemp)}° / ${Math.round(day.minTemp)}°</div>
+                            <div class="text-xs text-gray-600 dark:text-slate-300">${Math.round(day.windSpeed)} km/h</div>
                         </div>
                     </div>
                 `).join('');
