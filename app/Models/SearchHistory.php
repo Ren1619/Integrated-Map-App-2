@@ -22,11 +22,11 @@ class SearchHistory extends Model
     ];
 
     protected $casts = [
-        'address_components' => 'array',
-        'latitude' => 'decimal:8',
-        'longitude' => 'decimal:8',
-        'last_searched_at' => 'datetime',
-    ];
+    'address_components' => 'array',
+    'latitude' => 'float',
+    'longitude' => 'float',
+    'last_searched_at' => 'datetime',
+];
 
     /**
      * Get the user that owns the search history.

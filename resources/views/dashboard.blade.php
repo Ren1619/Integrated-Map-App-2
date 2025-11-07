@@ -882,63 +882,63 @@
 
                     if (alert.type === 'heat_index') {
                         detailItems.push(`
-                                            <div class="text-xs ${colors.text}">
-                                                <span class="font-semibold">Temperature:</span> ${details.temperature}°C
-                                            </div>
-                                        `);
+                                                <div class="text-xs ${colors.text}">
+                                                    <span class="font-semibold">Temperature:</span> ${details.temperature}°C
+                                                </div>
+                                            `);
                         detailItems.push(`
-                                            <div class="text-xs ${colors.text}">
-                                                <span class="font-semibold">Humidity:</span> ${details.humidity}%
-                                            </div>
-                                        `);
+                                                <div class="text-xs ${colors.text}">
+                                                    <span class="font-semibold">Humidity:</span> ${details.humidity}%
+                                                </div>
+                                            `);
                         detailItems.push(`
-                                            <div class="text-xs ${colors.text}">
-                                                <span class="font-semibold">Category:</span> ${details.category}
-                                            </div>
-                                        `);
+                                                <div class="text-xs ${colors.text}">
+                                                    <span class="font-semibold">Category:</span> ${details.category}
+                                                </div>
+                                            `);
                     } else if (alert.type === 'wind_chill') {
                         detailItems.push(`
-                                            <div class="text-xs ${colors.text}">
-                                                <span class="font-semibold">Temperature:</span> ${details.temperature}°C
-                                            </div>
-                                        `);
+                                                <div class="text-xs ${colors.text}">
+                                                    <span class="font-semibold">Temperature:</span> ${details.temperature}°C
+                                                </div>
+                                            `);
                         detailItems.push(`
-                                            <div class="text-xs ${colors.text}">
-                                                <span class="font-semibold">Wind Speed:</span> ${details.wind_speed} km/h
-                                            </div>
-                                        `);
+                                                <div class="text-xs ${colors.text}">
+                                                    <span class="font-semibold">Wind Speed:</span> ${details.wind_speed} km/h
+                                                </div>
+                                            `);
                         detailItems.push(`
-                                            <div class="text-xs ${colors.text}">
-                                                <span class="font-semibold">Category:</span> ${details.category}
-                                            </div>
-                                        `);
+                                                <div class="text-xs ${colors.text}">
+                                                    <span class="font-semibold">Category:</span> ${details.category}
+                                                </div>
+                                            `);
                     }
 
                     if (detailItems.length > 0) {
                         detailsDisplay = `
-                                            <div class="${colors.detailBg} rounded-lg p-3 mt-3 space-y-1">
-                                                ${detailItems.join('')}
-                                            </div>
-                                        `;
+                                                <div class="${colors.detailBg} rounded-lg p-3 mt-3 space-y-1">
+                                                    ${detailItems.join('')}
+                                                </div>
+                                            `;
                     }
                 }
 
                 card.innerHTML = `
-                                    <div class="flex items-start gap-4">
-                                        <div class="text-4xl flex-shrink-0">${alert.icon}</div>
-                                        <div class="flex-1">
-                                            <div class="flex items-start justify-between gap-4 mb-2">
-                                                <h5 class="text-lg font-bold ${colors.text}">${alert.title}</h5>
-                                                <span class="px-3 py-1 ${colors.badge} text-white text-xs font-bold rounded-full uppercase flex-shrink-0">
-                                                    ${alert.severity}
-                                                </span>
+                                        <div class="flex items-start gap-4">
+                                            <div class="text-4xl flex-shrink-0">${alert.icon}</div>
+                                            <div class="flex-1">
+                                                <div class="flex items-start justify-between gap-4 mb-2">
+                                                    <h5 class="text-lg font-bold ${colors.text}">${alert.title}</h5>
+                                                    <span class="px-3 py-1 ${colors.badge} text-white text-xs font-bold rounded-full uppercase flex-shrink-0">
+                                                        ${alert.severity}
+                                                    </span>
+                                                </div>
+                                                <p class="${colors.text} text-sm leading-relaxed mb-3">${alert.message}</p>
+                                                ${valueDisplay}
+                                                ${detailsDisplay}
                                             </div>
-                                            <p class="${colors.text} text-sm leading-relaxed mb-3">${alert.message}</p>
-                                            ${valueDisplay}
-                                            ${detailsDisplay}
                                         </div>
-                                    </div>
-                                `;
+                                    `;
 
                 return card;
             }
@@ -1035,6 +1035,10 @@
                         minute: '2-digit'
                     });
 
+                    // Ensure latitude and longitude are numbers
+                    const lat = typeof search.latitude === 'number' ? search.latitude : parseFloat(search.latitude);
+                    const lng = typeof search.longitude === 'number' ? search.longitude : parseFloat(search.longitude);
+
                     const searchTypeLabels = {
                         'manual': 'Search',
                         'autocomplete': 'Quick Search',
@@ -1050,37 +1054,37 @@
                     };
 
                     return `
-                            <div class="search-history-item" onclick="searchHistoryManager.goToLocation(${search.latitude}, ${search.longitude})">
-                                <div class="flex-1">
-                                    <div class="flex items-center gap-2 mb-2">
-                                        <span class="text-2xl">${searchTypeIcons[search.search_type] || '📍'}</span>
-                                        <h4 class="font-semibold text-gray-800 text-lg">${search.location_name}</h4>
-                                    </div>
-                                    <div class="flex items-center gap-3 text-sm text-gray-600">
-                                        <span class="search-type-badge search-type-${search.search_type}">
-                                            ${searchTypeLabels[search.search_type] || search.search_type}
-                                        </span>
-                                        <span>📅 ${formattedDate}</span>
-                                        <span>🕐 ${formattedTime}</span>
-                                    </div>
-                                    <div class="text-xs text-gray-500 mt-2">
-                                        ${search.latitude.toFixed(6)}°, ${search.longitude.toFixed(6)}°
-                                    </div>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <button onclick="event.stopPropagation(); searchHistoryManager.togglePin(${search.id})" 
-                                            class="p-2 hover:bg-white rounded-lg transition-colors"
-                                            title="Pin this location">
-                                        ⭐
-                                    </button>
-                                    <button onclick="event.stopPropagation(); searchHistoryManager.deleteSearch(${search.id})" 
-                                            class="p-2 hover:bg-red-100 rounded-lg transition-colors text-red-600"
-                                            title="Delete">
-                                        🗑️
-                                    </button>
-                                </div>
-                            </div>
-                        `;
+            <div class="search-history-item" onclick="searchHistoryManager.goToLocation(${lat}, ${lng})">
+                <div class="flex-1">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="text-2xl">${searchTypeIcons[search.search_type] || '📍'}</span>
+                        <h4 class="font-semibold text-gray-800 text-lg">${search.location_name}</h4>
+                    </div>
+                    <div class="flex items-center gap-3 text-sm text-gray-600">
+                        <span class="search-type-badge search-type-${search.search_type}">
+                            ${searchTypeLabels[search.search_type] || search.search_type}
+                        </span>
+                        <span>📅 ${formattedDate}</span>
+                        <span>🕐 ${formattedTime}</span>
+                    </div>
+                    <div class="text-xs text-gray-500 mt-2">
+                        ${lat.toFixed(6)}°, ${lng.toFixed(6)}°
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="event.stopPropagation(); searchHistoryManager.togglePin(${search.id})" 
+                            class="p-2 hover:bg-white rounded-lg transition-colors"
+                            title="Pin this location">
+                        ⭐
+                    </button>
+                    <button onclick="event.stopPropagation(); searchHistoryManager.deleteSearch(${search.id})" 
+                            class="p-2 hover:bg-red-100 rounded-lg transition-colors text-red-600"
+                            title="Delete">
+                        🗑️
+                    </button>
+                </div>
+            </div>
+        `;
                 }
 
                 filterSearches() {
@@ -1240,11 +1244,11 @@
                     };
 
                     notification.innerHTML = `
-                            <div class="flex items-center gap-2">
-                                <span class="text-xl">${icons[type] || icons.info}</span>
-                                <span class="font-medium">${message}</span>
-                            </div>
-                        `;
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xl">${icons[type] || icons.info}</span>
+                                    <span class="font-medium">${message}</span>
+                                </div>
+                            `;
 
                     document.body.appendChild(notification);
 
@@ -1260,15 +1264,15 @@
                     const listEl = document.getElementById('searchHistoryList');
                     listEl.classList.remove('hidden');
                     listEl.innerHTML = `
-                            <div class="text-center py-12">
-                                <div class="text-4xl mb-4">⚠️</div>
-                                <p class="text-gray-600">Failed to load search history</p>
-                                <button onclick="searchHistoryManager.loadSearchHistory()" 
-                                        class="mt-4 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg">
-                                    Try Again
-                                </button>
-                            </div>
-                        `;
+                                <div class="text-center py-12">
+                                    <div class="text-4xl mb-4">⚠️</div>
+                                    <p class="text-gray-600">Failed to load search history</p>
+                                    <button onclick="searchHistoryManager.loadSearchHistory()" 
+                                            class="mt-4 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg">
+                                        Try Again
+                                    </button>
+                                </div>
+                            `;
                 }
             }
 

@@ -24,10 +24,12 @@ class SavedLocation extends Model
         'sort_order',
     ];
 
+// app/Models/SavedLocation.php
+
     protected $casts = [
         'address_components' => 'array',
-        'latitude' => 'decimal:8',
-        'longitude' => 'decimal:8',
+        'latitude' => 'float', 
+        'longitude' => 'float', 
         'last_visited_at' => 'datetime',
     ];
 
