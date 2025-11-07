@@ -1,30 +1,30 @@
 @extends('layouts.app')
 
 @section('header')
-    <h1 class="text-xl font-semibold text-gray-800">Dashboard</h1>
+    <h1 class="text-xl font-semibold text-gray-800 dark:text-gray-100">Dashboard</h1>
 @endsection
 
 @section('content')
     <div class="p-4 sm:p-6">
-        <div class="p-4 sm:p-6">
-            <!-- Welcome Section -->
-            <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl shadow-sm mb-4 sm:mb-6 overflow-hidden">
-                <div class="p-6 sm:p-8 text-white">
-                    <h2 class="text-2xl sm:text-3xl font-bold mb-2">Welcome back, {{ Auth::user()->name }}! 👋</h2>
-                    <p class="text-blue-100 text-base sm:text-lg">Here's your current weather</p>
+        <!-- Welcome Section -->
+        <div
+            class="bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 rounded-2xl shadow-lg mb-4 sm:mb-6 overflow-hidden">
+            <div class="p-6 sm:p-8 text-white">
+                <h2 class="text-2xl sm:text-3xl font-bold mb-2">Welcome back, {{ Auth::user()->name }}! 👋</h2>
+                    <p class="text-blue-100 dark:text-blue-200 text-base sm:text-lg">Here's your current weather and activity</p>
                 </div>
             </div>
 
-            <!-- Mobile: Stack vertically, Desktop: Side by side -->
+            <!-- Main Content Grid -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
 
                 <!-- Current Weather Section -->
-                <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-                    <div class="p-4 sm:p-6 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
+                    <div class="p-4 sm:p-6 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30">
                         <div class="flex items-center justify-between flex-wrap gap-2">
-                            <h3 class="text-lg sm:text-xl font-bold text-gray-800">Current Weather</h3>
+                            <h3 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-gray-100">Current Weather</h3>
                             <button id="refreshWeather"
-                                class="flex items-center gap-2 px-3 sm:px-4 py-2 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow text-xs sm:text-sm font-medium text-gray-700 hover:text-blue-600">
+                                class="flex items-center gap-2 px-3 sm:px-4 py-2 bg-white dark:bg-gray-700 rounded-lg shadow-sm hover:shadow-md transition-all text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
@@ -38,20 +38,18 @@
                     <div id="weatherContent" class="p-4 sm:p-8">
                         <!-- Loading State -->
                         <div id="loadingState" class="flex flex-col items-center justify-center py-8 sm:py-12">
-                            <div
-                                class="animate-spin rounded-full h-12 sm:h-16 w-12 sm:w-16 border-b-2 border-blue-500 mb-4">
+                            <div class="animate-spin rounded-full h-12 sm:h-16 w-12 sm:w-16 border-b-2 border-blue-500 dark:border-blue-400 mb-4">
                             </div>
-                            <p class="text-gray-600 text-sm sm:text-base text-center">Getting your location and weather
-                                data...</p>
+                            <p class="text-gray-600 dark:text-gray-400 text-sm sm:text-base text-center">Getting your location and weather data...</p>
                         </div>
 
                         <!-- Error State -->
                         <div id="errorState" class="hidden flex-col items-center justify-center py-8 sm:py-12">
                             <div class="text-4xl sm:text-6xl mb-4">⚠️</div>
-                            <h4 class="text-lg sm:text-xl font-semibold text-gray-800 mb-2">Unable to Load Weather</h4>
-                            <p class="text-gray-600 text-center mb-4 text-sm sm:text-base px-4" id="errorMessage"></p>
+                            <h4 class="text-lg sm:text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2">Unable to Load Weather</h4>
+                            <p class="text-gray-600 dark:text-gray-400 text-center mb-4 text-sm sm:text-base px-4" id="errorMessage"></p>
                             <button onclick="loadWeather()"
-                                class="px-4 sm:px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm sm:text-base">
+                                class="px-4 sm:px-6 py-2 bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-lg transition-colors text-sm sm:text-base">
                                 Try Again
                             </button>
                         </div>
@@ -59,9 +57,8 @@
                         <!-- Weather Data -->
                         <div id="weatherData" class="hidden">
                             <!-- Location Info -->
-                            <div class="flex items-center gap-2 mb-4 sm:mb-6 text-gray-600 text-sm sm:text-base">
-                                <svg class="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
+                            <div class="flex items-center gap-2 mb-4 sm:mb-6 text-gray-600 dark:text-gray-400 text-sm sm:text-base">
+                                <svg class="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
                                     </path>
@@ -76,64 +73,68 @@
                                 <div class="flex items-start gap-4 sm:gap-6 w-full sm:w-auto">
                                     <div id="weatherIcon" class="text-6xl sm:text-8xl flex-shrink-0">🌤️</div>
                                     <div class="flex-1">
-                                        <div class="text-4xl sm:text-6xl font-bold text-gray-800 mb-2">
+                                        <div class="text-4xl sm:text-6xl font-bold text-gray-800 dark:text-gray-100 mb-2">
                                             <span id="temperature">--</span>°C
                                         </div>
-                                        <p id="weatherDescription" class="text-lg sm:text-xl text-gray-600 capitalize">
+                                        <p id="weatherDescription" class="text-lg sm:text-xl text-gray-600 dark:text-gray-400 capitalize">
                                             Loading...</p>
-                                        <p class="text-xs sm:text-sm text-gray-500 mt-2">
+                                        <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-500 mt-2">
                                             Feels like <span id="feelsLike">--</span>°C
                                         </p>
                                     </div>
                                 </div>
                                 <div class="text-left sm:text-right w-full sm:w-auto">
-                                    <p class="text-xs sm:text-sm text-gray-500">Last updated</p>
-                                    <p id="lastUpdated" class="text-xs sm:text-sm font-medium text-gray-700">--</p>
+                                    <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-500">Last updated</p>
+                                    <p id="lastUpdated" class="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">--</p>
                                 </div>
                             </div>
 
                             <!-- Weather Details Grid -->
                             <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
                                 <!-- Humidity -->
-                                <div class="bg-blue-50 rounded-xl p-3 sm:p-4">
+                                <div class="bg-blue-50 dark:bg-blue-900/30 rounded-xl p-3 sm:p-4 border border-blue-100 dark:border-blue-800">
                                     <div class="flex items-center gap-2 mb-2">
                                         <span class="text-xl sm:text-2xl">💧</span>
-                                        <span class="text-xs font-medium text-gray-600 uppercase">Humidity</span>
+                                        <span class="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase">Humidity</span>
                                     </div>
-                                    <p class="text-xl sm:text-2xl font-bold text-gray-800"><span id="humidity">--</span>%
+                                    <p class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-100">
+                                        <span id="humidity">--</span>%
                                     </p>
                                 </div>
 
                                 <!-- Wind Speed -->
-                                <div class="bg-green-50 rounded-xl p-3 sm:p-4">
+                                <div class="bg-green-50 dark:bg-green-900/30 rounded-xl p-3 sm:p-4 border border-green-100 dark:border-green-800">
                                     <div class="flex items-center gap-2 mb-2">
                                         <span class="text-xl sm:text-2xl">💨</span>
-                                        <span class="text-xs font-medium text-gray-600 uppercase">Wind</span>
+                                        <span class="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase">Wind</span>
                                     </div>
-                                    <p class="text-xl sm:text-2xl font-bold text-gray-800"><span id="windSpeed">--</span>
+                                    <p class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-100">
+                                        <span id="windSpeed">--</span>
                                         <span class="text-sm">km/h</span>
                                     </p>
                                 </div>
 
                                 <!-- Pressure -->
-                                <div class="bg-purple-50 rounded-xl p-3 sm:p-4">
+                                <div class="bg-purple-50 dark:bg-purple-900/30 rounded-xl p-3 sm:p-4 border border-purple-100 dark:border-purple-800">
                                     <div class="flex items-center gap-2 mb-2">
                                         <span class="text-xl sm:text-2xl">🌡️</span>
-                                        <span class="text-xs font-medium text-gray-600 uppercase">Pressure</span>
+                                        <span class="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase">Pressure</span>
                                     </div>
-                                    <p class="text-xl sm:text-2xl font-bold text-gray-800"><span id="pressure">--</span>
+                                    <p class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-100">
+                                        <span id="pressure">--</span>
                                         <span class="text-sm">hPa</span>
                                     </p>
                                 </div>
 
                                 <!-- Precipitation -->
-                                <div class="bg-indigo-50 rounded-xl p-3 sm:p-4">
+                                <div class="bg-indigo-50 dark:bg-indigo-900/30 rounded-xl p-3 sm:p-4 border border-indigo-100 dark:border-indigo-800">
                                     <div class="flex items-center gap-2 mb-2">
                                         <span class="text-xl sm:text-2xl">🌧️</span>
-                                        <span class="text-xs font-medium text-gray-600 uppercase">Rain</span>
+                                        <span class="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase">Rain</span>
                                     </div>
-                                    <p class="text-xl sm:text-2xl font-bold text-gray-800"><span
-                                            id="precipitation">--</span> <span class="text-sm">mm</span></p>
+                                    <p class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-100">
+                                        <span id="precipitation">--</span> <span class="text-sm">mm</span>
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -141,15 +142,15 @@
                 </div>
 
                 <!-- Weather Alerts Section -->
-                <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-                    <div class="p-4 sm:p-6 border-b border-gray-100 bg-gradient-to-r from-orange-50 to-red-50">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
+                    <div class="p-4 sm:p-6 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/30 dark:to-red-900/30">
                         <div class="flex items-center justify-between flex-wrap gap-2">
                             <div class="flex items-center gap-3">
                                 <span class="text-xl sm:text-2xl">🚨</span>
-                                <h3 class="text-lg sm:text-xl font-bold text-gray-800">Weather Alerts</h3>
+                                <h3 class="text-lg sm:text-xl font-bold text-gray-800 dark:text-gray-100">Weather Alerts</h3>
                             </div>
                             <button id="refreshAlerts"
-                                class="flex items-center gap-2 px-3 sm:px-4 py-2 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow text-xs sm:text-sm font-medium text-gray-700 hover:text-orange-600">
+                                class="flex items-center gap-2 px-3 sm:px-4 py-2 bg-white dark:bg-gray-700 rounded-lg shadow-sm hover:shadow-md transition-all text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-orange-600 dark:hover:text-orange-400">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
@@ -163,19 +164,18 @@
                     <div id="alertsContent" class="p-4 sm:p-8">
                         <!-- Loading State -->
                         <div id="alertsLoadingState" class="flex flex-col items-center justify-center py-8 sm:py-12">
-                            <div
-                                class="animate-spin rounded-full h-12 sm:h-16 w-12 sm:w-16 border-b-2 border-orange-500 mb-4">
+                            <div class="animate-spin rounded-full h-12 sm:h-16 w-12 sm:w-16 border-b-2 border-orange-500 dark:border-orange-400 mb-4">
                             </div>
-                            <p class="text-gray-600 text-sm sm:text-base text-center">Analyzing weather conditions...</p>
+                            <p class="text-gray-600 dark:text-gray-400 text-sm sm:text-base text-center">Analyzing weather conditions...</p>
                         </div>
 
                         <!-- Error State -->
                         <div id="alertsErrorState" class="hidden flex-col items-center justify-center py-8 sm:py-12">
                             <div class="text-4xl sm:text-6xl mb-4">⚠️</div>
-                            <h4 class="text-lg sm:text-xl font-semibold text-gray-800 mb-2">Unable to Load Alerts</h4>
-                            <p class="text-gray-600 text-center mb-4 text-sm sm:text-base px-4" id="alertsErrorMessage"></p>
+                            <h4 class="text-lg sm:text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2">Unable to Load Alerts</h4>
+                            <p class="text-gray-600 dark:text-gray-400 text-center mb-4 text-sm sm:text-base px-4" id="alertsErrorMessage"></p>
                             <button onclick="loadWeatherAlerts()"
-                                class="px-4 sm:px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors text-sm sm:text-base">
+                                class="px-4 sm:px-6 py-2 bg-orange-500 hover:bg-orange-600 dark:bg-orange-600 dark:hover:bg-orange-700 text-white rounded-lg transition-colors text-sm sm:text-base">
                                 Try Again
                             </button>
                         </div>
@@ -184,29 +184,27 @@
                         <div id="alertsData" class="hidden">
                             <!-- Alert Statistics -->
                             <div class="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 mb-4 sm:mb-6">
-                                <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-2 sm:p-3 text-center">
-                                    <div class="text-xl sm:text-2xl font-bold text-blue-700" id="totalAlerts">0</div>
-                                    <div class="text-xs text-blue-600 font-medium mt-1">Total</div>
+                                <div class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 rounded-xl p-2 sm:p-3 text-center border border-blue-200 dark:border-blue-700">
+                                    <div class="text-xl sm:text-2xl font-bold text-blue-700 dark:text-blue-400" id="totalAlerts">0</div>
+                                    <div class="text-xs text-blue-600 dark:text-blue-400 font-medium mt-1">Total</div>
                                 </div>
-                                <div class="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-2 sm:p-3 text-center">
-                                    <div class="text-xl sm:text-2xl font-bold text-red-700" id="dangerAlerts">0</div>
-                                    <div class="text-xs text-red-600 font-medium mt-1">Danger</div>
+                                <div class="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/30 dark:to-red-800/30 rounded-xl p-2 sm:p-3 text-center border border-red-200 dark:border-red-700">
+                                    <div class="text-xl sm:text-2xl font-bold text-red-700 dark:text-red-400" id="dangerAlerts">0</div>
+                                    <div class="text-xs text-red-600 dark:text-red-400 font-medium mt-1">Danger</div>
                                 </div>
-                                <div
-                                    class="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-2 sm:p-3 text-center">
-                                    <div class="text-xl sm:text-2xl font-bold text-yellow-700" id="warningAlerts">0</div>
-                                    <div class="text-xs text-yellow-600 font-medium mt-1">Warning</div>
+                                <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/30 dark:to-yellow-800/30 rounded-xl p-2 sm:p-3 text-center border border-yellow-200 dark:border-yellow-700">
+                                    <div class="text-xl sm:text-2xl font-bold text-yellow-700 dark:text-yellow-400" id="warningAlerts">0</div>
+                                    <div class="text-xs text-yellow-600 dark:text-yellow-400 font-medium mt-1">Warning</div>
                                 </div>
-                                <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-2 sm:p-3 text-center">
-                                    <div class="text-xl sm:text-2xl font-bold text-green-700" id="infoAlerts">0</div>
-                                    <div class="text-xs text-green-600 font-medium mt-1">Info</div>
+                                <div class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/30 dark:to-green-800/30 rounded-xl p-2 sm:p-3 text-center border border-green-200 dark:border-green-700">
+                                    <div class="text-xl sm:text-2xl font-bold text-green-700 dark:text-green-400" id="infoAlerts">0</div>
+                                    <div class="text-xs text-green-600 dark:text-green-400 font-medium mt-1">Info</div>
                                 </div>
                             </div>
 
                             <!-- Location Info -->
-                            <div class="flex items-center gap-2 mb-4 text-gray-600 text-sm sm:text-base">
-                                <svg class="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
+                            <div class="flex items-center gap-2 mb-4 text-gray-600 dark:text-gray-400 text-sm sm:text-base">
+                                <svg class="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
                                     </path>
@@ -220,14 +218,11 @@
                             <div class="max-h-64 sm:max-h-96 overflow-y-auto custom-scrollbar">
                                 <!-- No Alerts Message -->
                                 <div id="noAlertsMessage" class="hidden">
-                                    <div
-                                        class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 sm:p-8 text-center border-2 border-green-200">
+                                    <div class="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 rounded-2xl p-6 sm:p-8 text-center border-2 border-green-200 dark:border-green-700">
                                         <div class="text-4xl sm:text-6xl mb-4">✅</div>
-                                        <h4 class="text-xl sm:text-2xl font-bold text-green-800 mb-2">All Clear!</h4>
-                                        <p class="text-green-700 text-base sm:text-lg">No notable alerts in this area</p>
-                                        <p class="text-green-600 text-xs sm:text-sm mt-2">Current weather conditions are
-                                            within normal
-                                            ranges</p>
+                                        <h4 class="text-xl sm:text-2xl font-bold text-green-800 dark:text-green-400 mb-2">All Clear!</h4>
+                                        <p class="text-green-700 dark:text-green-300 text-base sm:text-lg">No notable alerts in this area</p>
+                                        <p class="text-green-600 dark:text-green-400 text-xs sm:text-sm mt-2">Current weather conditions are within normal ranges</p>
                                     </div>
                                 </div>
 
@@ -236,7 +231,7 @@
                             </div>
 
                             <!-- Last Updated -->
-                            <div class="mt-4 sm:mt-6 text-center text-xs sm:text-sm text-gray-500">
+                            <div class="mt-4 sm:mt-6 text-center text-xs sm:text-sm text-gray-500 dark:text-gray-500">
                                 Last checked: <span id="alertsLastUpdated" class="font-medium">--</span>
                             </div>
                         </div>
@@ -245,100 +240,95 @@
 
             </div>
 
-            <!-- Additional Features Section -->
-            <div class="mb-4">
-                <h3 class="text-base sm:text-lg font-semibold text-gray-700 mb-4">Additional Features</h3>
+            <!-- Activity Statistics -->
+            <div class="mb-6">
+                <h3 class="text-base sm:text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">Your Activity</h3>
             </div>
 
-            <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-4 sm:mb-6">
+            <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
                 <!-- Total Searches -->
-                <div class="bg-white rounded-xl shadow-sm p-4 sm:p-6 border border-gray-100">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 sm:p-6 border border-gray-100 dark:border-gray-700">
                     <div class="flex items-center justify-between mb-3">
                         <div class="text-2xl sm:text-3xl">🔍</div>
                         @if(Auth::user()->searchHistories()->count() > 0)
-                            <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium">Active</span>
+                            <span class="text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-1 rounded-full font-medium border border-green-200 dark:border-green-700">Active</span>
                         @else
-                            <span class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full font-medium">New</span>
+                            <span class="text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded-full font-medium border border-gray-200 dark:border-gray-600">New</span>
                         @endif
                     </div>
-                    <h3 class="text-xl sm:text-2xl font-bold text-gray-800">{{ Auth::user()->searchHistories()->count() }}
-                    </h3>
-                    <p class="text-xs sm:text-sm text-gray-600 mt-1">Total Searches</p>
+                    <h3 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-100">{{ Auth::user()->searchHistories()->count() }}</h3>
+                    <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">Total Searches</p>
                     @if(Auth::user()->searchHistories()->count() > 0)
-                        <p class="text-xs text-blue-600 mt-2">
-                            Last:
-                            {{ Auth::user()->searchHistories()->latest('last_searched_at')->first()->last_searched_at->diffForHumans() }}
+                        <p class="text-xs text-blue-600 dark:text-blue-400 mt-2">
+                            Last: {{ Auth::user()->searchHistories()->latest('last_searched_at')->first()->last_searched_at->diffForHumans() }}
                         </p>
                     @endif
                 </div>
 
                 <!-- Saved Locations -->
-                <div class="bg-white rounded-xl shadow-sm p-4 sm:p-6 border border-gray-100">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 sm:p-6 border border-gray-100 dark:border-gray-700">
                     <div class="flex items-center justify-between mb-3">
                         <div class="text-2xl sm:text-3xl">📍</div>
                         @if(Auth::user()->savedLocations()->count() > 0)
-                            <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium">Active</span>
+                            <span class="text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-1 rounded-full font-medium border border-green-200 dark:border-green-700">Active</span>
                         @else
-                            <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">Soon</span>
+                            <span class="text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 px-2 py-1 rounded-full font-medium border border-blue-200 dark:border-blue-700">Ready</span>
                         @endif
                     </div>
-                    <h3 class="text-xl sm:text-2xl font-bold text-gray-800">{{ Auth::user()->savedLocations()->count() }}
-                    </h3>
-                    <p class="text-xs sm:text-sm text-gray-600 mt-1">Saved Locations</p>
+                    <h3 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-100">{{ Auth::user()->savedLocations()->count() }}</h3>
+                    <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">Saved Locations</p>
                 </div>
 
                 <!-- Most Searched -->
-                <div class="bg-white rounded-xl shadow-sm p-4 sm:p-6 border border-gray-100">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 sm:p-6 border border-gray-100 dark:border-gray-700">
                     <div class="flex items-center justify-between mb-3">
                         <div class="text-2xl sm:text-3xl">🔥</div>
-                        <span class="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full font-medium">Top</span>
+                        <span class="text-xs bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 px-2 py-1 rounded-full font-medium border border-orange-200 dark:border-orange-700">Top</span>
                     </div>
                     @php
-                        $topSearch = Auth::user()->searchHistories()
-                            ->orderBy('search_count', 'desc')
-                            ->first();
+                        $topSearch = Auth::user()->searchHistories()->orderBy('search_count', 'desc')->first();
                     @endphp
-                    <h3 class="text-xl sm:text-2xl font-bold text-gray-800">
+                    <h3 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-100">
                         {{ $topSearch ? $topSearch->search_count : 0 }}
                     </h3>
-                    <p class="text-xs sm:text-sm text-gray-600 mt-1">Most Searched</p>
+                    <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">Most Searched</p>
                     @if($topSearch)
-                        <p class="text-xs text-gray-500 mt-2 truncate" title="{{ $topSearch->location_name }}">
+                        <p class="text-xs text-gray-500 dark:text-gray-500 mt-2 truncate" title="{{ $topSearch->location_name }}">
                             {{ Str::limit($topSearch->location_name, 20) }}
                         </p>
                     @endif
                 </div>
 
                 <!-- Member Since -->
-                <div class="bg-white rounded-xl shadow-sm p-4 sm:p-6 border border-gray-100">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 sm:p-6 border border-gray-100 dark:border-gray-700">
                     <div class="flex items-center justify-between mb-3">
                         <div class="text-2xl sm:text-3xl">📅</div>
-                        <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium">Active</span>
+                        <span class="text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-1 rounded-full font-medium border border-green-200 dark:border-green-700">Active</span>
                     </div>
-                    <h3 class="text-base sm:text-2xl font-bold text-gray-800">
+                    <h3 class="text-base sm:text-2xl font-bold text-gray-800 dark:text-gray-100">
                         {{ Auth::user()->created_at->diffForHumans(null, true) }}
                     </h3>
-                    <p class="text-xs sm:text-sm text-gray-600 mt-1">Member Since</p>
+                    <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">Member Since</p>
                 </div>
             </div>
 
             <!-- Search History Section -->
-            <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden mb-6">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden mb-6">
                 <!-- Header -->
-                <div class="p-6 border-b border-gray-100 bg-gradient-to-r from-purple-50 to-blue-50">
+                <div class="p-6 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/30 dark:to-blue-900/30">
                     <div class="flex items-center justify-between flex-wrap gap-4">
                         <div class="flex items-center gap-3">
                             <span class="text-2xl">🔎</span>
                             <div>
-                                <h3 class="text-xl font-bold text-gray-800">Recent Searches</h3>
-                                <p class="text-sm text-gray-600 mt-1">Your location search history</p>
+                                <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100">Recent Searches</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Your location search history</p>
                             </div>
                         </div>
 
                         <div class="flex items-center gap-2">
                             <!-- Filter by Date -->
                             <select id="searchHistoryFilter"
-                                class="px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                class="px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400"
                                 onchange="searchHistoryManager.filterByDate(this.value)">
                                 <option value="all">All Time</option>
                                 <option value="today">Today</option>
@@ -348,7 +338,7 @@
 
                             <!-- Clear All Button -->
                             <button onclick="searchHistoryManager.confirmClearAll()"
-                                class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-2 text-sm font-medium">
+                                class="px-4 py-2 bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 text-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-2 text-sm font-medium">
                                 <span>🗑️</span>
                                 <span>Clear All</span>
                             </button>
@@ -360,19 +350,19 @@
                 <div class="p-6">
                     <!-- Loading State -->
                     <div id="searchHistoryLoading" class="flex flex-col items-center justify-center py-12">
-                        <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 mb-4"></div>
-                        <p class="text-gray-600">Loading search history...</p>
+                        <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 dark:border-blue-400 mb-4"></div>
+                        <p class="text-gray-600 dark:text-gray-400">Loading search history...</p>
                     </div>
 
                     <!-- Empty State -->
                     <div id="searchHistoryEmpty" class="hidden flex-col items-center justify-center py-12">
                         <div class="text-6xl mb-4">🔍</div>
-                        <h4 class="text-xl font-semibold text-gray-800 mb-2">No Search History Yet</h4>
-                        <p class="text-gray-600 text-center max-w-md mb-6">
+                        <h4 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2">No Search History Yet</h4>
+                        <p class="text-gray-600 dark:text-gray-400 text-center max-w-md mb-6">
                             Start exploring weather data around the world! Your searches will appear here.
                         </p>
                         <a href="{{ route('weather.map') }}"
-                            class="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200">
+                            class="px-6 py-3 bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-lg shadow-sm hover:shadow-md transition-all duration-200">
                             Explore Weather Map
                         </a>
                     </div>
@@ -385,7 +375,7 @@
                     <!-- View All Button -->
                     <div id="viewAllContainer" class="hidden mt-6 text-center">
                         <button onclick="searchHistoryManager.viewAll()"
-                            class="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors">
+                            class="px-6 py-3 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg font-medium transition-colors">
                             View All History
                         </button>
                     </div>
@@ -393,17 +383,16 @@
             </div>
 
             <!-- View All Modal -->
-            <div id="viewAllModal"
-                class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 p-4">
-                <div class="bg-white rounded-2xl shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
+            <div id="viewAllModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 dark:bg-opacity-75 flex items-center justify-center z-50 p-4">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
                     <!-- Modal Header -->
-                    <div class="p-6 border-b border-gray-100 flex items-center justify-between">
-                        <h3 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                    <div class="p-6 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+                        <h3 class="text-2xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
                             <span>📜</span>
                             Complete Search History
                         </h3>
                         <button onclick="searchHistoryManager.closeViewAll()"
-                            class="text-gray-400 hover:text-gray-600 text-2xl">
+                            class="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 text-2xl">
                             ×
                         </button>
                     </div>
@@ -416,12 +405,12 @@
                     </div>
 
                     <!-- Modal Footer -->
-                    <div class="p-6 border-t border-gray-100 bg-gray-50 flex items-center justify-between">
-                        <p class="text-sm text-gray-600">
+                    <div class="p-6 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 flex items-center justify-between">
+                        <p class="text-sm text-gray-600 dark:text-gray-400">
                             Total Searches: <span id="totalSearchCount" class="font-semibold">0</span>
                         </p>
                         <button onclick="searchHistoryManager.closeViewAll()"
-                            class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-medium transition-colors">
+                            class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg font-medium transition-colors">
                             Close
                         </button>
                     </div>
@@ -429,24 +418,23 @@
             </div>
 
             <!-- Confirm Clear All Modal -->
-            <div id="confirmClearModal"
-                class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 p-4">
-                <div class="bg-white rounded-2xl shadow-xl w-full max-w-md">
+            <div id="confirmClearModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 dark:bg-opacity-75 flex items-center justify-center z-50 p-4">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-md">
                     <div class="p-6">
                         <div class="flex items-center gap-3 mb-4">
                             <span class="text-3xl">⚠️</span>
-                            <h3 class="text-xl font-bold text-gray-900">Clear All Search History?</h3>
+                            <h3 class="text-xl font-bold text-gray-900 dark:text-gray-100">Clear All Search History?</h3>
                         </div>
-                        <p class="text-gray-600 mb-6">
+                        <p class="text-gray-600 dark:text-gray-400 mb-6">
                             This will permanently delete all your search history. This action cannot be undone.
                         </p>
                         <div class="flex items-center gap-3">
                             <button onclick="searchHistoryManager.closeConfirmClear()"
-                                class="flex-1 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors">
+                                class="flex-1 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 font-medium rounded-lg transition-colors">
                                 Cancel
                             </button>
                             <button onclick="searchHistoryManager.clearAll()"
-                                class="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors">
+                                class="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800 text-white font-medium rounded-lg transition-colors">
                                 Clear All
                             </button>
                         </div>
@@ -454,185 +442,70 @@
                 </div>
             </div>
 
-            <!-- Quick Actions & Account Info - FIXED: Mobile stack -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-                <!-- Quick Actions -->
-                <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100">
-                    <div class="p-4 sm:p-6 border-b border-gray-100">
-                        <h3 class="text-base sm:text-lg font-semibold text-gray-800">Quick Actions</h3>
+            <!-- Quick Actions -->
+            <div class="mb-6">
+                <h3 class="text-base sm:text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">Quick Actions</h3>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                <!-- Weather Map -->
+                <a href="{{ route('weather.map') }}"
+                    class="group flex items-start gap-3 sm:gap-4 p-4 sm:p-5 rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500 bg-white dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300">
+                    <div class="text-3xl sm:text-4xl flex-shrink-0">🗺️</div>
+                    <div class="flex-1 min-w-0">
+                        <h4 class="font-semibold text-gray-800 dark:text-gray-100 group-hover:text-blue-700 dark:group-hover:text-blue-400 mb-1 text-sm sm:text-base">
+                            Explore Weather Map
+                        </h4>
+                        <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-400">View real-time weather data worldwide</p>
                     </div>
-                    <div class="p-4 sm:p-6">
-                        <!-- FIXED: Single column on mobile -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                            <!-- Weather Map -->
-                            <a href="{{ route('weather.map') }}"
-                                class="group flex items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50 transition-all duration-300">
-                                <div class="text-3xl sm:text-4xl flex-shrink-0">🗺️</div>
-                                <div class="flex-1 min-w-0">
-                                    <h4
-                                        class="font-semibold text-gray-800 group-hover:text-blue-700 mb-1 text-sm sm:text-base">
-                                        Explore Weather
-                                        Map
-                                    </h4>
-                                    <p class="text-xs sm:text-sm text-gray-600">View real-time weather data worldwide</p>
-                                </div>
-                            </a>
+                </a>
 
-                            <!-- Recent Searches -->
-                            <div
-                                class="group flex items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl border-2 border-gray-200 bg-gray-50 opacity-60 cursor-not-allowed">
-                                <div class="text-3xl sm:text-4xl flex-shrink-0">🔎</div>
-                                <div class="flex-1 min-w-0">
-                                    <h4
-                                        class="font-semibold text-gray-800 mb-1 flex items-center gap-2 flex-wrap text-sm sm:text-base">
-                                        View Recent Searches
-                                        <span
-                                            class="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">Soon</span>
-                                    </h4>
-                                    <p class="text-xs sm:text-sm text-gray-600">Access your search history</p>
-                                </div>
-                            </div>
-
-                            <!-- Favorites -->
-                            <div
-                                class="group flex items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl border-2 border-gray-200 bg-gray-50 opacity-60 cursor-not-allowed">
-                                <div class="text-3xl sm:text-4xl flex-shrink-0">⭐</div>
-                                <div class="flex-1 min-w-0">
-                                    <h4
-                                        class="font-semibold text-gray-800 mb-1 flex items-center gap-2 flex-wrap text-sm sm:text-base">
-                                        Manage Favorites
-                                        <span
-                                            class="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">Soon</span>
-                                    </h4>
-                                    <p class="text-xs sm:text-sm text-gray-600">Organize your favorite locations</p>
-                                </div>
-                            </div>
-
-                            <!-- Settings -->
-                            <a href="{{ route('profile.edit') }}"
-                                class="group flex items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50 transition-all duration-300">
-                                <div class="text-3xl sm:text-4xl flex-shrink-0">⚙️</div>
-                                <div class="flex-1 min-w-0">
-                                    <h4
-                                        class="font-semibold text-gray-800 group-hover:text-blue-700 mb-1 text-sm sm:text-base">
-                                        Account Settings
-                                    </h4>
-                                    <p class="text-xs sm:text-sm text-gray-600">Manage your profile and preferences</p>
-                                </div>
-                            </a>
-                        </div>
+                <!-- Profile -->
+                <a href="{{ route('profile.show') }}"
+                    class="group flex items-start gap-3 sm:gap-4 p-4 sm:p-5 rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500 bg-white dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300">
+                    <div class="text-3xl sm:text-4xl flex-shrink-0">👤</div>
+                    <div class="flex-1 min-w-0">
+                        <h4 class="font-semibold text-gray-800 dark:text-gray-100 group-hover:text-blue-700 dark:group-hover:text-blue-400 mb-1 text-sm sm:text-base">
+                            View Profile
+                        </h4>
+                        <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Check your profile information</p>
                     </div>
-                </div>
+                </a>
 
-                <!-- Account Info & Tips -->
-                <div class="space-y-4 sm:space-y-6">
-                    <!-- Account Info -->
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100">
-                        <div class="p-4 sm:p-6 border-b border-gray-100">
-                            <h3 class="text-base sm:text-lg font-semibold text-gray-800">Account Info</h3>
-                        </div>
-                        <div class="p-4 sm:p-6 space-y-3 sm:space-y-4">
-                            <div class="flex items-start gap-3">
-                                <span class="text-xl sm:text-2xl flex-shrink-0">📧</span>
-                                <div class="flex-1 min-w-0">
-                                    <p class="text-xs font-medium text-gray-500 uppercase">Email</p>
-                                    <p class="text-sm text-gray-800 mt-0.5 break-words">{{ Auth::user()->email }}</p>
-                                </div>
-                            </div>
-                            <div class="flex items-start gap-3">
-                                <span class="text-xl sm:text-2xl flex-shrink-0">📅</span>
-                                <div class="flex-1 min-w-0">
-                                    <p class="text-xs font-medium text-gray-500 uppercase">Joined</p>
-                                    <p class="text-sm text-gray-800 mt-0.5">{{ Auth::user()->created_at->format('F j, Y') }}
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="flex items-start gap-3">
-                                <span class="text-xl sm:text-2xl flex-shrink-0">🔐</span>
-                                <div class="flex-1 min-w-0">
-                                    <p class="text-xs font-medium text-gray-500 uppercase">Status</p>
-                                    <p class="text-sm text-gray-800 mt-0.5">
-                                        <span class="inline-flex items-center gap-1">
-                                            <span class="w-2 h-2 bg-green-500 rounded-full"></span>
-                                            Active Account
-                                        </span>
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
+                <!-- Settings -->
+                <a href="{{ route('profile.edit') }}"
+                    class="group flex items-start gap-3 sm:gap-4 p-4 sm:p-5 rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500 bg-white dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300">
+                    <div class="text-3xl sm:text-4xl flex-shrink-0">⚙️</div>
+                    <div class="flex-1 min-w-0">
+                        <h4 class="font-semibold text-gray-800 dark:text-gray-100 group-hover:text-blue-700 dark:group-hover:text-blue-400 mb-1 text-sm sm:text-base">
+                            Account Settings
+                        </h4>
+                        <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Manage your profile and preferences</p>
                     </div>
-
-                    <!-- Tips & Updates -->
-                    <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-sm overflow-hidden">
-                        <div class="p-4 sm:p-6 text-white">
-                            <div class="text-2xl sm:text-3xl mb-3">💡</div>
-                            <h3 class="text-base sm:text-lg font-semibold mb-2">Coming Soon!</h3>
-                            <p class="text-xs sm:text-sm text-blue-100 leading-relaxed">
-                                We're working on exciting new features including saved search history, favorite locations,
-                                and
-                                personalized weather alerts!
-                            </p>
-                        </div>
-                    </div>
-                </div>
+                </a>
             </div>
         </div>
 
-        <!-- Keep existing JavaScript -->
+        <!-- JavaScript -->
         <script>
             // Weather icons mapping
             const weatherIcons = {
-                0: '☀️',    // Clear sky
-                1: '🌤️',   // Mainly clear
-                2: '⛅',    // Partly cloudy
-                3: '☁️',    // Overcast
-                45: '🌫️',  // Foggy
-                48: '🌫️',  // Depositing rime fog
-                51: '🌦️',  // Light drizzle
-                53: '🌦️',  // Moderate drizzle
-                55: '🌦️',  // Dense drizzle
-                61: '🌧️',  // Slight rain
-                63: '🌧️',  // Moderate rain
-                65: '🌧️',  // Heavy rain
-                71: '🌨️',  // Slight snow
-                73: '🌨️',  // Moderate snow
-                75: '🌨️',  // Heavy snow
-                77: '❄️',   // Snow grains
-                80: '🌦️',  // Slight rain showers
-                81: '🌧️',  // Moderate rain showers
-                82: '⛈️',   // Violent rain showers
-                85: '🌨️',  // Slight snow showers
-                86: '🌨️',  // Heavy snow showers
-                95: '⛈️',   // Thunderstorm
-                96: '⛈️',   // Thunderstorm with slight hail
-                99: '⛈️'    // Thunderstorm with heavy hail
+                0: '☀️', 1: '🌤️', 2: '⛅', 3: '☁️', 45: '🌫️', 48: '🌫️',
+                51: '🌦️', 53: '🌦️', 55: '🌦️', 61: '🌧️', 63: '🌧️', 65: '🌧️',
+                71: '🌨️', 73: '🌨️', 75: '🌨️', 77: '❄️', 80: '🌦️', 81: '🌧️',
+                82: '⛈️', 85: '🌨️', 86: '🌨️', 95: '⛈️', 96: '⛈️', 99: '⛈️'
             };
 
             const weatherDescriptions = {
-                0: 'Clear sky',
-                1: 'Mainly clear',
-                2: 'Partly cloudy',
-                3: 'Overcast',
-                45: 'Foggy',
-                48: 'Depositing rime fog',
-                51: 'Light drizzle',
-                53: 'Moderate drizzle',
-                55: 'Dense drizzle',
-                61: 'Slight rain',
-                63: 'Moderate rain',
-                65: 'Heavy rain',
-                71: 'Slight snow',
-                73: 'Moderate snow',
-                75: 'Heavy snow',
-                77: 'Snow grains',
-                80: 'Slight rain showers',
-                81: 'Moderate rain showers',
-                82: 'Violent rain showers',
-                85: 'Slight snow showers',
-                86: 'Heavy snow showers',
-                95: 'Thunderstorm',
-                96: 'Thunderstorm with slight hail',
-                99: 'Thunderstorm with heavy hail'
+                0: 'Clear sky', 1: 'Mainly clear', 2: 'Partly cloudy', 3: 'Overcast',
+                45: 'Foggy', 48: 'Depositing rime fog', 51: 'Light drizzle',
+                53: 'Moderate drizzle', 55: 'Dense drizzle', 61: 'Slight rain',
+                63: 'Moderate rain', 65: 'Heavy rain', 71: 'Slight snow',
+                73: 'Moderate snow', 75: 'Heavy snow', 77: 'Snow grains',
+                80: 'Slight rain showers', 81: 'Moderate rain showers',
+                82: 'Violent rain showers', 85: 'Slight snow showers',
+                86: 'Heavy snow showers', 95: 'Thunderstorm',
+                96: 'Thunderstorm with slight hail', 99: 'Thunderstorm with heavy hail'
             };
 
             async function loadWeather() {
@@ -640,7 +513,6 @@
                 const errorState = document.getElementById('errorState');
                 const weatherData = document.getElementById('weatherData');
 
-                // Show loading
                 loadingState.classList.remove('hidden');
                 loadingState.classList.add('flex');
                 errorState.classList.add('hidden');
@@ -648,7 +520,6 @@
                 weatherData.classList.add('hidden');
 
                 try {
-                    // Get user's location
                     const position = await new Promise((resolve, reject) => {
                         if (!navigator.geolocation) {
                             reject(new Error('Geolocation is not supported by your browser'));
@@ -658,7 +529,6 @@
 
                     const { latitude, longitude } = position.coords;
 
-                    // Fetch weather data from Open-Meteo API
                     const weatherResponse = await fetch(
                         `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,surface_pressure,wind_speed_10m&timezone=auto`
                     );
@@ -669,7 +539,6 @@
 
                     const weather = await weatherResponse.json();
 
-                    // Fetch location name using reverse geocoding
                     let locationName = `${latitude.toFixed(2)}, ${longitude.toFixed(2)}`;
                     try {
                         const geoResponse = await fetch(
@@ -686,7 +555,6 @@
                         console.warn('Could not fetch location name:', e);
                     }
 
-                    // Update UI
                     const current = weather.current;
                     const weatherCode = current.weather_code;
 
@@ -704,7 +572,6 @@
                         minute: '2-digit'
                     });
 
-                    // Show weather data
                     loadingState.classList.add('hidden');
                     loadingState.classList.remove('flex');
                     weatherData.classList.remove('hidden');
@@ -712,7 +579,6 @@
                 } catch (error) {
                     console.error('Error loading weather:', error);
 
-                    // Show error state
                     loadingState.classList.add('hidden');
                     loadingState.classList.remove('flex');
                     errorState.classList.remove('hidden');
@@ -744,7 +610,6 @@
                 const noAlertsMessage = document.getElementById('noAlertsMessage');
                 const activeAlertsList = document.getElementById('activeAlertsList');
 
-                // Show loading
                 loadingState.classList.remove('hidden');
                 loadingState.classList.add('flex');
                 errorState.classList.add('hidden');
@@ -752,7 +617,6 @@
                 alertsData.classList.add('hidden');
 
                 try {
-                    // Get user's location
                     const position = await new Promise((resolve, reject) => {
                         if (!navigator.geolocation) {
                             reject(new Error('Geolocation is not supported by your browser'));
@@ -762,7 +626,6 @@
 
                     const { latitude, longitude } = position.coords;
 
-                    // Fetch weather alerts
                     const alertsResponse = await fetch(
                         `/weather/alerts?lat=${latitude}&lng=${longitude}`
                     );
@@ -779,7 +642,6 @@
 
                     const { alerts, statistics, location } = alertsResult.data;
 
-                    // Update statistics
                     document.getElementById('totalAlerts').textContent = statistics.total;
                     document.getElementById('dangerAlerts').textContent = statistics.danger;
                     document.getElementById('warningAlerts').textContent = statistics.warning;
@@ -790,26 +652,21 @@
                         minute: '2-digit'
                     });
 
-                    // Clear previous alerts
                     activeAlertsList.innerHTML = '';
 
                     if (alerts.length === 0) {
-                        // Show no alerts message
                         noAlertsMessage.classList.remove('hidden');
                         activeAlertsList.classList.add('hidden');
                     } else {
-                        // Hide no alerts message and show alerts
                         noAlertsMessage.classList.add('hidden');
                         activeAlertsList.classList.remove('hidden');
 
-                        // Render each alert
                         alerts.forEach(alert => {
                             const alertCard = createAlertCard(alert);
                             activeAlertsList.appendChild(alertCard);
                         });
                     }
 
-                    // Show alerts data
                     loadingState.classList.add('hidden');
                     loadingState.classList.remove('flex');
                     alertsData.classList.remove('hidden');
@@ -817,7 +674,6 @@
                 } catch (error) {
                     console.error('Error loading weather alerts:', error);
 
-                    // Show error state
                     loadingState.classList.add('hidden');
                     loadingState.classList.remove('flex');
                     errorState.classList.remove('hidden');
@@ -839,28 +695,27 @@
             function createAlertCard(alert) {
                 const card = document.createElement('div');
 
-                // Severity color mapping
                 const severityColors = {
                     danger: {
-                        bg: 'from-red-50 to-red-100',
-                        border: 'border-red-300',
-                        text: 'text-red-800',
-                        badge: 'bg-red-600',
-                        detailBg: 'bg-red-200/50'
+                        bg: 'from-red-50 to-red-100 dark:from-red-900/30 dark:to-red-800/30',
+                        border: 'border-red-300 dark:border-red-700',
+                        text: 'text-red-800 dark:text-red-300',
+                        badge: 'bg-red-600 dark:bg-red-700',
+                        detailBg: 'bg-red-200/50 dark:bg-red-900/20'
                     },
                     warning: {
-                        bg: 'from-yellow-50 to-yellow-100',
-                        border: 'border-yellow-300',
-                        text: 'text-yellow-800',
-                        badge: 'bg-yellow-600',
-                        detailBg: 'bg-yellow-200/50'
+                        bg: 'from-yellow-50 to-yellow-100 dark:from-yellow-900/30 dark:to-yellow-800/30',
+                        border: 'border-yellow-300 dark:border-yellow-700',
+                        text: 'text-yellow-800 dark:text-yellow-300',
+                        badge: 'bg-yellow-600 dark:bg-yellow-700',
+                        detailBg: 'bg-yellow-200/50 dark:bg-yellow-900/20'
                     },
                     info: {
-                        bg: 'from-blue-50 to-blue-100',
-                        border: 'border-blue-300',
-                        text: 'text-blue-800',
-                        badge: 'bg-blue-600',
-                        detailBg: 'bg-blue-200/50'
+                        bg: 'from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30',
+                        border: 'border-blue-300 dark:border-blue-700',
+                        text: 'text-blue-800 dark:text-blue-300',
+                        badge: 'bg-blue-600 dark:bg-blue-700',
+                        detailBg: 'bg-blue-200/50 dark:bg-blue-900/20'
                     }
                 };
 
@@ -868,77 +723,52 @@
 
                 card.className = `bg-gradient-to-r ${colors.bg} rounded-xl p-5 border-2 ${colors.border} shadow-sm hover:shadow-md transition-shadow`;
 
-                // Build value display
                 let valueDisplay = '';
                 if (alert.value !== undefined && alert.value !== null) {
                     valueDisplay = `<span class="text-2xl font-bold ${colors.text}">${alert.value}${alert.unit}</span>`;
                 }
 
-                // Build details section for heat index and wind chill
                 let detailsDisplay = '';
                 if (alert.details) {
                     const details = alert.details;
                     let detailItems = [];
 
-                    if (alert.type === 'heat_index') {
-                        detailItems.push(`
-                                                <div class="text-xs ${colors.text}">
-                                                    <span class="font-semibold">Temperature:</span> ${details.temperature}°C
-                                                </div>
-                                            `);
-                        detailItems.push(`
-                                                <div class="text-xs ${colors.text}">
-                                                    <span class="font-semibold">Humidity:</span> ${details.humidity}%
-                                                </div>
-                                            `);
-                        detailItems.push(`
-                                                <div class="text-xs ${colors.text}">
-                                                    <span class="font-semibold">Category:</span> ${details.category}
-                                                </div>
-                                            `);
-                    } else if (alert.type === 'wind_chill') {
-                        detailItems.push(`
-                                                <div class="text-xs ${colors.text}">
-                                                    <span class="font-semibold">Temperature:</span> ${details.temperature}°C
-                                                </div>
-                                            `);
-                        detailItems.push(`
-                                                <div class="text-xs ${colors.text}">
-                                                    <span class="font-semibold">Wind Speed:</span> ${details.wind_speed} km/h
-                                                </div>
-                                            `);
-                        detailItems.push(`
-                                                <div class="text-xs ${colors.text}">
-                                                    <span class="font-semibold">Category:</span> ${details.category}
-                                                </div>
-                                            `);
+                    if (alert.type === 'thermal_comfort') {
+                        if (details.actual_temperature) {
+                            detailItems.push(`<div class="text-xs ${colors.text}"><span class="font-semibold">Temperature:</span> ${details.actual_temperature}°C</div>`);
+                        }
+                        if (details.humidity) {
+                            detailItems.push(`<div class="text-xs ${colors.text}"><span class="font-semibold">Humidity:</span> ${details.humidity}%</div>`);
+                        }
+                        if (details.wind_speed) {
+                            detailItems.push(`<div class="text-xs ${colors.text}"><span class="font-semibold">Wind Speed:</span> ${details.wind_speed} km/h</div>`);
+                        }
+                        if (details.category) {
+                            detailItems.push(`<div class="text-xs ${colors.text}"><span class="font-semibold">Category:</span> ${details.category}</div>`);
+                        }
                     }
 
                     if (detailItems.length > 0) {
-                        detailsDisplay = `
-                                                <div class="${colors.detailBg} rounded-lg p-3 mt-3 space-y-1">
-                                                    ${detailItems.join('')}
-                                                </div>
-                                            `;
+                        detailsDisplay = `<div class="${colors.detailBg} rounded-lg p-3 mt-3 space-y-1">${detailItems.join('')}</div>`;
                     }
                 }
 
                 card.innerHTML = `
-                                        <div class="flex items-start gap-4">
-                                            <div class="text-4xl flex-shrink-0">${alert.icon}</div>
-                                            <div class="flex-1">
-                                                <div class="flex items-start justify-between gap-4 mb-2">
-                                                    <h5 class="text-lg font-bold ${colors.text}">${alert.title}</h5>
-                                                    <span class="px-3 py-1 ${colors.badge} text-white text-xs font-bold rounded-full uppercase flex-shrink-0">
-                                                        ${alert.severity}
-                                                    </span>
-                                                </div>
-                                                <p class="${colors.text} text-sm leading-relaxed mb-3">${alert.message}</p>
-                                                ${valueDisplay}
-                                                ${detailsDisplay}
-                                            </div>
-                                        </div>
-                                    `;
+                    <div class="flex items-start gap-4">
+                        <div class="text-4xl flex-shrink-0">${alert.icon}</div>
+                        <div class="flex-1">
+                            <div class="flex items-start justify-between gap-4 mb-2">
+                                <h5 class="text-lg font-bold ${colors.text}">${alert.title}</h5>
+                                <span class="px-3 py-1 ${colors.badge} text-white text-xs font-bold rounded-full uppercase flex-shrink-0">
+                                    ${alert.severity}
+                                </span>
+                            </div>
+                            <p class="${colors.text} text-sm leading-relaxed mb-3">${alert.message}</p>
+                            ${valueDisplay}
+                            ${detailsDisplay}
+                        </div>
+                    </div>
+                `;
 
                 return card;
             }
@@ -1015,7 +845,6 @@
 
                     listEl.innerHTML = displayed.map(search => this.createSearchItem(search)).join('');
 
-                    // Show "View All" button if there are more searches
                     if (filtered.length > this.displayLimit) {
                         viewAllContainer.classList.remove('hidden');
                     } else {
@@ -1035,7 +864,6 @@
                         minute: '2-digit'
                     });
 
-                    // Ensure latitude and longitude are numbers
                     const lat = typeof search.latitude === 'number' ? search.latitude : parseFloat(search.latitude);
                     const lng = typeof search.longitude === 'number' ? search.longitude : parseFloat(search.longitude);
 
@@ -1054,37 +882,33 @@
                     };
 
                     return `
-            <div class="search-history-item" onclick="searchHistoryManager.goToLocation(${lat}, ${lng})">
-                <div class="flex-1">
-                    <div class="flex items-center gap-2 mb-2">
-                        <span class="text-2xl">${searchTypeIcons[search.search_type] || '📍'}</span>
-                        <h4 class="font-semibold text-gray-800 text-lg">${search.location_name}</h4>
-                    </div>
-                    <div class="flex items-center gap-3 text-sm text-gray-600">
-                        <span class="search-type-badge search-type-${search.search_type}">
-                            ${searchTypeLabels[search.search_type] || search.search_type}
-                        </span>
-                        <span>📅 ${formattedDate}</span>
-                        <span>🕐 ${formattedTime}</span>
-                    </div>
-                    <div class="text-xs text-gray-500 mt-2">
-                        ${lat.toFixed(6)}°, ${lng.toFixed(6)}°
-                    </div>
-                </div>
-                <div class="flex items-center gap-2">
-                    <button onclick="event.stopPropagation(); searchHistoryManager.togglePin(${search.id})" 
-                            class="p-2 hover:bg-white rounded-lg transition-colors"
-                            title="Pin this location">
-                        ⭐
-                    </button>
-                    <button onclick="event.stopPropagation(); searchHistoryManager.deleteSearch(${search.id})" 
-                            class="p-2 hover:bg-red-100 rounded-lg transition-colors text-red-600"
-                            title="Delete">
-                        🗑️
-                    </button>
-                </div>
-            </div>
-        `;
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-4 rounded-xl cursor-pointer transition-all duration-300 hover:from-blue-100 hover:to-indigo-100 dark:hover:from-blue-900/30 dark:hover:to-indigo-900/30 hover:scale-[1.02] hover:shadow-md border border-blue-100 dark:border-blue-800 flex items-center justify-between gap-4"
+                             onclick="searchHistoryManager.goToLocation(${lat}, ${lng})">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="text-2xl">${searchTypeIcons[search.search_type] || '📍'}</span>
+                                    <h4 class="font-semibold text-gray-800 dark:text-gray-100 text-lg truncate">${search.location_name}</h4>
+                                </div>
+                                <div class="flex items-center flex-wrap gap-3 text-sm text-gray-600 dark:text-gray-400">
+                                    <span class="px-2 py-0.5 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 rounded-full text-xs font-medium border border-blue-200 dark:border-blue-700">
+                                        ${searchTypeLabels[search.search_type] || search.search_type}
+                                    </span>
+                                    <span>📅 ${formattedDate}</span>
+                                    <span>🕐 ${formattedTime}</span>
+                                </div>
+                                <div class="text-xs text-gray-500 dark:text-gray-500 mt-2">
+                                    ${lat.toFixed(6)}°, ${lng.toFixed(6)}°
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button onclick="event.stopPropagation(); searchHistoryManager.deleteSearch(${search.id})" 
+                                        class="p-2 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors text-red-600 dark:text-red-400"
+                                        title="Delete">
+                                    🗑️
+                                </button>
+                            </div>
+                        </div>
+                    `;
                 }
 
                 filterSearches() {
@@ -1093,7 +917,7 @@
                     }
 
                     const now = new Date();
-                    const filtered = this.searches.filter(search => {
+                    return this.searches.filter(search => {
                         const searchDate = new Date(search.last_searched_at);
 
                         switch (this.currentFilter) {
@@ -1109,8 +933,6 @@
                                 return true;
                         }
                     });
-
-                    return filtered;
                 }
 
                 filterByDate(filter) {
@@ -1120,12 +942,6 @@
 
                 async goToLocation(lat, lng) {
                     window.location.href = `{{ route('weather.map') }}?lat=${lat}&lng=${lng}`;
-                }
-
-                async togglePin(searchId) {
-                    // Implementation for pinning/favoriting location
-                    console.log('Toggle pin for search:', searchId);
-                    // This will integrate with the saved locations feature
                 }
 
                 async deleteSearch(searchId) {
@@ -1195,10 +1011,9 @@
                     const totalCount = document.getElementById('totalSearchCount');
 
                     modal.classList.remove('hidden');
-                    allSearchesList.innerHTML = '<div class="text-center py-8">Loading...</div>';
+                    allSearchesList.innerHTML = '<div class="text-center py-8 text-gray-600 dark:text-gray-400">Loading...</div>';
 
                     try {
-                        // Load all searches
                         const response = await fetch('/user/search-history?limit=100', {
                             headers: {
                                 'Accept': 'application/json',
@@ -1217,7 +1032,7 @@
                         }
                     } catch (error) {
                         console.error('Error loading all searches:', error);
-                        allSearchesList.innerHTML = '<div class="text-center py-8 text-red-600">Error loading searches</div>';
+                        allSearchesList.innerHTML = '<div class="text-center py-8 text-red-600 dark:text-red-400">Error loading searches</div>';
                     }
                 }
 
@@ -1230,9 +1045,9 @@
                     notification.className = `fixed top-4 right-4 z-[10000] px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300`;
 
                     const colors = {
-                        success: 'bg-green-500 text-white',
-                        error: 'bg-red-500 text-white',
-                        info: 'bg-blue-500 text-white'
+                        success: 'bg-green-500 dark:bg-green-600 text-white',
+                        error: 'bg-red-500 dark:bg-red-600 text-white',
+                        info: 'bg-blue-500 dark:bg-blue-600 text-white'
                     };
 
                     notification.className += ` ${colors[type] || colors.info}`;
@@ -1244,11 +1059,11 @@
                     };
 
                     notification.innerHTML = `
-                                <div class="flex items-center gap-2">
-                                    <span class="text-xl">${icons[type] || icons.info}</span>
-                                    <span class="font-medium">${message}</span>
-                                </div>
-                            `;
+                        <div class="flex items-center gap-2">
+                            <span class="text-xl">${icons[type] || icons.info}</span>
+                            <span class="font-medium">${message}</span>
+                        </div>
+                    `;
 
                     document.body.appendChild(notification);
 
@@ -1264,32 +1079,32 @@
                     const listEl = document.getElementById('searchHistoryList');
                     listEl.classList.remove('hidden');
                     listEl.innerHTML = `
-                                <div class="text-center py-12">
-                                    <div class="text-4xl mb-4">⚠️</div>
-                                    <p class="text-gray-600">Failed to load search history</p>
-                                    <button onclick="searchHistoryManager.loadSearchHistory()" 
-                                            class="mt-4 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg">
-                                        Try Again
-                                    </button>
-                                </div>
-                            `;
+                        <div class="text-center py-12">
+                            <div class="text-4xl mb-4">⚠️</div>
+                            <p class="text-gray-600 dark:text-gray-400">Failed to load search history</p>
+                            <button onclick="searchHistoryManager.loadSearchHistory()" 
+                                    class="mt-4 px-4 py-2 bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-lg">
+                                Try Again
+                            </button>
+                        </div>
+                    `;
                 }
             }
 
             let searchHistoryManager;
+
+            // Initialize everything on page load
             document.addEventListener('DOMContentLoaded', () => {
                 searchHistoryManager = new SearchHistoryManager();
-            });
-
-            // Load alerts on page load
-            document.addEventListener('DOMContentLoaded', () => {
+                loadWeather();
                 loadWeatherAlerts();
 
                 // Auto-refresh alerts every 5 minutes
                 alertsRefreshInterval = setInterval(loadWeatherAlerts, 300000);
             });
 
-            // Refresh button
+            // Refresh buttons
+            document.getElementById('refreshWeather')?.addEventListener('click', loadWeather);
             document.getElementById('refreshAlerts')?.addEventListener('click', loadWeatherAlerts);
 
             // Clean up interval on page unload
@@ -1298,11 +1113,5 @@
                     clearInterval(alertsRefreshInterval);
                 }
             });
-
-            // Load weather on page load
-            document.addEventListener('DOMContentLoaded', loadWeather);
-
-            // Refresh button
-            document.getElementById('refreshWeather')?.addEventListener('click', loadWeather);
         </script>
 @endsection
