@@ -229,6 +229,9 @@
         @endauth
     </div>
 
+    <!-- Weather Alert Notification Component -->
+    @include('components.weather-alert-notification')
+
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 

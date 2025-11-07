@@ -14,10 +14,40 @@ class ProfileController extends Controller
     /**
      * Display the user's profile.
      */
+    /**
+     * Display the user's profile.
+     */
     public function show(Request $request): View
     {
+        $user = $request->user();
+
+        // Get activity statistics
+        $totalSearches = $user->searchHistories()->count();
+        $savedLocationsCount = $user->savedLocations()->count();
+
+        // Get most searched location
+        $topSearch = $user->searchHistories()
+            ->orderBy('search_count', 'desc')
+            ->first();
+
+        // Get recent activity
+        $recentSearches = $user->searchHistories()
+            ->orderBy('last_searched_at', 'desc')
+            ->limit(5)
+            ->get();
+
+        $recentSavedLocations = $user->savedLocations()
+            ->orderBy('last_visited_at', 'desc')
+            ->limit(5)
+            ->get();
+
         return view('profile.show', [
-            'user' => $request->user(),
+            'user' => $user,
+            'totalSearches' => $totalSearches,
+            'savedLocationsCount' => $savedLocationsCount,
+            'topSearch' => $topSearch,
+            'recentSearches' => $recentSearches,
+            'recentSavedLocations' => $recentSavedLocations,
         ]);
     }
 
