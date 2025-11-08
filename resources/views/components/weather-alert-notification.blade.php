@@ -46,7 +46,7 @@
         }
 
         async init() {
-            console.log('🚨 Initializing Weather Alert Notification System...');
+            console.log('🚨 Initializing Weather Alert Notification System (DANGER-ONLY mode)...');
 
             // Get user location and start monitoring
             await this.getUserLocation();
@@ -97,7 +97,7 @@
             }
 
             try {
-                console.log('🔍 Checking for weather alerts...');
+                console.log('🔍 Checking for DANGER-level weather alerts...');
 
                 const response = await fetch(`/weather/alerts?lat=${this.userLatitude}&lng=${this.userLongitude}`, {
                     headers: {
@@ -109,14 +109,17 @@
                 const result = await response.json();
 
                 if (result.success && result.data.alerts.length > 0) {
-                    // Find the most severe alert
+                    // Only show DANGER-level alerts (most critical conditions)
                     const dangerAlerts = result.data.alerts.filter(a => a.severity === 'danger');
-                    const warningAlerts = result.data.alerts.filter(a => a.severity === 'warning');
 
-                    const alertToShow = dangerAlerts[0] || warningAlerts[0];
-
-                    if (alertToShow) {
-                        this.showAlert(alertToShow, result.data.location);
+                    if (dangerAlerts.length > 0) {
+                        // Show the first danger alert
+                        this.showAlert(dangerAlerts[0], result.data.location);
+                        console.log('🚨 DANGER alert detected:', dangerAlerts[0].title);
+                    } else {
+                        // No danger-level alerts, hide notification
+                        console.log('✅ No danger-level alerts at this time');
+                        this.hideAlert();
                     }
                 } else {
                     console.log('✅ No critical alerts at this time');
@@ -144,35 +147,27 @@
                 danger: {
                     bg: 'bg-gradient-to-r from-red-600 to-red-700 dark:from-red-700 dark:to-red-800',
                     icon: '🚨',
-                    pulse: true
-                },
-                warning: {
-                    bg: 'bg-gradient-to-r from-orange-500 to-orange-600 dark:from-orange-600 dark:to-orange-700',
-                    icon: '⚠️',
-                    pulse: true
-                },
-                info: {
-                    bg: 'bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700',
-                    icon: 'ℹ️',
-                    pulse: false
+                    pulse: true,
+                    sound: true // Added sound indicator for danger alerts
                 }
             };
 
-            const config = severityConfig[alert.severity] || severityConfig.info;
+            const config = severityConfig[alert.severity] || severityConfig.danger;
 
             // Build safety recommendations
             let recommendations = this.getSafetyRecommendations(alert);
 
             this.content.innerHTML = `
-            <div class="${config.bg} text-white rounded-2xl shadow-2xl overflow-hidden border-2 border-white/20">
+            <div class="${config.bg} text-white rounded-2xl shadow-2xl overflow-hidden border-2 border-white/20 animate-pulse-slow">
                 <!-- Header -->
-                <div class="px-4 py-3 border-b border-white/20 flex items-center justify-between">
+                <div class="px-4 py-3 border-b border-white/20 flex items-center justify-between bg-red-800/30">
                     <div class="flex items-center gap-2">
                         <span class="text-2xl ${config.pulse ? 'animate-pulse' : ''}">${config.icon}</span>
-                        <span class="font-bold text-sm uppercase tracking-wide">Weather Alert</span>
+                        <span class="font-bold text-sm uppercase tracking-wide">⚠️ DANGER - CRITICAL ALERT</span>
                     </div>
                     <button onclick="weatherAlertSystem.hideAlert()" 
-                            class="text-white/80 hover:text-white transition-colors">
+                            class="text-white/80 hover:text-white transition-colors"
+                            title="Dismiss alert">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                         </svg>
@@ -182,7 +177,7 @@
                 <!-- Content -->
                 <div class="p-4">
                     <div class="flex items-start gap-3 mb-3">
-                        <div class="text-3xl flex-shrink-0">${alert.icon}</div>
+                        <div class="text-3xl flex-shrink-0 animate-bounce">${alert.icon}</div>
                         <div class="flex-1 min-w-0">
                             <h4 class="font-bold text-lg mb-1">${alert.title}</h4>
                             <p class="text-white/90 text-sm leading-relaxed mb-2">${alert.message}</p>
@@ -192,16 +187,21 @@
                     
                     <!-- Safety Recommendations -->
                     ${recommendations ? `
-                        <div class="bg-white/10 backdrop-blur-sm rounded-lg p-3 mt-3 space-y-2">
+                        <div class="bg-white/10 backdrop-blur-sm rounded-lg p-3 mt-3 space-y-2 border-l-4 border-white/50">
                             <div class="font-semibold text-sm flex items-center gap-2">
                                 <span>💡</span>
-                                <span>Safety Recommendations:</span>
+                                <span>URGENT Safety Actions:</span>
                             </div>
                             <ul class="text-xs space-y-1 text-white/90">
-                                ${recommendations.map(rec => `<li class="flex items-start gap-2"><span>•</span><span>${rec}</span></li>`).join('')}
+                                ${recommendations.map(rec => `<li class="flex items-start gap-2"><span class="text-yellow-300">▶</span><span>${rec}</span></li>`).join('')}
                             </ul>
                         </div>
                     ` : ''}
+                    
+                    <!-- Warning Message -->
+                    <div class="mt-3 p-2 bg-red-900/40 rounded-lg text-xs text-center font-semibold">
+                        ⚠️ This is a CRITICAL weather alert - Take immediate action
+                    </div>
                     
                     <!-- Location -->
                     <div class="mt-3 pt-3 border-t border-white/20 flex items-center justify-between text-xs text-white/80">
@@ -209,7 +209,7 @@
                             <span>📍</span>
                             <span>${location || 'Current Location'}</span>
                         </span>
-                        <span>${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
+                        <span>🕐 ${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
                     </div>
                 </div>
             </div>
@@ -230,12 +230,9 @@
                 clearTimeout(this.autoHideTimeout);
             }
 
-            // Auto-hide after 30 seconds for info alerts only
-            if (alert.severity === 'info') {
-                this.autoHideTimeout = setTimeout(() => {
-                    this.hideAlert();
-                }, 30000);
-            }
+            // DANGER alerts persist - user must manually dismiss
+            // No auto-hide for critical conditions
+            console.log('⚠️ DANGER alert displayed - requires manual dismissal');
         }
 
         getSafetyRecommendations(alert) {
@@ -248,12 +245,6 @@
                         'Avoid strenuous outdoor activities',
                         'Wear light, loose-fitting clothing',
                         'Check on elderly neighbors and vulnerable individuals'
-                    ],
-                    'warning': [
-                        'Limit outdoor activities during peak heat hours',
-                        'Stay hydrated and drink water regularly',
-                        'Wear sunscreen and protective clothing',
-                        'Take frequent breaks in shaded areas'
                     ]
                 },
 
@@ -271,16 +262,6 @@
                             'Wear multiple layers of warm, dry clothing',
                         'Monitor yourself for symptoms of heat/cold illness',
                         'Call emergency services if experiencing severe symptoms'
-                    ],
-                    'warning': [
-                        alert.details?.type === 'heat' ?
-                            'Limit time outdoors during hottest hours' :
-                            'Dress in layers and cover exposed skin',
-                        alert.details?.type === 'heat' ?
-                            'Stay hydrated and take frequent breaks' :
-                            'Stay dry and avoid prolonged outdoor exposure',
-                        'Check on vulnerable family members regularly',
-                        'Be aware of early warning signs of heat/cold stress'
                     ]
                 },
 
@@ -292,12 +273,6 @@
                         'Avoid driving if possible',
                         'Be prepared for possible power outages',
                         'Stay away from trees and power lines'
-                    ],
-                    'warning': [
-                        'Exercise caution when outdoors',
-                        'Secure loose outdoor items',
-                        'Drive carefully and watch for debris',
-                        'Be aware of falling branches'
                     ]
                 },
 
@@ -309,22 +284,17 @@
                         'Wear protective clothing and wide-brimmed hat',
                         'Seek shade whenever possible',
                         'Wear UV-blocking sunglasses'
-                    ],
-                    'warning': [
-                        'Use sun protection when outdoors',
-                        'Apply sunscreen regularly',
-                        'Wear a hat and protective clothing',
-                        'Limit direct sun exposure during midday'
                     ]
                 },
 
                 // Precipitation alerts
                 'precipitation': {
-                    'warning': [
-                        'Carry an umbrella or rain gear',
-                        'Watch for flooding in low-lying areas',
-                        'Drive carefully on wet roads',
-                        'Avoid walking through flooded areas'
+                    'danger': [
+                        'Avoid all travel if possible',
+                        'Stay away from flooded areas',
+                        'Do not walk or drive through flood waters',
+                        'Move to higher ground if flooding occurs',
+                        'Have emergency supplies ready'
                     ]
                 },
 
@@ -336,27 +306,45 @@
                         'Avoid using electrical appliances',
                         'Do not go outside until conditions improve',
                         'Monitor weather updates closely'
-                    ],
-                    'warning': [
-                        'Stay alert to changing conditions',
-                        'Avoid unnecessary travel',
-                        'Keep emergency supplies ready',
-                        'Monitor local weather updates'
+                    ]
+                },
+
+                // Visibility alerts
+                'visibility': {
+                    'danger': [
+                        'Avoid all unnecessary travel',
+                        'If driving, use fog lights and reduce speed significantly',
+                        'Keep safe distance from other vehicles',
+                        'Pull over safely if visibility is too poor',
+                        'Stay indoors if possible'
+                    ]
+                },
+
+                // Pressure alerts (potential severe weather)
+                'pressure': {
+                    'danger': [
+                        'Severe weather possible - stay alert',
+                        'Secure outdoor objects immediately',
+                        'Have emergency supplies ready',
+                        'Stay indoors and monitor weather updates',
+                        'Be prepared to take shelter'
                     ]
                 }
             };
 
             const typeRecommendations = recommendations[alert.type];
-            if (typeRecommendations) {
-                return typeRecommendations[alert.severity] || typeRecommendations['warning'];
+            if (typeRecommendations && typeRecommendations['danger']) {
+                return typeRecommendations['danger'];
             }
 
-            // Default recommendations
+            // Default critical recommendations
             return [
-                'Monitor weather conditions closely',
-                'Follow local weather service guidance',
-                'Stay informed of any weather updates',
-                'Take appropriate precautions for your safety'
+                'This is a LIFE-THREATENING weather condition',
+                'Take immediate protective action',
+                'Stay indoors in a safe location',
+                'Monitor emergency broadcasts',
+                'Follow instructions from local authorities',
+                'Call emergency services if in immediate danger'
             ];
         }
 
