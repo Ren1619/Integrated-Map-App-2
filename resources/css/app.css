@@ -27,18 +27,14 @@
 }
 
 @layer components {
-    /* ============================================
-       GRADIENT BACKGROUNDS
-       ============================================ */
+ 
     .bg-gradient-primary {
         @apply bg-gradient-to-br from-blue-50 via-white to-blue-50;
         @apply dark:from-gray-900 dark:via-gray-800 dark:to-gray-900;
         min-height: 100vh;
     }
 
-    /* ============================================
-       GLASS EFFECTS
-       ============================================ */
+
     .glass-effect {
         background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(10px);
@@ -64,9 +60,6 @@
         box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
     }
 
-    /* ============================================
-       BUTTONS
-       ============================================ */
     .btn-primary {
         @apply bg-blue-500 hover:bg-blue-600 active:bg-blue-700;
         @apply dark:bg-blue-600 dark:hover:bg-blue-700 dark:active:bg-blue-800;
@@ -88,9 +81,7 @@
         @apply transition-all duration-300 hover:shadow-lg;
     }
 
-    /* ============================================
-       INPUTS
-       ============================================ */
+
     .input-primary {
         @apply px-4 py-3 border-2 border-blue-500/30 dark:border-blue-400/30;
         @apply rounded-full outline-none text-sm min-w-64;
@@ -110,9 +101,7 @@
         @apply transition-colors;
     }
 
-    /* ============================================
-       CARDS
-       ============================================ */
+
     .card {
         @apply bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm;
         @apply rounded-2xl p-6 shadow-xl dark:shadow-gray-900/50;
@@ -147,9 +136,7 @@
         @apply bg-blue-100 dark:bg-blue-900/50 transform -translate-y-0.5;
     }
 
-    /* ============================================
-       WEATHER SPECIFIC CARDS
-       ============================================ */
+
     .altitude-card {
         @apply bg-gradient-to-br from-green-500 to-green-600;
         @apply dark:from-green-600 dark:to-green-700;
@@ -162,9 +149,7 @@
         @apply text-white;
     }
 
-    /* ============================================
-       DATA CARDS
-       ============================================ */
+
     .data-card-uniform {
         min-height: 80px;
         height: 80px;
@@ -180,9 +165,7 @@
         @apply text-xs text-gray-600 dark:text-gray-400 mt-1;
     }
 
-    /* ============================================
-       FORECAST ITEMS
-       ============================================ */
+
     .forecast-item {
         @apply flex items-center justify-between p-3 rounded-xl;
         @apply bg-gray-50/80 dark:bg-gray-700/80;
@@ -194,9 +177,7 @@
         @apply bg-gray-100 dark:bg-gray-700 transform translate-x-1;
     }
 
-    /* ============================================
-       POI ITEMS
-       ============================================ */
+
     .poi-item {
         @apply bg-gradient-to-r from-blue-50 to-indigo-50;
         @apply dark:from-blue-900/30 dark:to-indigo-900/30;
@@ -208,24 +189,15 @@
         @apply border border-blue-100 dark:border-blue-800;
     }
 
-    /* ============================================
-       SECTION HEADERS
-       ============================================ */
     .section-header {
         @apply text-xl font-bold text-gray-800 dark:text-gray-100;
         @apply mb-4 pb-2 border-b-2 border-blue-500 dark:border-blue-400;
     }
 
-    /* ============================================
-       OVERLAYS
-       ============================================ */
     .overlay {
         z-index: 9999 !important;
     }
 
-    /* ============================================
-       SIDEBAR
-       ============================================ */
     .sidebar-overlay {
         @apply transition-opacity duration-300 ease-in-out;
     }
@@ -246,9 +218,6 @@
         }
     }
 
-    /* ============================================
-       SEARCH & AUTOCOMPLETE
-       ============================================ */
     .search-container {
         @apply relative z-[1000];
     }
@@ -276,9 +245,6 @@
         @apply text-white transform translate-x-0.5;
     }
 
-    /* ============================================
-       SCROLLBARS
-       ============================================ */
     .custom-scrollbar::-webkit-scrollbar {
         width: 6px;
         height: 6px;
@@ -318,9 +284,6 @@
         @apply bg-blue-500/50 dark:bg-blue-400/50;
     }
 
-    /* ============================================
-       MENU & DROPDOWN
-       ============================================ */
     .menu-content {
         transform: translateY(-10px);
         opacity: 0;
@@ -334,9 +297,6 @@
         visibility: visible;
     }
 
-    /* ============================================
-       LOADING STATES
-       ============================================ */
     .loading-shimmer {
         @apply bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200;
         @apply dark:from-gray-700 dark:via-gray-600 dark:to-gray-700;
@@ -370,9 +330,6 @@
         transform: translateX(-100%);
     }
 
-    /* ============================================
-       WEATHER LAYERS
-       ============================================ */
     .weather-layer-toggle:checked + div {
         @apply bg-blue-500 dark:bg-blue-600;
     }
@@ -474,9 +431,6 @@
         50% { opacity: 1; }
     }
 
-    /* ============================================
-       NOTIFICATIONS
-       ============================================ */
     @keyframes slideInRight {
         from {
             transform: translateX(400px);
@@ -503,9 +457,6 @@
         }
     }
 
-    /* ============================================
-       PROFILE & DASHBOARD SPECIFIC
-       ============================================ */
     .stat-card {
         @apply bg-white dark:bg-gray-800 rounded-xl shadow-sm;
         @apply p-6 border border-gray-100 dark:border-gray-700;
@@ -524,9 +475,6 @@
         @apply transform -translate-y-0.5;
     }
 
-    /* ============================================
-       RESPONSIVE UTILITIES
-       ============================================ */
     @media (max-width: 1024px) {
         .h-\[66\%\] {
             height: auto;
@@ -572,6 +520,8 @@
             @apply p-1.5;
         }
     }
+
+    
 }
 
 @layer utilities {
@@ -588,9 +538,6 @@
     }
 }
 
-/* ============================================
-   REDUCED MOTION SUPPORT
-   ============================================ */
 @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -612,9 +559,6 @@
     }
 }
 
-/* ============================================
-   HIGH CONTRAST MODE SUPPORT
-   ============================================ */
 @media (prefers-contrast: high) {
     .temp-tooltip,
     .precip-tooltip {
@@ -627,9 +571,6 @@
     }
 }
 
-/* ============================================
-   PRINT STYLES
-   ============================================ */
 @media print {
     .overlay,
     aside,
