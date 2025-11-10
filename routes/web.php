@@ -57,7 +57,7 @@ Route::get('/weather/alerts', [WeatherController::class, 'getWeatherAlerts'])->n
 
 // User Data Routes (Authenticated & Verified)
 Route::middleware(['auth', 'verified'])->group(function () {
-    
+
     // ==================== SEARCH HISTORY ====================
     Route::post('/user/search-history', [UserDataController::class, 'recordSearch'])
         ->name('user.search.record');
@@ -67,7 +67,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('user.search.clear');
     Route::delete('/user/search-history/{search}', [UserDataController::class, 'deleteSearchEntry'])
         ->name('user.search.delete');
-    
+
     // ==================== SAVED LOCATIONS ====================
     Route::post('/user/saved-locations/toggle', [UserDataController::class, 'toggleSavedLocation'])
         ->name('user.saved.toggle');
@@ -132,7 +132,7 @@ Route::get('/combined-data', function (Request $request) {
         // Add user data if authenticated
         if (Auth::check()) {
             $user = Auth::user();
-            
+
             $responseData['user'] = [
                 'id' => $user->id,
                 'name' => $user->name,
@@ -140,7 +140,7 @@ Route::get('/combined-data', function (Request $request) {
                 'email_verified' => $user->hasVerifiedEmail(),
                 'member_since' => $user->created_at->toIso8601String(),
                 'account_age_days' => $user->created_at->diffInDays(now()),
-                
+
                 'search_history_count' => $user->searchHistories()->count(),
                 'recent_searches' => $user->searchHistories()
                     ->orderBy('last_searched_at', 'desc')
@@ -152,7 +152,7 @@ Route::get('/combined-data', function (Request $request) {
                         'search_count' => $search->search_count,
                         'last_searched' => $search->last_searched_at->toIso8601String()
                     ]),
-                
+
                 'saved_locations_count' => $user->savedLocations()->count(),
                 'saved_locations' => $user->savedLocations()
                     ->orderBy('sort_order')
@@ -183,7 +183,7 @@ Route::get('/combined-data', function (Request $request) {
 
     } catch (\Exception $e) {
         Log::error('Combined data error: ' . $e->getMessage());
-        
+
         return response()->json([
             'success' => false,
             'message' => 'Error fetching combined data',
@@ -191,5 +191,19 @@ Route::get('/combined-data', function (Request $request) {
         ], 500);
     }
 })->name('combined.data');
+
+Route::get('/test-geocoding', function() {
+    // Test Open-Meteo Geocoding
+    $response = Http::get('https://geocoding-api.open-meteo.com/v1/search', [
+        'name' => 'Davao',
+        'count' => 1,
+        'language' => 'en',
+        'format' => 'json'
+    ]);
+    
+    return response()->json([
+        'open_meteo_response' => $response->json()
+    ]);
+});
 
 require __DIR__ . '/auth.php';

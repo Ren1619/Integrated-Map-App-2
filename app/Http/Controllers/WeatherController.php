@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use App\Services\WeatherAlertService;
+use App\Models\Post;
 
 class WeatherController extends Controller
 {
@@ -157,104 +158,132 @@ class WeatherController extends Controller
             $lng = $request->lng;
 
             Log::info("Reverse geocoding request for: {$lat}, {$lng}");
-            $response = Http::timeout(30)
-                ->withHeaders([
-                    'User-Agent' => 'WeatherMapApp/1.0'
-                ])
-                ->get('https://nominatim.openstreetmap.org/reverse', [
-                    'format' => 'json',
-                    'lat' => $lat,
-                    'lon' => $lng,
-                    'addressdetails' => 1,
-                    'zoom' => 18, 
-                    'accept-language' => 'en'
-                ]);
 
-            if ($response->successful()) {
-                $result = $response->json();
-                Log::info('Nominatim response received', ['result' => $result]);
-
-                if (isset($result['display_name'])) {
-                    $address = $result['address'] ?? [];
-                    $locationParts = [];
-
-                    
-                    $priorityKeys = [
-                        'house_number',     
-                        'road',              
-                        'neighbourhood',     
-                        'suburb',            
-                        'village',           
-                        'municipality',      
-                        'city',              
-                        'town',              
-                        'county',            
-                        'state',             
-                        'country'           
-                    ];
-
-                    foreach ($priorityKeys as $key) {
-                        if (!empty($address[$key])) {
-                            $locationParts[] = $address[$key];
-                            if (count($locationParts) >= 5)
-                                break; // Increased from 3 to 5 for more detail
-                        }
-                    }
-
-                    $locationName = !empty($locationParts)
-                        ? implode(', ', $locationParts)
-                        : $result['display_name'];
-                    $shortName = implode(', ', array_slice($locationParts, 0, 3));
-
-                    Log::info("Location name resolved: {$locationName}");
-
-                    return response()->json([
-                        'success' => true,
-                        'data' => [
-                            'location_name' => $shortName ?: $locationName,
-                            'full_address' => $locationName,
-                            'display_name' => $result['display_name'],
-                            'coordinates' => ['lat' => $lat, 'lng' => $lng],
-                            'address_components' => [
-                                'house_number' => $address['house_number'] ?? null,
-                                'road' => $address['road'] ?? null,
-                                'neighbourhood' => $address['neighbourhood'] ?? null,
-                                'barangay' => $address['neighbourhood'] ?? $address['suburb'] ?? null,
-                                'city' => $address['city'] ?? $address['town'] ?? $address['municipality'] ?? null,
-                                'state' => $address['state'] ?? null,
-                                'country' => $address['country'] ?? null,
-                                'postcode' => $address['postcode'] ?? null
-                            ]
-                        ]
+            // Add caching to reduce API calls
+            $cacheKey = "reverse_geo_" . md5("{$lat}_{$lng}");
+            
+            $locationData = Cache::remember($cacheKey, 3600, function () use ($lat, $lng) {
+                // Use Nominatim with proper rate limiting
+                sleep(1); // Respect Nominatim's rate limit (1 request per second)
+                
+                $response = Http::timeout(10)
+                    ->withHeaders([
+                        'User-Agent' => 'WeatherMapApp/1.0 (Laravel; Weather Tracking)'
+                    ])
+                    ->get('https://nominatim.openstreetmap.org/reverse', [
+                        'format' => 'json',
+                        'lat' => $lat,
+                        'lon' => $lng,
+                        'addressdetails' => 1,
+                        'zoom' => 18,
+                        'accept-language' => 'en'
                     ]);
+
+                if (!$response->successful()) {
+                    Log::warning('Nominatim API returned status: ' . $response->status());
+                    return null;
                 }
-            } else {
-                Log::warning('Nominatim API returned non-successful status: ' . $response->status());
+
+                return $response->json();
+            });
+
+            if ($locationData && isset($locationData['display_name'])) {
+                $address = $locationData['address'] ?? [];
+                
+                // Build a clean, hierarchical location name
+                $locationParts = [];
+                
+                // Priority order for location components
+                $priorityKeys = [
+                    'house_number',
+                    'road',
+                    'neighbourhood',
+                    'suburb',
+                    'village',
+                    'town',
+                    'city',
+                    'municipality',
+                    'county',
+                    'state',
+                    'country'
+                ];
+
+                foreach ($priorityKeys as $key) {
+                    if (!empty($address[$key]) && !in_array($address[$key], $locationParts)) {
+                        $locationParts[] = $address[$key];
+                        if (count($locationParts) >= 3) break; // Limit to 3 components for clarity
+                    }
+                }
+
+                $locationName = !empty($locationParts) 
+                    ? implode(', ', $locationParts) 
+                    : $locationData['display_name'];
+
+                Log::info("Location name resolved: {$locationName}");
+
+                return response()->json([
+                    'success' => true,
+                    'data' => [
+                        'location_name' => $locationName,
+                        'full_address' => $locationData['display_name'],
+                        'display_name' => $locationData['display_name'],
+                        'coordinates' => [
+                            'lat' => (float) $lat,
+                            'lng' => (float) $lng
+                        ],
+                        'address_components' => [
+                            'house_number' => $address['house_number'] ?? null,
+                            'road' => $address['road'] ?? null,
+                            'neighbourhood' => $address['neighbourhood'] ?? null,
+                            'barangay' => $address['neighbourhood'] ?? $address['suburb'] ?? null,
+                            'city' => $address['city'] ?? $address['town'] ?? $address['municipality'] ?? null,
+                            'state' => $address['state'] ?? null,
+                            'country' => $address['country'] ?? null,
+                            'postcode' => $address['postcode'] ?? null
+                        ]
+                    ]
+                ]);
             }
 
-            Log::info('Falling back to coordinates display');
+            // Fallback: return coordinates as location name
+            Log::warning('No location data found, using coordinates as fallback');
+            
             return response()->json([
                 'success' => true,
                 'data' => [
                     'location_name' => "Location: {$lat}, {$lng}",
                     'full_address' => "Coordinates: {$lat}, {$lng}",
-                    'coordinates' => ['lat' => $lat, 'lng' => $lng]
+                    'display_name' => "Lat: {$lat}, Lng: {$lng}",
+                    'coordinates' => [
+                        'lat' => (float) $lat,
+                        'lng' => (float) $lng
+                    ],
+                    'address_components' => null
                 ]
             ]);
 
         } catch (\Exception $e) {
             Log::error('Reverse geocoding error: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
 
+            // Return coordinates as fallback instead of error
             return response()->json([
                 'success' => true,
                 'data' => [
                     'location_name' => "Location: {$request->lat}, {$request->lng}",
                     'full_address' => "Coordinates: {$request->lat}, {$request->lng}",
-                    'coordinates' => ['lat' => $request->lat, 'lng' => $request->lng]
+                    'display_name' => "Lat: {$request->lat}, Lng: {$request->lng}",
+                    'coordinates' => [
+                        'lat' => (float) $request->lat,
+                        'lng' => (float) $request->lng
+                    ],
+                    'address_components' => null
                 ]
             ]);
         }
     }
+
+
 
     /**
      * Fallback to Nominatim search
@@ -356,13 +385,13 @@ class WeatherController extends Controller
                 'latitude' => $lat,
                 'longitude' => $lng,
 
-                // Enhanced current weather parameters
+
                 'current' => implode(',', [
                     // Temperature data at different levels
                     'temperature_2m',
-                    'temperature_80m',      // Added this
-                    'temperature_120m',     // Added this  
-                    'temperature_180m',     // Added this
+                    'temperature_80m',    
+                    'temperature_120m',      
+                    'temperature_180m',     
                     'apparent_temperature',
 
                     // Wind data at different levels
@@ -453,16 +482,16 @@ class WeatherController extends Controller
 
             if (!$response->successful()) {
                 Log::warning("Weather API returned non-successful response: " . $response->status());
+                    return null;
+                }
+
+                return $response->json();
+
+            } catch (\Exception $e) {
+                Log::error("Enhanced Weather API error: " . $e->getMessage());
                 return null;
             }
-
-            return $response->json();
-
-        } catch (\Exception $e) {
-            Log::error("Enhanced Weather API error: " . $e->getMessage());
-            return null;
         }
-    }
 
     /**
      * Format location name from Open-Meteo geocoding result
