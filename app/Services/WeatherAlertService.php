@@ -4,9 +4,7 @@ namespace App\Services;
 
 class WeatherAlertService
 {
-    /**
-     * Alert thresholds for various weather conditions
-     */
+
     private const THRESHOLDS = [
         'temperature' => [
             'extreme_heat' => 35,      // °C
