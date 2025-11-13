@@ -255,30 +255,6 @@
                     console.error('Error initializing map:', error);
                     this.showMapError('Failed to initialize map: ' + error.message);
                 }
-
-                if (window.location.protocol === 'http:' &&
-                    (window.location.hostname === 'localhost' ||
-                        window.location.hostname === '127.0.0.1')) {
-
-                    // Localhost - geolocation should work
-                    if (navigator.geolocation) {
-                        navigator.geolocation.getCurrentPosition(
-                            function (position) {
-                                console.log('Location access granted');
-                                // Your location handling code
-                            },
-                            function (error) {
-                                console.error('Location error:', error.message);
-                                alert('Location access denied or unavailable');
-                            }
-                        );
-                    } else {
-                        alert('Geolocation is not supported by this browser/app');
-                    }
-                } else if (window.location.protocol === 'http:') {
-                    // Non-localhost HTTP
-                    alert('Geolocation requires HTTPS or localhost');
-                }
             }
 
 
