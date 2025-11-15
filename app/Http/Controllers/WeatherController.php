@@ -159,8 +159,8 @@ class WeatherController extends Controller
             $cacheKey = "reverse_geo_" . md5("{$lat}_{$lng}");
 
             $locationData = Cache::remember($cacheKey, 3600, function () use ($lat, $lng) {
-                // Use Nominatim with proper rate limiting
-                sleep(1); // Respect Nominatim's rate limit (1 request per second)
+
+                sleep(1); 
 
                 $response = Http::timeout(10)
                     ->withHeaders([
