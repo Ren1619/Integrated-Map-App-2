@@ -2,9 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\City;
-use App\Models\Country;
-use App\Models\State;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Http;
@@ -12,7 +9,6 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use App\Services\WeatherAlertService;
-use App\Models\Post;
 
 class WeatherController extends Controller
 {
@@ -643,29 +639,6 @@ class WeatherController extends Controller
             ], 500);
         }
     }
-
-    // Legacy methods kept for backward compatibility
-    public function getAllCitiesWeatherData(): JsonResponse
-    {
-        // This method is now deprecated but kept for compatibility
-        return response()->json([
-            'success' => false,
-            'message' => 'This endpoint has been deprecated. Use precise location search instead.'
-        ], 410);
-    }
-
-    public function getNearbyDirectionalCities(Request $request): JsonResponse
-    {
-        // This method is now deprecated but kept for compatibility
-        return response()->json([
-            'success' => false,
-            'message' => 'Nearby directional cities feature has been removed. Use precise location search instead.'
-        ], 410);
-    }
-
-    // Add this method to your WeatherController.php
-
-
 
     /**
      * Get weather alerts for current location

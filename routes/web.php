@@ -40,17 +40,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::prefix('weather/legacy')->group(function () {
-    // These endpoints return deprecation notices
-    Route::get('/cities/all', [WeatherController::class, 'getAllCitiesWeatherData'])->name('weather.legacy.cities.all');
-    Route::post('/nearby-directional', [WeatherController::class, 'getNearbyDirectionalCities'])->name('weather.legacy.nearby.directional');
-
-    // Keep for backward compatibility but will return limited data
-    Route::post('/temperature', [WeatherController::class, 'getTemperatureData'])->name('weather.legacy.temperature');
-    Route::post('/wind', [WeatherController::class, 'getWindData'])->name('weather.legacy.wind');
-    Route::post('/radar', [WeatherController::class, 'getRadarData'])->name('weather.legacy.radar');
-});
-
 
 Route::get('/weather/alerts', [WeatherController::class, 'getWeatherAlerts'])->name('weather.alerts');
 
@@ -191,20 +180,6 @@ Route::get('/combined-data', function (Request $request) {
         ], 500);
     }
 })->name('combined.data');
-
-Route::get('/test-geocoding', function() {
-    // Test Open-Meteo Geocoding
-    $response = Http::get('https://geocoding-api.open-meteo.com/v1/search', [
-        'name' => 'Davao',
-        'count' => 1,
-        'language' => 'en',
-        'format' => 'json'
-    ]);
-    
-    return response()->json([
-        'open_meteo_response' => $response->json()
-    ]);
-});
 
 Route::get('/location/from-ip', [WeatherController::class, 'getLocationFromIP'])->name('location.from.ip');
 
