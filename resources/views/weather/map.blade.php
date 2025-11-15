@@ -228,7 +228,6 @@
 
             init() {
                 console.log('Initializing Weather Map App...');
-                window.onload = requestLocation;
 
 
                 if (typeof L === 'undefined') {
@@ -311,38 +310,189 @@
                 this.initGeolocation();
             }
 
-            initGeolocation() {
+            async initGeolocation() {
+                console.log('🌍 Initializing geolocation...');
+
+                // First, try browser geolocation with better error handling
                 if (navigator.geolocation) {
-                    console.log('Requesting geolocation...');
+                    console.log('📍 Browser geolocation API available, requesting permission...');
+
+                    const options = {
+                        enableHighAccuracy: false, // Changed to false for faster response
+                        timeout: 8000, // 8 second timeout
+                        maximumAge: 300000 // Accept 5-minute old cached location
+                    };
+
                     navigator.geolocation.getCurrentPosition(
+                        // Success callback
                         async (position) => {
                             const lat = position.coords.latitude;
                             const lng = position.coords.longitude;
-                            console.log('Geolocation success:', lat, lng);
+                            console.log('✅ Browser geolocation success:', lat, lng);
+
+                            this.showNotification('📍 Location detected from device', 'success', 3000);
+
                             this.map.setView([lat, lng], 12);
-                            await this.handleLocationSelected(lat, lng, null);
+                            await this.handleLocationSelected(lat, lng, null, 'geolocation');
                         },
-                        (error) => {
-                            console.log('Geolocation error:', error.message);
-                        }
+                        // Error callback
+                        async (error) => {
+                            console.warn('⚠️ Browser geolocation failed:', error.code, error.message);
+
+                            const errorMessages = {
+                                1: 'Location permission denied',
+                                2: 'Location unavailable',
+                                3: 'Location request timeout'
+                            };
+
+                            console.log(`🔄 Reason: ${errorMessages[error.code] || 'Unknown error'}`);
+                            console.log('🔄 Falling back to IP-based geolocation...');
+
+                            this.showNotification('📡 Detecting location from IP address...', 'info', 3000);
+
+                            // Fallback to IP geolocation
+                            await this.getLocationFromIP();
+                        },
+                        options
                     );
                 } else {
-                    console.log('Geolocation not supported');
+                    console.log('❌ Browser geolocation not supported');
+                    console.log('🔄 Using IP-based geolocation...');
+
+                    this.showNotification('📡 Detecting location...', 'info', 3000);
+                    await this.getLocationFromIP();
                 }
+            }
+
+            /**
+             * Get location from IP address (fallback method)
+             */
+            async getLocationFromIP() {
+                console.log('🌐 Fetching location from IP address...');
+
+                try {
+                    const response = await fetch('/location/from-ip', {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+
+                    const result = await response.json();
+                    console.log('📍 IP geolocation response:', result);
+
+                    if (result.success && result.data) {
+                        const { lat, lng, location_name, method } = result.data;
+
+                        if (method === 'default_fallback') {
+                            console.warn('⚠️ Using default location (IP geolocation failed)');
+                            this.showNotification(
+                                `📍 Using default location: ${location_name}. Click map or search to change.`,
+                                'warning',
+                                6000
+                            );
+                        } else {
+                            console.log('✅ IP geolocation success:', location_name);
+                            this.showNotification(
+                                `📍 Location detected: ${location_name}`,
+                                'success',
+                                4000
+                            );
+                        }
+
+                        this.map.setView([lat, lng], 12);
+
+                        await this.handleLocationSelected(lat, lng, {
+                            name: location_name,
+                            display_name: location_name
+                        }, method);
+
+                    } else {
+                        throw new Error('Invalid response from location service');
+                    }
+                } catch (error) {
+                    console.error('❌ IP geolocation error:', error);
+
+                    // Ultimate fallback
+                    console.log('🏠 Using default location (Davao City)');
+                    this.showNotification(
+                        '📍 Could not detect location. Using default. Please search or click map.',
+                        'warning',
+                        6000
+                    );
+
+                    this.map.setView([7.1907, 125.4553], 12);
+
+                    await this.handleLocationSelected(7.1907, 125.4553, {
+                        name: 'Davao City, Philippines',
+                        display_name: 'Davao City, Davao Region, Philippines'
+                    }, 'default_fallback');
+                }
+            }
+
+            /**
+             * Show notification to user
+             */
+            showNotification(message, type = 'info', duration = 3000) {
+                const notification = document.createElement('div');
+                notification.className = 'fixed top-4 right-4 z-[10000] px-4 py-3 rounded-lg shadow-2xl transform transition-all duration-300 flex items-center gap-2 max-w-md';
+
+                const colors = {
+                    success: 'bg-green-500 dark:bg-green-600 text-white',
+                    error: 'bg-red-500 dark:bg-red-600 text-white',
+                    warning: 'bg-yellow-500 dark:bg-yellow-600 text-white',
+                    info: 'bg-blue-500 dark:bg-blue-600 text-white'
+                };
+
+                const icons = {
+                    success: '✅',
+                    error: '❌',
+                    warning: '⚠️',
+                    info: 'ℹ️'
+                };
+
+                notification.className += ` ${colors[type] || colors.info}`;
+                notification.innerHTML = `
+            <span class="text-xl flex-shrink-0">${icons[type] || icons.info}</span>
+            <span class="text-sm font-medium">${message}</span>
+        `;
+
+                document.body.appendChild(notification);
+
+                // Slide in animation
+                requestAnimationFrame(() => {
+                    notification.style.transform = 'translateX(0)';
+                });
+
+                // Auto remove
+                setTimeout(() => {
+                    notification.style.transform = 'translateX(400px)';
+                    notification.style.opacity = '0';
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            document.body.removeChild(notification);
+                        }
+                    }, 300);
+                }, duration);
             }
 
             showMapError(message) {
                 const mapContainer = document.getElementById('map');
                 if (mapContainer) {
                     mapContainer.innerHTML = `
-                                        <div style="display: flex; align-items: center; justify-content: center; height: 100%; background: #1e293b; color: white; flex-direction: column; gap: 1rem; padding: 1rem;">
-                                            <div style="font-size: 2rem;">⚠️</div>
-                                            <div style="font-size: 1rem; font-weight: bold; text-align: center;">${message}</div>
-                                            <button onclick="location.reload()" style="padding: 0.5rem 1rem; background: #3b82f6; color: white; border: none; border-radius: 0.5rem; cursor: pointer; font-weight: 500; font-size: 0.875rem;">
-                                                Reload Page
-                                            </button>
-                                        </div>
-                                    `;
+                                                <div style="display: flex; align-items: center; justify-content: center; height: 100%; background: #1e293b; color: white; flex-direction: column; gap: 1rem; padding: 1rem;">
+                                                    <div style="font-size: 2rem;">⚠️</div>
+                                                    <div style="font-size: 1rem; font-weight: bold; text-align: center;">${message}</div>
+                                                    <button onclick="location.reload()" style="padding: 0.5rem 1rem; background: #3b82f6; color: white; border: none; border-radius: 0.5rem; cursor: pointer; font-weight: 500; font-size: 0.875rem;">
+                                                        Reload Page
+                                                    </button>
+                                                </div>
+                                            `;
                 }
             }
 
@@ -449,11 +599,11 @@
             displayAutocompleteError(message) {
                 const dropdown = document.getElementById('autocompleteDropdown');
                 dropdown.innerHTML = `
-                                    <div class="p-4 text-center text-red-500">
-                                        <div class="text-2xl mb-2">⚠️</div>
-                                        <p class="text-sm">${message}</p>
-                                    </div>
-                                `;
+                                            <div class="p-4 text-center text-red-500">
+                                                <div class="text-2xl mb-2">⚠️</div>
+                                                <p class="text-sm">${message}</p>
+                                            </div>
+                                        `;
                 this.showAutocompleteDropdown();
             }
 
@@ -473,18 +623,18 @@
                         `<span class="text-xs text-gray-500">${this.formatPopulation(suggestion.population)}</span>` : '';
 
                     html += `
-                                        <div class="autocomplete-item p-3 cursor-pointer hover:bg-blue-50" 
-                                             onclick="app.selectAutocompleteSuggestion(${index})">
-                                            <div class="flex items-center justify-between">
-                                                <div>
-                                                    <div class="font-semibold text-gray-800">${suggestion.name}</div>
-                                                    <div class="text-sm text-gray-600">${suggestion.display_name}</div>
-                                                    ${population}
+                                                <div class="autocomplete-item p-3 cursor-pointer hover:bg-blue-50" 
+                                                     onclick="app.selectAutocompleteSuggestion(${index})">
+                                                    <div class="flex items-center justify-between">
+                                                        <div>
+                                                            <div class="font-semibold text-gray-800">${suggestion.name}</div>
+                                                            <div class="text-sm text-gray-600">${suggestion.display_name}</div>
+                                                            ${population}
+                                                        </div>
+                                                        <div class="text-xl">🌍</div>
+                                                    </div>
                                                 </div>
-                                                <div class="text-xl">🌍</div>
-                                            </div>
-                                        </div>
-                                    `;
+                                            `;
                 });
 
                 dropdown.innerHTML = html;
@@ -726,11 +876,11 @@
 
                     if (titleElement) {
                         titleElement.innerHTML = `
-                        <span class="text-blue-500 dark:text-blue-400">🌦️</span>
-                        <span class="bg-gradient-to-r from-blue-600 to-blue-400 dark:from-blue-400 dark:to-blue-300 bg-clip-text text-transparent">
-                            ${locationName}
-                        </span>
-                    `;
+                                <span class="text-blue-500 dark:text-blue-400">🌦️</span>
+                                <span class="bg-gradient-to-r from-blue-600 to-blue-400 dark:from-blue-400 dark:to-blue-300 bg-clip-text text-transparent">
+                                    ${locationName}
+                                </span>
+                            `;
                     }
                     if (detailsElement) detailsElement.textContent = locationName;
                     if (forecastLocationElement) forecastLocationElement.textContent = locationName;
@@ -768,11 +918,11 @@
 
                         if (titleElement) {
                             titleElement.innerHTML = `
-                            <span class="text-blue-500 dark:text-blue-400">🌦️</span>
-                            <span class="bg-gradient-to-r from-blue-600 to-blue-400 dark:from-blue-400 dark:to-blue-300 bg-clip-text text-transparent">
-                                ${locationName}
-                            </span>
-                        `;
+                                    <span class="text-blue-500 dark:text-blue-400">🌦️</span>
+                                    <span class="bg-gradient-to-r from-blue-600 to-blue-400 dark:from-blue-400 dark:to-blue-300 bg-clip-text text-transparent">
+                                        ${locationName}
+                                    </span>
+                                `;
                         }
                         if (detailsElement) detailsElement.textContent = locationName;
                         if (forecastLocationElement) forecastLocationElement.textContent = locationName;
@@ -797,11 +947,11 @@
 
                     if (titleElement) {
                         titleElement.innerHTML = `
-                        <span class="text-blue-500 dark:text-blue-400">🌦️</span>
-                        <span class="bg-gradient-to-r from-blue-600 to-blue-400 dark:from-blue-400 dark:to-blue-300 bg-clip-text text-transparent">
-                            ${coordsText}
-                        </span>
-                    `;
+                                <span class="text-blue-500 dark:text-blue-400">🌦️</span>
+                                <span class="bg-gradient-to-r from-blue-600 to-blue-400 dark:from-blue-400 dark:to-blue-300 bg-clip-text text-transparent">
+                                    ${coordsText}
+                                </span>
+                            `;
                     }
                     if (detailsElement) detailsElement.textContent = `Coordinates: ${coordsText}`;
                     if (forecastLocationElement) forecastLocationElement.textContent = coordsText;
@@ -831,41 +981,41 @@
 
             getLoadingCard() {
                 return `
-                                    <div class="current-weather-card rounded-xl p-4 loading-shimmer">
-                                        <div class="animate-pulse">
-                                            <div class="flex items-center justify-between mb-3">
-                                                <div class="h-4 bg-white/30 rounded w-24"></div>
-                                                <div class="h-8 bg-white/30 rounded-full w-8"></div>
+                                            <div class="current-weather-card rounded-xl p-4 loading-shimmer">
+                                                <div class="animate-pulse">
+                                                    <div class="flex items-center justify-between mb-3">
+                                                        <div class="h-4 bg-white/30 rounded w-24"></div>
+                                                        <div class="h-8 bg-white/30 rounded-full w-8"></div>
+                                                    </div>
+                                                    <div class="h-8 bg-white/30 rounded w-20 mb-3"></div>
+                                                    <div class="grid grid-cols-2 gap-2">
+                                                        <div class="h-12 bg-white/30 rounded"></div>
+                                                        <div class="h-12 bg-white/30 rounded"></div>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div class="h-8 bg-white/30 rounded w-20 mb-3"></div>
-                                            <div class="grid grid-cols-2 gap-2">
-                                                <div class="h-12 bg-white/30 rounded"></div>
-                                                <div class="h-12 bg-white/30 rounded"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                `;
+                                        `;
             }
 
             getLoadingGrid() {
                 return Array(4).fill(0).map(() => `
-                                    <div class="metric-card-compact animate-pulse">
-                                        <div class="h-6 bg-gray-300 rounded mb-2"></div>
-                                        <div class="h-3 bg-gray-300 rounded"></div>
-                                    </div>
-                                `).join('');
+                                            <div class="metric-card-compact animate-pulse">
+                                                <div class="h-6 bg-gray-300 rounded mb-2"></div>
+                                                <div class="h-3 bg-gray-300 rounded"></div>
+                                            </div>
+                                        `).join('');
             }
 
             getForecastLoading() {
                 return Array(7).fill(0).map(() => `
-                                    <div class="forecast-item animate-pulse">
-                                        <div class="flex items-center gap-3">
-                                            <div class="h-6 w-6 bg-gray-300 rounded"></div>
-                                            <div class="h-3 bg-gray-300 rounded w-16"></div>
-                                        </div>
-                                        <div class="h-4 bg-gray-300 rounded w-12"></div>
-                                    </div>
-                                `).join('');
+                                            <div class="forecast-item animate-pulse">
+                                                <div class="flex items-center gap-3">
+                                                    <div class="h-6 w-6 bg-gray-300 rounded"></div>
+                                                    <div class="h-3 bg-gray-300 rounded w-16"></div>
+                                                </div>
+                                                <div class="h-4 bg-gray-300 rounded w-12"></div>
+                                            </div>
+                                        `).join('');
             }
 
             async getEnhancedWeatherData(lat, lng) {
@@ -911,32 +1061,32 @@
                 const feelsLike = Math.round(current.apparent_temperature);
 
                 container.innerHTML = `
-                                    <div class="current-weather-card bg-blue-500 dark:bg-slate-700 rounded-xl p-2" style="min-height: 104px; height: 104px;">
-                                        <div class="flex items-center justify-between mb-2">
-                                            <div class="flex items-center gap-2">
-                                                <div class="text-2xl font-bold text-white">${temp}°C</div>
-                                                <div>
-                                                    <h4 class="text-xs font-semibold text-white">Current</h4>
-                                                    <p class="text-blue-100 text-[10px]">${new Date().toLocaleTimeString()}</p>
+                                            <div class="current-weather-card bg-blue-500 dark:bg-slate-700 rounded-xl p-2" style="min-height: 104px; height: 104px;">
+                                                <div class="flex items-center justify-between mb-2">
+                                                    <div class="flex items-center gap-2">
+                                                        <div class="text-2xl font-bold text-white">${temp}°C</div>
+                                                        <div>
+                                                            <h4 class="text-xs font-semibold text-white">Current</h4>
+                                                            <p class="text-blue-100 text-[10px]">${new Date().toLocaleTimeString()}</p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="text-3xl">${weatherEmoji}</div>
+                                                </div>
+                                                <div class="mb-2">
+                                                    <div class="text-blue-100 text-[11px]">Feels like ${feelsLike}°C</div>
+                                                </div>
+                                                <div class="grid grid-cols-2 gap-1.5">
+                                                    <div class="bg-white/20 dark:bg-white/10 rounded-lg px-1.5 py-1 text-center">
+                                                        <div class="text-white font-bold text-xs">${current.relative_humidity_2m}%</div>
+                                                        <div class="text-blue-100 text-[10px]">Humidity</div>
+                                                    </div>
+                                                    <div class="bg-white/20 dark:bg-white/10 rounded-lg px-1.5 py-1 text-center">
+                                                        <div class="text-white font-bold text-xs">${Math.round(current.surface_pressure)}</div>
+                                                        <div class="text-blue-100 text-[10px]">Pressure</div>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div class="text-3xl">${weatherEmoji}</div>
-                                        </div>
-                                        <div class="mb-2">
-                                            <div class="text-blue-100 text-[11px]">Feels like ${feelsLike}°C</div>
-                                        </div>
-                                        <div class="grid grid-cols-2 gap-1.5">
-                                            <div class="bg-white/20 dark:bg-white/10 rounded-lg px-1.5 py-1 text-center">
-                                                <div class="text-white font-bold text-xs">${current.relative_humidity_2m}%</div>
-                                                <div class="text-blue-100 text-[10px]">Humidity</div>
-                                            </div>
-                                            <div class="bg-white/20 dark:bg-white/10 rounded-lg px-1.5 py-1 text-center">
-                                                <div class="text-white font-bold text-xs">${Math.round(current.surface_pressure)}</div>
-                                                <div class="text-blue-100 text-[10px]">Pressure</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                `;
+                                        `;
             }
 
             displayTemperatureByAltitude(current) {
@@ -953,11 +1103,11 @@
                     const displayTemp = (temp !== undefined && temp !== null) ? Math.round(temp) : '--';
 
                     return `
-                                        <div class="data-card-uniform p-2 text-white min-h-[64px]" style="background: linear-gradient(135deg, ${item.color} 0%, ${item.color}dd 100%);">
-                                            <div class="text-[10px] font-semibold mb-0.5">${item.level}</div>
-                                            <div class="text-sm font-bold">${displayTemp}°C</div>
-                                        </div>
-                                    `;
+                                                <div class="data-card-uniform p-2 text-white min-h-[64px]" style="background: linear-gradient(135deg, ${item.color} 0%, ${item.color}dd 100%);">
+                                                    <div class="text-[10px] font-semibold mb-0.5">${item.level}</div>
+                                                    <div class="text-sm font-bold">${displayTemp}°C</div>
+                                                </div>
+                                            `;
                 }).join('');
             }
 
@@ -971,23 +1121,23 @@
                 ];
 
                 container.innerHTML = windData.map(item => `
-                                    <div class="data-card-uniform bg-blue-100 dark:bg-slate-800 p-2 min-h-[64px]">
-                                        <div class="text-[10px] font-semibold text-gray-700 dark:text-slate-200 mb-0.5">${item.level}</div>
-                                        <div class="text-sm font-bold text-blue-600 dark:text-slate-100">${Math.round(item.speed || 0)} km/h</div>
-                                        ${item.direction ? `<div class=\"text-[10px] text-gray-600 dark:text-slate-300\">${item.direction}°</div>` : ''}
-                                    </div>
-                                `).join('');
+                                            <div class="data-card-uniform bg-blue-100 dark:bg-slate-800 p-2 min-h-[64px]">
+                                                <div class="text-[10px] font-semibold text-gray-700 dark:text-slate-200 mb-0.5">${item.level}</div>
+                                                <div class="text-sm font-bold text-blue-600 dark:text-slate-100">${Math.round(item.speed || 0)} km/h</div>
+                                                ${item.direction ? `<div class=\"text-[10px] text-gray-600 dark:text-slate-300\">${item.direction}°</div>` : ''}
+                                            </div>
+                                        `).join('');
             }
 
             displaySoilConditions(hourly) {
                 const container = document.getElementById('soilConditions');
                 if (!hourly) {
                     container.innerHTML = `
-                                        <div class="data-card-uniform bg-gray-100 col-span-2">
-                                            <div class="text-2xl mb-1">🌱</div>
-                                            <p class="text-xs text-gray-500">Soil data not available</p>
-                                        </div>
-                                    `;
+                                                <div class="data-card-uniform bg-gray-100 col-span-2">
+                                                    <div class="text-2xl mb-1">🌱</div>
+                                                    <p class="text-xs text-gray-500">Soil data not available</p>
+                                                </div>
+                                            `;
                     return;
                 }
 
@@ -999,12 +1149,12 @@
                 ];
 
                 container.innerHTML = soilData.map(item => `
-                                    <div class="data-card-uniform bg-orange-500 text-white p-2 dark:bg-amber-600 min-h-[64px]">
-                                        <div class="text-[10px] font-semibold mb-0.5">${item.depth}</div>
-                                        ${item.temp ? `<div class="text-sm font-bold">${Math.round(item.temp)}°C</div>` : '<div class="text-sm font-bold">--°C</div>'}
-                                        ${item.moisture ? `<div class="text-[10px]">${item.moisture.toFixed(2)} m³/m³</div>` : '<div class="text-[10px]">-- m³/m³</div>'}
-                                    </div>
-                                `).join('');
+                                            <div class="data-card-uniform bg-orange-500 text-white p-2 dark:bg-amber-600 min-h-[64px]">
+                                                <div class="text-[10px] font-semibold mb-0.5">${item.depth}</div>
+                                                ${item.temp ? `<div class="text-sm font-bold">${Math.round(item.temp)}°C</div>` : '<div class="text-sm font-bold">--°C</div>'}
+                                                ${item.moisture ? `<div class="text-[10px]">${item.moisture.toFixed(2)} m³/m³</div>` : '<div class="text-[10px]">-- m³/m³</div>'}
+                                            </div>
+                                        `).join('');
             }
 
             displayExtendedForecast(daily) {
@@ -1024,31 +1174,31 @@
                 }));
 
                 container.innerHTML = days.map(day => `
-                                    <div class="forecast-item">
-                                        <div class="flex items-center gap-3">
-                                            <div class="text-xl">${this.getWeatherEmoji(day.weatherCode)}</div>
-                                            <div>
-                                                <div class="font-semibold text-gray-800 dark:text-slate-100 text-sm">${day.date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</div>
-                                                <div class="text-xs text-gray-600 dark:text-slate-300">Rain: ${Math.round(day.precipitation || 0)}mm</div>
+                                            <div class="forecast-item">
+                                                <div class="flex items-center gap-3">
+                                                    <div class="text-xl">${this.getWeatherEmoji(day.weatherCode)}</div>
+                                                    <div>
+                                                        <div class="font-semibold text-gray-800 dark:text-slate-100 text-sm">${day.date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</div>
+                                                        <div class="text-xs text-gray-600 dark:text-slate-300">Rain: ${Math.round(day.precipitation || 0)}mm</div>
+                                                    </div>
+                                                </div>
+                                                <div class="text-right">
+                                                    <div class="font-bold text-gray-800 dark:text-slate-100 text-sm">${Math.round(day.maxTemp)}° / ${Math.round(day.minTemp)}°</div>
+                                                    <div class="text-xs text-gray-600 dark:text-slate-300">${Math.round(day.windSpeed)} km/h</div>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="text-right">
-                                            <div class="font-bold text-gray-800 dark:text-slate-100 text-sm">${Math.round(day.maxTemp)}° / ${Math.round(day.minTemp)}°</div>
-                                            <div class="text-xs text-gray-600 dark:text-slate-300">${Math.round(day.windSpeed)} km/h</div>
-                                        </div>
-                                    </div>
-                                `).join('');
+                                        `).join('');
             }
 
             showWeatherError() {
                 const container = document.getElementById('currentWeatherData');
                 if (container) {
                     container.innerHTML = `
-                                        <div class="bg-red-100 border border-red-300 rounded-xl p-3 text-center">
-                                            <div class="text-red-500 text-xl mb-1">⚠️</div>
-                                            <p class="text-red-700 text-xs">Unable to fetch weather data</p>
-                                        </div>
-                                    `;
+                                                <div class="bg-red-100 border border-red-300 rounded-xl p-3 text-center">
+                                                    <div class="text-red-500 text-xl mb-1">⚠️</div>
+                                                    <p class="text-red-700 text-xs">Unable to fetch weather data</p>
+                                                </div>
+                                            `;
                 }
             }
 

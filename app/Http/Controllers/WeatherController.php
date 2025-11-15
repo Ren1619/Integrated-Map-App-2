@@ -161,11 +161,11 @@ class WeatherController extends Controller
 
             // Add caching to reduce API calls
             $cacheKey = "reverse_geo_" . md5("{$lat}_{$lng}");
-            
+
             $locationData = Cache::remember($cacheKey, 3600, function () use ($lat, $lng) {
                 // Use Nominatim with proper rate limiting
                 sleep(1); // Respect Nominatim's rate limit (1 request per second)
-                
+
                 $response = Http::timeout(10)
                     ->withHeaders([
                         'User-Agent' => 'WeatherMapApp/1.0 (Laravel; Weather Tracking)'
@@ -189,10 +189,10 @@ class WeatherController extends Controller
 
             if ($locationData && isset($locationData['display_name'])) {
                 $address = $locationData['address'] ?? [];
-                
+
                 // Build a clean, hierarchical location name
                 $locationParts = [];
-                
+
                 // Priority order for location components
                 $priorityKeys = [
                     'house_number',
@@ -211,12 +211,13 @@ class WeatherController extends Controller
                 foreach ($priorityKeys as $key) {
                     if (!empty($address[$key]) && !in_array($address[$key], $locationParts)) {
                         $locationParts[] = $address[$key];
-                        if (count($locationParts) >= 3) break; // Limit to 3 components for clarity
+                        if (count($locationParts) >= 3)
+                            break; // Limit to 3 components for clarity
                     }
                 }
 
-                $locationName = !empty($locationParts) 
-                    ? implode(', ', $locationParts) 
+                $locationName = !empty($locationParts)
+                    ? implode(', ', $locationParts)
                     : $locationData['display_name'];
 
                 Log::info("Location name resolved: {$locationName}");
@@ -247,7 +248,7 @@ class WeatherController extends Controller
 
             // Fallback: return coordinates as location name
             Log::warning('No location data found, using coordinates as fallback');
-            
+
             return response()->json([
                 'success' => true,
                 'data' => [
@@ -283,7 +284,95 @@ class WeatherController extends Controller
         }
     }
 
+    public function getLocationFromIP(Request $request): JsonResponse
+    {
+        try {
+            // Get the actual client IP
+            $ip = $request->ip();
 
+            Log::info("Attempting IP geolocation for IP: {$ip}");
+
+            // For localhost/local IPs, get the public IP
+            if (in_array($ip, ['127.0.0.1', '::1', 'localhost']) || str_starts_with($ip, '192.168.') || str_starts_with($ip, '10.')) {
+                Log::info("Local IP detected, fetching public IP");
+
+                try {
+                    $publicIpResponse = Http::timeout(5)->get('https://api.ipify.org?format=json');
+                    if ($publicIpResponse->successful()) {
+                        $ip = $publicIpResponse->json()['ip'] ?? null;
+                        Log::info("Public IP resolved: {$ip}");
+                    }
+                } catch (\Exception $e) {
+                    Log::warning("Failed to get public IP: " . $e->getMessage());
+                }
+            }
+
+            if (!$ip) {
+                throw new \Exception('Could not determine IP address');
+            }
+
+            // Try ip-api.com first (free, no key required)
+            Log::info("Fetching location from ip-api.com for IP: {$ip}");
+
+            $response = Http::timeout(10)->get("http://ip-api.com/json/{$ip}?fields=status,message,country,regionName,city,lat,lon,timezone");
+
+            if (!$response->successful()) {
+                Log::warning("ip-api.com request failed with status: " . $response->status());
+                throw new \Exception('Geolocation service request failed');
+            }
+
+            $data = $response->json();
+
+            Log::info("ip-api.com response: " . json_encode($data));
+
+            if (!isset($data['status']) || $data['status'] !== 'success') {
+                Log::warning("ip-api.com returned non-success status");
+                throw new \Exception($data['message'] ?? 'Geolocation failed');
+            }
+
+            $locationName = collect([
+                $data['city'] ?? null,
+                $data['regionName'] ?? null,
+                $data['country'] ?? null
+            ])->filter()->join(', ');
+
+            Log::info("Location resolved: {$locationName}");
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'lat' => (float) $data['lat'],
+                    'lng' => (float) $data['lon'],
+                    'location_name' => $locationName,
+                    'city' => $data['city'] ?? '',
+                    'region' => $data['regionName'] ?? '',
+                    'country' => $data['country'] ?? '',
+                    'timezone' => $data['timezone'] ?? '',
+                    'ip' => $ip,
+                    'method' => 'ip_geolocation'
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('IP Geolocation error: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
+
+            // Return default location as fallback
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'lat' => 7.1907,
+                    'lng' => 125.4553,
+                    'location_name' => 'Davao City, Davao Region, Philippines',
+                    'city' => 'Davao City',
+                    'region' => 'Davao Region',
+                    'country' => 'Philippines',
+                    'method' => 'default_fallback',
+                    'error' => $e->getMessage()
+                ]
+            ]);
+        }
+    }
 
     /**
      * Fallback to Nominatim search
@@ -389,9 +478,9 @@ class WeatherController extends Controller
                 'current' => implode(',', [
                     // Temperature data at different levels
                     'temperature_2m',
-                    'temperature_80m',    
-                    'temperature_120m',      
-                    'temperature_180m',     
+                    'temperature_80m',
+                    'temperature_120m',
+                    'temperature_180m',
                     'apparent_temperature',
 
                     // Wind data at different levels
@@ -482,16 +571,16 @@ class WeatherController extends Controller
 
             if (!$response->successful()) {
                 Log::warning("Weather API returned non-successful response: " . $response->status());
-                    return null;
-                }
-
-                return $response->json();
-
-            } catch (\Exception $e) {
-                Log::error("Enhanced Weather API error: " . $e->getMessage());
                 return null;
             }
+
+            return $response->json();
+
+        } catch (\Exception $e) {
+            Log::error("Enhanced Weather API error: " . $e->getMessage());
+            return null;
         }
+    }
 
     /**
      * Format location name from Open-Meteo geocoding result

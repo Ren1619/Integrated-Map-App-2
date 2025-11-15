@@ -206,4 +206,6 @@ Route::get('/test-geocoding', function() {
     ]);
 });
 
+Route::get('/location/from-ip', [WeatherController::class, 'getLocationFromIP'])->name('location.from.ip');
+
 require __DIR__ . '/auth.php';
