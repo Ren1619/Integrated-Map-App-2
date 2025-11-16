@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Log;
 class UserDataController extends Controller
 {
     // ==================== SEARCH HISTORY ====================
-    
+
     /**
      * Record a search in history.
      */
@@ -25,8 +25,10 @@ class UserDataController extends Controller
                 'latitude' => 'required|numeric|between:-90,90',
                 'longitude' => 'required|numeric|between:-180,180',
                 'address_components' => 'nullable|array',
-                'search_type' => 'nullable|string|in:manual,map_click,geolocation',
+                'search_type' => 'nullable|string|in:manual,map_click,geolocation,autocomplete',
             ]);
+
+            $searchType = $request->search_type ?? 'manual';
 
             $search = SearchHistory::recordSearch(
                 Auth::id(),
@@ -34,11 +36,23 @@ class UserDataController extends Controller
                 $request->latitude,
                 $request->longitude,
                 $request->address_components,
-                $request->search_type ?? 'manual'
+                $searchType
             );
+
+            // If search is null, it means geolocation was throttled
+            if ($search === null) {
+                return response()->json([
+                    'success' => true,
+                    'throttled' => true,
+                    'message' => 'Geolocation not recorded - less than 1 hour since last check',
+                    'data' => null
+                ]);
+            }
 
             return response()->json([
                 'success' => true,
+                'throttled' => false,
+                'message' => 'Search recorded successfully',
                 'data' => $search
             ]);
         } catch (\Exception $e) {
@@ -132,7 +146,7 @@ class UserDataController extends Controller
     }
 
     // ==================== SAVED LOCATIONS ====================
-    
+
     /**
      * Toggle saved location.
      */

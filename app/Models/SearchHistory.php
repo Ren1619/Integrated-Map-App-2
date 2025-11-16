@@ -23,22 +23,14 @@ class SearchHistory extends Model
     ];
 
     protected $casts = [
-    'address_components' => 'array',
-    'latitude' => 'float',
-    'longitude' => 'float',
-    'last_searched_at' => 'datetime',
-];
+        'address_components' => 'array',
+        'latitude' => 'float',
+        'longitude' => 'float',
+        'last_searched_at' => 'datetime',
+    ];
 
     /**
      * Get the user that owns the search history.
-     */
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
-    }
-
-    /**
-     * Record or update a search.
      */
     public static function recordSearch(
         int $userId,
@@ -47,13 +39,34 @@ class SearchHistory extends Model
         float $longitude,
         ?array $addressComponents = null,
         string $searchType = 'manual'
-    ): self {
+    ): ?self {
+        // Special handling for geolocation: Check if ANY geolocation search was made in the last hour
+        if ($searchType === 'geolocation') {
+            $hourAgo = now()->subHour();
+
+            // Check if there's ANY geolocation search in the last hour (not just this location)
+            $recentGeoSearch = self::where('user_id', $userId)
+                ->where('search_type', 'geolocation')
+                ->where('last_searched_at', '>=', $hourAgo)
+                ->first();
+
+            if ($recentGeoSearch) {
+                // Found a geolocation search within the last hour - throttle it
+                \Log::debug("Geolocation search throttled (last geolocation was " .
+                    $recentGeoSearch->last_searched_at->diffForHumans() .
+                    "): {$locationName}");
+                return null;
+            }
+        }
+
+        // Find existing search for this specific location
         $search = self::where('user_id', $userId)
             ->where('latitude', $latitude)
             ->where('longitude', $longitude)
             ->first();
 
         if ($search) {
+            // Location already exists, update it
             $search->update([
                 'location_name' => $locationName,
                 'address_components' => $addressComponents,
@@ -61,7 +74,11 @@ class SearchHistory extends Model
                 'search_count' => $search->search_count + 1,
                 'last_searched_at' => now(),
             ]);
+
+            \Log::debug("Search updated ({$searchType}): {$locationName}");
+            return $search;
         } else {
+            // New location, create record
             $search = self::create([
                 'user_id' => $userId,
                 'location_name' => $locationName,
@@ -72,9 +89,10 @@ class SearchHistory extends Model
                 'search_count' => 1,
                 'last_searched_at' => now(),
             ]);
-        }
 
-        return $search;
+            \Log::debug("New location search recorded ({$searchType}): {$locationName}");
+            return $search;
+        }
     }
 
     /**

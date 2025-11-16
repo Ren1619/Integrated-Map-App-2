@@ -27,7 +27,7 @@
 }
 
 @layer components {
- 
+
     .bg-gradient-primary {
         @apply bg-gradient-to-br from-blue-50 via-white to-blue-50;
         @apply dark:from-gray-900 dark:via-gray-800 dark:to-gray-900;
@@ -42,7 +42,7 @@
         @apply border border-white/20 dark:border-gray-700/20;
         box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
     }
-    
+
     .dark .glass-effect {
         background: rgba(31, 41, 55, 0.95);
     }
@@ -54,7 +54,7 @@
         @apply border border-white/30 dark:border-gray-700/30;
         @apply shadow-lg;
     }
-    
+
     .dark .panel-glass {
         background: rgba(31, 41, 55, 0.98);
         box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
@@ -201,18 +201,18 @@
     .sidebar-overlay {
         @apply transition-opacity duration-300 ease-in-out;
     }
-    
+
     .sidebar-menu {
         @apply transition-transform duration-300 ease-in-out;
         @apply bg-white dark:bg-gray-800;
         @apply border-gray-200 dark:border-gray-700;
     }
-    
+
     @media (max-width: 1024px) {
         .sidebar-menu {
             transform: translateX(-100%);
         }
-        
+
         .sidebar-menu.open {
             transform: translateX(0);
         }
@@ -223,8 +223,8 @@
     }
 
     .autocomplete-dropdown {
-        @apply shadow-2xl border border-blue-100 dark:border-blue-900;
-        @apply bg-white/95 dark:bg-gray-800/95;
+        @apply shadow-2xl border border-blue-200 dark:border-slate-700;
+        @apply bg-white/95 dark:bg-slate-800/95;
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
     }
@@ -233,6 +233,7 @@
         @apply transition-all duration-200;
         @apply hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100;
         @apply dark:hover:from-blue-900/30 dark:hover:to-blue-800/30;
+        @apply text-gray-800 dark:text-slate-100;
     }
 
     .autocomplete-item:hover {
@@ -308,6 +309,7 @@
         0% {
             background-position: 200% 0;
         }
+
         100% {
             background-position: -200% 0;
         }
@@ -320,30 +322,28 @@
     .weather-loading::after {
         content: '';
         @apply absolute top-0 left-0 w-full h-full;
-        background: linear-gradient(
-            90deg,
-            transparent,
-            rgba(255, 255, 255, 0.4),
-            transparent
-        );
+        background: linear-gradient(90deg,
+                transparent,
+                rgba(255, 255, 255, 0.4),
+                transparent);
         animation: shimmer 1.5s infinite;
         transform: translateX(-100%);
     }
 
-    .weather-layer-toggle:checked + div {
+    .weather-layer-toggle:checked+div {
         @apply bg-blue-500 dark:bg-blue-600;
     }
 
-    .weather-layer-toggle:checked + div .dot {
+    .weather-layer-toggle:checked+div .dot {
         transform: translateX(100%);
     }
 
-    .weather-layer-toggle + div {
+    .weather-layer-toggle+div {
         @apply relative w-10 h-6 bg-gray-300 dark:bg-gray-600;
         @apply rounded-full transition-colors duration-300 cursor-pointer;
     }
 
-    .weather-layer-toggle + div .dot {
+    .weather-layer-toggle+div .dot {
         @apply absolute top-0.5 left-0.5 w-5 h-5;
         @apply bg-white rounded-full shadow-md;
         @apply transition-transform duration-300;
@@ -382,13 +382,16 @@
     }
 
     @keyframes tempGlow {
-        0%, 100% { 
-            transform: scale(1); 
-            opacity: 0.7; 
+
+        0%,
+        100% {
+            transform: scale(1);
+            opacity: 0.7;
         }
-        50% { 
-            transform: scale(1.1); 
-            opacity: 0.9; 
+
+        50% {
+            transform: scale(1.1);
+            opacity: 0.9;
         }
     }
 
@@ -409,9 +412,17 @@
     }
 
     @keyframes precipFall {
-        0% { opacity: 0.3; }
-        50% { opacity: 0.8; }
-        100% { opacity: 0.3; }
+        0% {
+            opacity: 0.3;
+        }
+
+        50% {
+            opacity: 0.8;
+        }
+
+        100% {
+            opacity: 0.3;
+        }
     }
 
     /* Wind Arrows */
@@ -427,8 +438,15 @@
     }
 
     @keyframes windPulse {
-        0%, 100% { opacity: 0.8; }
-        50% { opacity: 1; }
+
+        0%,
+        100% {
+            opacity: 0.8;
+        }
+
+        50% {
+            opacity: 1;
+        }
     }
 
     @keyframes slideInRight {
@@ -436,6 +454,7 @@
             transform: translateX(400px);
             opacity: 0;
         }
+
         to {
             transform: translateX(0);
             opacity: 1;
@@ -451,6 +470,7 @@
             transform: translateY(100px);
             opacity: 0;
         }
+
         100% {
             transform: translateY(0);
             opacity: 1;
@@ -521,10 +541,11 @@
         }
     }
 
-    
+
 }
 
 @layer utilities {
+
     /* Dark mode toggle utilities */
     .dark-mode-transition {
         @apply transition-colors duration-300 ease-in-out;
@@ -539,6 +560,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+
     *,
     *::before,
     *::after {
@@ -560,6 +582,7 @@
 }
 
 @media (prefers-contrast: high) {
+
     .temp-tooltip,
     .precip-tooltip {
         @apply bg-black text-white border-2 border-white;
@@ -572,6 +595,7 @@
 }
 
 @media print {
+
     .overlay,
     aside,
     nav,
