@@ -225,6 +225,7 @@
                     this.init();
                 }
             }
+            
 
             init() {
                 console.log('Initializing Weather Map App...');
@@ -458,9 +459,9 @@
 
                 notification.className += ` ${colors[type] || colors.info}`;
                 notification.innerHTML = `
-                                                    <span class="text-xl flex-shrink-0">${icons[type] || icons.info}</span>
-                                                    <span class="text-sm font-medium">${message}</span>
-                                                `;
+                    <span class="text-xl flex-shrink-0">${icons[type] || icons.info}</span>
+                    <span class="text-sm font-medium">${message}</span>
+                `;
 
                 document.body.appendChild(notification);
 
@@ -485,14 +486,14 @@
                 const mapContainer = document.getElementById('map');
                 if (mapContainer) {
                     mapContainer.innerHTML = `
-                                                                                        <div style="display: flex; align-items: center; justify-content: center; height: 100%; background: #1e293b; color: white; flex-direction: column; gap: 1rem; padding: 1rem;">
-                                                                                            <div style="font-size: 2rem;">⚠️</div>
-                                                                                            <div style="font-size: 1rem; font-weight: bold; text-align: center;">${message}</div>
-                                                                                            <button onclick="location.reload()" style="padding: 0.5rem 1rem; background: #3b82f6; color: white; border: none; border-radius: 0.5rem; cursor: pointer; font-weight: 500; font-size: 0.875rem;">
-                                                                                                Reload Page
-                                                                                            </button>
-                                                                                        </div>
-                                                                                    `;
+                        <div style="display: flex; align-items: center; justify-content: center; height: 100%; background: #1e293b; color: white; flex-direction: column; gap: 1rem; padding: 1rem;">
+                            <div style="font-size: 2rem;">⚠️</div>
+                            <div style="font-size: 1rem; font-weight: bold; text-align: center;">${message}</div>
+                            <button onclick="location.reload()" style="padding: 0.5rem 1rem; background: #3b82f6; color: white; border: none; border-radius: 0.5rem; cursor: pointer; font-weight: 500; font-size: 0.875rem;">
+                                Reload Page
+                            </button>
+                        </div>
+                    `;
                 }
             }
 
@@ -599,11 +600,11 @@
             displayAutocompleteError(message) {
                 const dropdown = document.getElementById('autocompleteDropdown');
                 dropdown.innerHTML = `
-                                            <div class="p-4 text-center text-red-500 dark:text-red-400">
-                                                <div class="text-2xl mb-2">⚠️</div>
-                                                <p class="text-sm">${message}</p>
-                                            </div>
-                                        `;
+                                                <div class="p-4 text-center text-red-500 dark:text-red-400">
+                                                    <div class="text-2xl mb-2">⚠️</div>
+                                                    <p class="text-sm">${message}</p>
+                                                </div>
+                                            `;
                 this.showAutocompleteDropdown();
             }
 
@@ -623,18 +624,18 @@
                         `<span class="text-xs text-gray-500 dark:text-slate-400">${this.formatPopulation(suggestion.population)}</span>` : '';
 
                     html += `
-                                                    <div class="autocomplete-item p-3 cursor-pointer" 
-                                                         onclick="app.selectAutocompleteSuggestion(${index})">
-                                                        <div class="flex items-center justify-between">
-                                                            <div>
-                                                                <div class="font-semibold text-gray-800 dark:text-slate-100">${suggestion.name}</div>
-                                                                <div class="text-sm text-gray-600 dark:text-slate-300">${suggestion.display_name}</div>
-                                                                ${population}
+                                                        <div class="autocomplete-item p-3 cursor-pointer" 
+                                                             onclick="app.selectAutocompleteSuggestion(${index})">
+                                                            <div class="flex items-center justify-between">
+                                                                <div>
+                                                                    <div class="font-semibold text-gray-800 dark:text-slate-100">${suggestion.name}</div>
+                                                                    <div class="text-sm text-gray-600 dark:text-slate-300">${suggestion.display_name}</div>
+                                                                    ${population}
+                                                                </div>
+                                                                <div class="text-xl">🌍</div>
                                                             </div>
-                                                            <div class="text-xl">🌍</div>
                                                         </div>
-                                                    </div>
-                                                `;
+                                                    `;
                 });
 
                 dropdown.innerHTML = html;
@@ -1015,11 +1016,11 @@
 
                     if (titleElement) {
                         titleElement.innerHTML = `
-                                                                        <span class="text-blue-500 dark:text-blue-400">🌦️</span>
-                                                                        <span class="bg-gradient-to-r from-blue-600 to-blue-400 dark:from-blue-400 dark:to-blue-300 bg-clip-text text-transparent">
-                                                                            ${locationName}
-                                                                        </span>
-                                                                    `;
+                            <span class="text-blue-500 dark:text-blue-400">🌦️</span>
+                            <span class="bg-gradient-to-r from-blue-600 to-blue-400 dark:from-blue-400 dark:to-blue-300 bg-clip-text text-transparent">
+                                ${locationName}
+                            </span>
+                        `;
                     }
                     if (detailsElement) detailsElement.textContent = locationName;
                     if (forecastLocationElement) forecastLocationElement.textContent = locationName;
@@ -1057,11 +1058,11 @@
 
                         if (titleElement) {
                             titleElement.innerHTML = `
-                                                                            <span class="text-blue-500 dark:text-blue-400">🌦️</span>
-                                                                            <span class="bg-gradient-to-r from-blue-600 to-blue-400 dark:from-blue-400 dark:to-blue-300 bg-clip-text text-transparent">
-                                                                                ${locationName}
-                                                                            </span>
-                                                                        `;
+                                <span class="text-blue-500 dark:text-blue-400">🌦️</span>
+                                <span class="bg-gradient-to-r from-blue-600 to-blue-400 dark:from-blue-400 dark:to-blue-300 bg-clip-text text-transparent">
+                                    ${locationName}
+                                </span>
+                            `;
                         }
                         if (detailsElement) detailsElement.textContent = locationName;
                         if (forecastLocationElement) forecastLocationElement.textContent = locationName;
@@ -1086,11 +1087,11 @@
 
                     if (titleElement) {
                         titleElement.innerHTML = `
-                                                                        <span class="text-blue-500 dark:text-blue-400">🌦️</span>
-                                                                        <span class="bg-gradient-to-r from-blue-600 to-blue-400 dark:from-blue-400 dark:to-blue-300 bg-clip-text text-transparent">
-                                                                            ${coordsText}
-                                                                        </span>
-                                                                    `;
+                            <span class="text-blue-500 dark:text-blue-400">🌦️</span>
+                            <span class="bg-gradient-to-r from-blue-600 to-blue-400 dark:from-blue-400 dark:to-blue-300 bg-clip-text text-transparent">
+                                ${coordsText}
+                            </span>
+                        `;
                     }
                     if (detailsElement) detailsElement.textContent = `Coordinates: ${coordsText}`;
                     if (forecastLocationElement) forecastLocationElement.textContent = coordsText;
@@ -1120,41 +1121,41 @@
 
             getLoadingCard() {
                 return `
-                                                                                    <div class="current-weather-card rounded-xl p-4 loading-shimmer">
-                                                                                        <div class="animate-pulse">
-                                                                                            <div class="flex items-center justify-between mb-3">
-                                                                                                <div class="h-4 bg-white/30 rounded w-24"></div>
-                                                                                                <div class="h-8 bg-white/30 rounded-full w-8"></div>
-                                                                                            </div>
-                                                                                            <div class="h-8 bg-white/30 rounded w-20 mb-3"></div>
-                                                                                            <div class="grid grid-cols-2 gap-2">
-                                                                                                <div class="h-12 bg-white/30 rounded"></div>
-                                                                                                <div class="h-12 bg-white/30 rounded"></div>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                `;
+                    <div class="current-weather-card rounded-xl p-4 loading-shimmer">
+                        <div class="animate-pulse">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="h-4 bg-white/30 rounded w-24"></div>
+                                <div class="h-8 bg-white/30 rounded-full w-8"></div>
+                            </div>
+                            <div class="h-8 bg-white/30 rounded w-20 mb-3"></div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div class="h-12 bg-white/30 rounded"></div>
+                                <div class="h-12 bg-white/30 rounded"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
             }
 
             getLoadingGrid() {
                 return Array(4).fill(0).map(() => `
-                                                                                    <div class="metric-card-compact animate-pulse">
-                                                                                        <div class="h-6 bg-gray-300 rounded mb-2"></div>
-                                                                                        <div class="h-3 bg-gray-300 rounded"></div>
-                                                                                    </div>
-                                                                                `).join('');
+                    <div class="metric-card-compact animate-pulse">
+                        <div class="h-6 bg-gray-300 rounded mb-2"></div>
+                        <div class="h-3 bg-gray-300 rounded"></div>
+                    </div>
+                `).join('');
             }
 
             getForecastLoading() {
                 return Array(7).fill(0).map(() => `
-                                                                                    <div class="forecast-item animate-pulse">
-                                                                                        <div class="flex items-center gap-3">
-                                                                                            <div class="h-6 w-6 bg-gray-300 rounded"></div>
-                                                                                            <div class="h-3 bg-gray-300 rounded w-16"></div>
-                                                                                        </div>
-                                                                                        <div class="h-4 bg-gray-300 rounded w-12"></div>
-                                                                                    </div>
-                                                                                `).join('');
+                    <div class="forecast-item animate-pulse">
+                        <div class="flex items-center gap-3">
+                            <div class="h-6 w-6 bg-gray-300 rounded"></div>
+                            <div class="h-3 bg-gray-300 rounded w-16"></div>
+                        </div>
+                        <div class="h-4 bg-gray-300 rounded w-12"></div>
+                    </div>
+                `).join('');
             }
 
             async getEnhancedWeatherData(lat, lng) {
@@ -1200,32 +1201,32 @@
                 const feelsLike = Math.round(current.apparent_temperature);
 
                 container.innerHTML = `
-                                                                                    <div class="current-weather-card bg-blue-500 dark:bg-slate-700 rounded-xl p-2" style="min-height: 104px; height: 104px;">
-                                                                                        <div class="flex items-center justify-between mb-2">
-                                                                                            <div class="flex items-center gap-2">
-                                                                                                <div class="text-2xl font-bold text-white">${temp}°C</div>
-                                                                                                <div>
-                                                                                                    <h4 class="text-xs font-semibold text-white">Current</h4>
-                                                                                                    <p class="text-blue-100 text-[10px]">${new Date().toLocaleTimeString()}</p>
-                                                                                                </div>
-                                                                                            </div>
-                                                                                            <div class="text-3xl">${weatherEmoji}</div>
-                                                                                        </div>
-                                                                                        <div class="mb-2">
-                                                                                            <div class="text-blue-100 text-[11px]">Feels like ${feelsLike}°C</div>
-                                                                                        </div>
-                                                                                        <div class="grid grid-cols-2 gap-1.5">
-                                                                                            <div class="bg-white/20 dark:bg-white/10 rounded-lg px-1.5 py-1 text-center">
-                                                                                                <div class="text-white font-bold text-xs">${current.relative_humidity_2m}%</div>
-                                                                                                <div class="text-blue-100 text-[10px]">Humidity</div>
-                                                                                            </div>
-                                                                                            <div class="bg-white/20 dark:bg-white/10 rounded-lg px-1.5 py-1 text-center">
-                                                                                                <div class="text-white font-bold text-xs">${Math.round(current.surface_pressure)}</div>
-                                                                                                <div class="text-blue-100 text-[10px]">Pressure</div>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                `;
+                    <div class="current-weather-card bg-blue-500 dark:bg-slate-700 rounded-xl p-2" style="min-height: 104px; height: 104px;">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center gap-2">
+                                <div class="text-2xl font-bold text-white">${temp}°C</div>
+                                <div>
+                                    <h4 class="text-xs font-semibold text-white">Current</h4>
+                                    <p class="text-blue-100 text-[10px]">${new Date().toLocaleTimeString()}</p>
+                                </div>
+                            </div>
+                            <div class="text-3xl">${weatherEmoji}</div>
+                        </div>
+                        <div class="mb-2">
+                            <div class="text-blue-100 text-[11px]">Feels like ${feelsLike}°C</div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-1.5">
+                            <div class="bg-white/20 dark:bg-white/10 rounded-lg px-1.5 py-1 text-center">
+                                <div class="text-white font-bold text-xs">${current.relative_humidity_2m}%</div>
+                                <div class="text-blue-100 text-[10px]">Humidity</div>
+                            </div>
+                            <div class="bg-white/20 dark:bg-white/10 rounded-lg px-1.5 py-1 text-center">
+                                <div class="text-white font-bold text-xs">${Math.round(current.surface_pressure)}</div>
+                                <div class="text-blue-100 text-[10px]">Pressure</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
             }
 
             displayTemperatureByAltitude(current) {
@@ -1242,11 +1243,11 @@
                     const displayTemp = (temp !== undefined && temp !== null) ? Math.round(temp) : '--';
 
                     return `
-                                                                                        <div class="data-card-uniform p-2 text-white min-h-[64px]" style="background: linear-gradient(135deg, ${item.color} 0%, ${item.color}dd 100%);">
-                                                                                            <div class="text-[10px] font-semibold mb-0.5">${item.level}</div>
-                                                                                            <div class="text-sm font-bold">${displayTemp}°C</div>
-                                                                                        </div>
-                                                                                    `;
+                        <div class="data-card-uniform p-2 text-white min-h-[64px]" style="background: linear-gradient(135deg, ${item.color} 0%, ${item.color}dd 100%);">
+                            <div class="text-[10px] font-semibold mb-0.5">${item.level}</div>
+                            <div class="text-sm font-bold">${displayTemp}°C</div>
+                        </div>
+                    `;
                 }).join('');
             }
 
@@ -1260,23 +1261,23 @@
                 ];
 
                 container.innerHTML = windData.map(item => `
-                                                                                    <div class="data-card-uniform bg-blue-100 dark:bg-slate-800 p-2 min-h-[64px]">
-                                                                                        <div class="text-[10px] font-semibold text-gray-700 dark:text-slate-200 mb-0.5">${item.level}</div>
-                                                                                        <div class="text-sm font-bold text-blue-600 dark:text-slate-100">${Math.round(item.speed || 0)} km/h</div>
-                                                                                        ${item.direction ? `<div class=\"text-[10px] text-gray-600 dark:text-slate-300\">${item.direction}°</div>` : ''}
-                                                                                    </div>
-                                                                                `).join('');
+                    <div class="data-card-uniform bg-blue-100 dark:bg-slate-800 p-2 min-h-[64px]">
+                        <div class="text-[10px] font-semibold text-gray-700 dark:text-slate-200 mb-0.5">${item.level}</div>
+                        <div class="text-sm font-bold text-blue-600 dark:text-slate-100">${Math.round(item.speed || 0)} km/h</div>
+                        ${item.direction ? `<div class=\"text-[10px] text-gray-600 dark:text-slate-300\">${item.direction}°</div>` : ''}
+                    </div>
+                `).join('');
             }
 
             displaySoilConditions(hourly) {
                 const container = document.getElementById('soilConditions');
                 if (!hourly) {
                     container.innerHTML = `
-                                                                                        <div class="data-card-uniform bg-gray-100 col-span-2">
-                                                                                            <div class="text-2xl mb-1">🌱</div>
-                                                                                            <p class="text-xs text-gray-500">Soil data not available</p>
-                                                                                        </div>
-                                                                                    `;
+                        <div class="data-card-uniform bg-gray-100 col-span-2">
+                            <div class="text-2xl mb-1">🌱</div>
+                            <p class="text-xs text-gray-500">Soil data not available</p>
+                        </div>
+                    `;
                     return;
                 }
 
@@ -1288,12 +1289,12 @@
                 ];
 
                 container.innerHTML = soilData.map(item => `
-                                                                                    <div class="data-card-uniform bg-orange-500 text-white p-2 dark:bg-amber-600 min-h-[64px]">
-                                                                                        <div class="text-[10px] font-semibold mb-0.5">${item.depth}</div>
-                                                                                        ${item.temp ? `<div class="text-sm font-bold">${Math.round(item.temp)}°C</div>` : '<div class="text-sm font-bold">--°C</div>'}
-                                                                                        ${item.moisture ? `<div class="text-[10px]">${item.moisture.toFixed(2)} m³/m³</div>` : '<div class="text-[10px]">-- m³/m³</div>'}
-                                                                                    </div>
-                                                                                `).join('');
+                    <div class="data-card-uniform bg-orange-500 text-white p-2 dark:bg-amber-600 min-h-[64px]">
+                        <div class="text-[10px] font-semibold mb-0.5">${item.depth}</div>
+                        ${item.temp ? `<div class="text-sm font-bold">${Math.round(item.temp)}°C</div>` : '<div class="text-sm font-bold">--°C</div>'}
+                        ${item.moisture ? `<div class="text-[10px]">${item.moisture.toFixed(2)} m³/m³</div>` : '<div class="text-[10px]">-- m³/m³</div>'}
+                    </div>
+                `).join('');
             }
 
             displayExtendedForecast(daily) {
@@ -1313,31 +1314,31 @@
                 }));
 
                 container.innerHTML = days.map(day => `
-                                                                                    <div class="forecast-item">
-                                                                                        <div class="flex items-center gap-3">
-                                                                                            <div class="text-xl">${this.getWeatherEmoji(day.weatherCode)}</div>
-                                                                                            <div>
-                                                                                                <div class="font-semibold text-gray-800 dark:text-slate-100 text-sm">${day.date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</div>
-                                                                                                <div class="text-xs text-gray-600 dark:text-slate-300">Rain: ${Math.round(day.precipitation || 0)}mm</div>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                        <div class="text-right">
-                                                                                            <div class="font-bold text-gray-800 dark:text-slate-100 text-sm">${Math.round(day.maxTemp)}° / ${Math.round(day.minTemp)}°</div>
-                                                                                            <div class="text-xs text-gray-600 dark:text-slate-300">${Math.round(day.windSpeed)} km/h</div>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                `).join('');
+                    <div class="forecast-item">
+                        <div class="flex items-center gap-3">
+                            <div class="text-xl">${this.getWeatherEmoji(day.weatherCode)}</div>
+                            <div>
+                                <div class="font-semibold text-gray-800 dark:text-slate-100 text-sm">${day.date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</div>
+                                <div class="text-xs text-gray-600 dark:text-slate-300">Rain: ${Math.round(day.precipitation || 0)}mm</div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-bold text-gray-800 dark:text-slate-100 text-sm">${Math.round(day.maxTemp)}° / ${Math.round(day.minTemp)}°</div>
+                            <div class="text-xs text-gray-600 dark:text-slate-300">${Math.round(day.windSpeed)} km/h</div>
+                        </div>
+                    </div>
+                `).join('');
             }
 
             showWeatherError() {
                 const container = document.getElementById('currentWeatherData');
                 if (container) {
-                    container.innerHTML = `
-                                                                                        <div class="bg-red-100 border border-red-300 rounded-xl p-3 text-center">
-                                                                                            <div class="text-red-500 text-xl mb-1">⚠️</div>
-                                                                                            <p class="text-red-700 text-xs">Unable to fetch weather data</p>
-                                                                                        </div>
-                                                                                    `;
+                container.innerHTML = `
+                    <div class="bg-red-100 border border-red-300 rounded-xl p-3 text-center">
+                        <div class="text-red-500 text-xl mb-1">⚠️</div>
+                        <p class="text-red-700 text-xs">Unable to fetch weather data</p>
+                    </div>
+                `;
                 }
             }
 
@@ -1374,5 +1375,12 @@
         } else {
             app = new EnhancedWeatherMapApp();
         }
+
+        window.addEventListener('beforeunload', () => {
+            if (weatherAlertSystem) {
+                weatherAlertSystem.destroy();
+            }
+        });
+
     </script>
 @endsection

@@ -11,6 +11,9 @@
     ];
 @endphp
 
+<!-- Debug: Component Loaded -->
+<script>console.log('🔔 Weather Alert Notification Component: Loaded');</script>
+
 <!-- Weather Alert Notification Container -->
 <div id="weatherAlertContainer"
     class="fixed {{ $positionClasses[$position] }} z-[9999] max-w-sm w-full pointer-events-none" style="display: none;">
@@ -148,7 +151,7 @@
                     bg: 'bg-gradient-to-r from-red-600 to-red-700 dark:from-red-700 dark:to-red-800',
                     icon: '🚨',
                     pulse: true,
-                    sound: true // Added sound indicator for danger alerts
+                    sound: true
                 }
             };
 
@@ -165,7 +168,7 @@
                         <span class="text-2xl ${config.pulse ? 'animate-pulse' : ''}">${config.icon}</span>
                         <span class="font-bold text-sm uppercase tracking-wide">⚠️ DANGER - CRITICAL ALERT</span>
                     </div>
-                    <button onclick="weatherAlertSystem.hideAlert()" 
+                    <button onclick="window.weatherAlertSystem.hideAlert()" 
                             class="text-white/80 hover:text-white transition-colors"
                             title="Dismiss alert">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -231,13 +234,11 @@
             }
 
             // DANGER alerts persist - user must manually dismiss
-            // No auto-hide for critical conditions
             console.log('⚠️ DANGER alert displayed - requires manual dismissal');
         }
 
         getSafetyRecommendations(alert) {
             const recommendations = {
-                // Temperature alerts
                 'temperature': {
                     'danger': [
                         'Stay indoors in air-conditioned spaces if possible',
@@ -247,8 +248,6 @@
                         'Check on elderly neighbors and vulnerable individuals'
                     ]
                 },
-
-                // Thermal comfort alerts (heat/cold)
                 'thermal_comfort': {
                     'danger': [
                         alert.details?.type === 'heat' ?
@@ -264,8 +263,6 @@
                         'Call emergency services if experiencing severe symptoms'
                     ]
                 },
-
-                // Wind alerts
                 'wind': {
                     'danger': [
                         'Stay indoors and away from windows',
@@ -275,8 +272,6 @@
                         'Stay away from trees and power lines'
                     ]
                 },
-
-                // UV alerts
                 'uv': {
                     'danger': [
                         'Avoid sun exposure between 10 AM and 4 PM',
@@ -286,8 +281,6 @@
                         'Wear UV-blocking sunglasses'
                     ]
                 },
-
-                // Precipitation alerts
                 'precipitation': {
                     'danger': [
                         'Avoid all travel if possible',
@@ -297,8 +290,6 @@
                         'Have emergency supplies ready'
                     ]
                 },
-
-                // Weather condition alerts
                 'weather_condition': {
                     'danger': [
                         'Take shelter immediately',
@@ -308,8 +299,6 @@
                         'Monitor weather updates closely'
                     ]
                 },
-
-                // Visibility alerts
                 'visibility': {
                     'danger': [
                         'Avoid all unnecessary travel',
@@ -319,8 +308,6 @@
                         'Stay indoors if possible'
                     ]
                 },
-
-                // Pressure alerts (potential severe weather)
                 'pressure': {
                     'danger': [
                         'Severe weather possible - stay alert',
@@ -337,7 +324,6 @@
                 return typeRecommendations['danger'];
             }
 
-            // Default critical recommendations
             return [
                 'This is a LIFE-THREATENING weather condition',
                 'Take immediate protective action',
@@ -378,20 +364,25 @@
     }
 
     // Initialize the system
-    let weatherAlertSystem;
+    window.weatherAlertSystem = null;
 
     if (document.readyState === 'loading') {
+        console.log('⏳ Weather Alert System: Waiting for DOMContentLoaded...');
         document.addEventListener('DOMContentLoaded', () => {
-            weatherAlertSystem = new WeatherAlertNotificationSystem();
+            console.log('✅ Weather Alert System: Initializing...');
+            window.weatherAlertSystem = new WeatherAlertNotificationSystem();
+            console.log('✅ Weather Alert System: Ready!', window.weatherAlertSystem);
         });
     } else {
-        weatherAlertSystem = new WeatherAlertNotificationSystem();
+        console.log('✅ Weather Alert System: DOM already loaded, initializing immediately...');
+        window.weatherAlertSystem = new WeatherAlertNotificationSystem();
+        console.log('✅ Weather Alert System: Ready!', window.weatherAlertSystem);
     }
 
     // Clean up on page unload
     window.addEventListener('beforeunload', () => {
-        if (weatherAlertSystem) {
-            weatherAlertSystem.destroy();
+        if (window.weatherAlertSystem) {
+            window.weatherAlertSystem.destroy();
         }
     });
 </script>

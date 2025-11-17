@@ -86,7 +86,8 @@
                             </div>
                             <div class="flex-1 min-w-0">
                                 <p class="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
-                                    {{ Auth::user()->name }}</p>
+                                    {{ Auth::user()->name }}
+                                </p>
                                 <p class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ Auth::user()->email }}</p>
                             </div>
                         </div>
@@ -96,14 +97,14 @@
                     <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto custom-scrollbar">
                         <a href="{{ route('dashboard') }}" @click="sidebarOpen = false"
                             class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors duration-200
-                                        {{ request()->routeIs('dashboard') ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50' }}">
+                                                        {{ request()->routeIs('dashboard') ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50' }}">
                             <span class="text-xl">📊</span>
                             <span>Dashboard</span>
                         </a>
 
                         <a href="{{ route('weather.map') }}" @click="sidebarOpen = false"
                             class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors duration-200
-                                        {{ request()->routeIs('weather.map') ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50' }}">
+                                                        {{ request()->routeIs('weather.map') ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50' }}">
                             <span class="text-xl">🗺️</span>
                             <span>Weather Map</span>
                         </a>
@@ -112,17 +113,25 @@
 
                         <a href="{{ route('profile.show') }}" @click="sidebarOpen = false"
                             class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors duration-200
-                                        {{ request()->routeIs('profile.show') ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50' }}">
+                                                        {{ request()->routeIs('profile.show') ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50' }}">
                             <span class="text-xl">👤</span>
                             <span>My Profile</span>
                         </a>
 
                         <a href="{{ route('profile.edit') }}" @click="sidebarOpen = false"
                             class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors duration-200
-                                        {{ request()->routeIs('profile.edit') ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50' }}">
+                                                        {{ request()->routeIs('profile.edit') ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50' }}">
                             <span class="text-xl">⚙️</span>
                             <span>Settings</span>
                         </a>
+
+                        <hr class="my-3 border-gray-200 dark:border-gray-700">
+
+                        <button id="testAlertBtn" @click="sidebarOpen = false"
+                            class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors duration-200 w-full text-left text-gray-700 dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-orange-900/20 hover:text-orange-700 dark:hover:text-orange-400">
+                            <span class="text-xl">🚨</span>
+                            <span>Test Alert System</span>
+                        </button>
                     </nav>
 
                     <!-- Sidebar Footer -->
@@ -232,8 +241,155 @@
     <!-- Weather Alert Notification Component -->
     @include('components.weather-alert-notification')
 
+    <!-- Fallback: Ensure alert system exists -->
+    <script>
+        // Double-check that the alert container exists
+        if (!document.getElementById('weatherAlertContainer')) {
+            console.warn('⚠️ Weather alert container not found, creating fallback...');
+
+            const container = document.createElement('div');
+            container.id = 'weatherAlertContainer';
+            container.className = 'fixed bottom-4 right-4 z-[9999] max-w-sm w-full pointer-events-none';
+            container.style.display = 'none';
+
+            const card = document.createElement('div');
+            card.id = 'weatherAlertCard';
+            card.className = 'pointer-events-auto transform transition-all duration-500 ease-in-out';
+            card.style.transform = 'translateY(100px)';
+            card.style.opacity = '0';
+
+            const content = document.createElement('div');
+            content.id = 'weatherAlertContent';
+
+            card.appendChild(content);
+            container.appendChild(card);
+            document.body.appendChild(container);
+
+            console.log('✅ Fallback alert container created');
+        }
+
+        // Force initialize if not already done
+        if (!window.weatherAlertSystem) {
+            console.log('🔧 Force initializing Weather Alert System...');
+
+            setTimeout(() => {
+                if (typeof WeatherAlertNotificationSystem !== 'undefined' && !window.weatherAlertSystem) {
+                    window.weatherAlertSystem = new WeatherAlertNotificationSystem();
+                    console.log('✅ Weather Alert System force initialized!');
+                } else if (!window.weatherAlertSystem) {
+                    console.error('❌ WeatherAlertNotificationSystem class not found!');
+                }
+            }, 1000);
+        }
+    </script>
+
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Test Alert Button Handler -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const testAlertBtn = document.getElementById('testAlertBtn');
+
+            if (testAlertBtn) {
+                testAlertBtn.addEventListener('click', function () {
+                    // Show loading notification
+                    const loadingNotification = document.createElement('div');
+                    loadingNotification.id = 'alertTestLoading';
+                    loadingNotification.className = 'fixed top-4 right-4 z-[10001] px-4 py-3 rounded-lg shadow-2xl bg-yellow-500 text-white flex items-center gap-2';
+                    loadingNotification.innerHTML = `
+                        <div class="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                        <span class="text-sm font-medium">Initializing alert system...</span>
+                    `;
+                    document.body.appendChild(loadingNotification);
+
+                    let attempts = 0;
+                    const maxAttempts = 20;
+
+                    const tryTriggerAlert = () => {
+                        attempts++;
+
+                        if (!window.weatherAlertSystem) {
+                            console.warn(`Weather alert system not ready, waiting... (attempt ${attempts}/${maxAttempts})`);
+                            console.log('window.weatherAlertSystem:', window.weatherAlertSystem);
+                            console.log('typeof WeatherAlertNotificationSystem:', typeof WeatherAlertNotificationSystem);
+
+                            if (attempts >= maxAttempts) {
+                                const loading = document.getElementById('alertTestLoading');
+                                if (loading) loading.remove();
+
+                                const errorNotification = document.createElement('div');
+                                errorNotification.className = 'fixed top-4 right-4 z-[10001] px-4 py-3 rounded-lg shadow-2xl bg-red-500 text-white flex items-center gap-2';
+                                errorNotification.innerHTML = `
+                                    <span class="text-xl">❌</span>
+                                    <div>
+                                        <div class="text-sm font-medium">Alert system failed to initialize</div>
+                                        <div class="text-xs opacity-90">Try refreshing the page</div>
+                                    </div>
+                                `;
+                                document.body.appendChild(errorNotification);
+
+                                setTimeout(() => {
+                                    errorNotification.style.opacity = '0';
+                                    errorNotification.style.transform = 'translateX(400px)';
+                                    errorNotification.style.transition = 'all 0.3s ease';
+                                    setTimeout(() => errorNotification.remove(), 300);
+                                }, 5000);
+
+                                return;
+                            }
+
+                            setTimeout(tryTriggerAlert, 500);
+                            return;
+                        }
+
+                        const loading = document.getElementById('alertTestLoading');
+                        if (loading) loading.remove();
+
+                        const dummyAlert = {
+                            type: 'thermal_comfort',
+                            severity: 'danger',
+                            title: 'Extreme Heat Danger',
+                            message: 'Feels like temperature is extremely dangerous at 56.2°C. Heat stroke is imminent. Stay indoors in air conditioning. Avoid all outdoor activities.',
+                            icon: '🔥',
+                            value: 56.2,
+                            unit: '°C',
+                            details: {
+                                actual_temperature: 42.5,
+                                humidity: 78,
+                                wind_speed: 5,
+                                category: 'Extreme Danger',
+                                type: 'heat'
+                            }
+                        };
+
+                        const dummyLocation = 'Test Location - Extreme Conditions';
+
+                        console.log('🧪 Testing weather alert system with dummy data...');
+                        console.log('Using window.weatherAlertSystem:', window.weatherAlertSystem);
+                        window.weatherAlertSystem.showAlert(dummyAlert, dummyLocation);
+
+                        const notification = document.createElement('div');
+                        notification.className = 'fixed top-4 right-4 z-[10001] px-4 py-3 rounded-lg shadow-2xl bg-blue-500 text-white flex items-center gap-2';
+                        notification.innerHTML = `
+                            <span class="text-xl">✅</span>
+                            <span class="text-sm font-medium">Alert system test activated</span>
+                        `;
+                        document.body.appendChild(notification);
+
+                        setTimeout(() => {
+                            notification.style.opacity = '0';
+                            notification.style.transform = 'translateX(400px)';
+                            notification.style.transition = 'all 0.3s ease';
+                            setTimeout(() => notification.remove(), 300);
+                        }, 3000);
+                    };
+
+                    tryTriggerAlert();
+                });
+            }
+        });
+    </script>
 
     @stack('scripts')
 </body>
