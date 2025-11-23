@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use App\Models\Post;
+use App\Notifications\VerifyEmailQueued;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -65,5 +65,10 @@ class User extends Authenticatable implements MustVerifyEmail
     public function getSavedLocations(string $orderBy = 'sort_order')
     {
         return SavedLocation::getUserSavedLocations($this->id, $orderBy);
+    }
+
+    public function sendEmailVerificationNotification(): void
+    {
+        $this->notify(new VerifyEmailQueued);
     }
 }

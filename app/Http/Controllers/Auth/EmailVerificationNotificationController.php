@@ -27,7 +27,7 @@ class EmailVerificationNotificationController extends Controller
             return back()->with('error', "Please wait {$seconds} seconds before requesting another verification email.");
         }
 
-        RateLimiter::hit($key, 120); // 2 minutes = 120 seconds
+        RateLimiter::hit($key, 10); 
 
         $request->user()->sendEmailVerificationNotification();
 
